@@ -1,0 +1,52 @@
+name: Build and publish library
+
+permissions:
+  actions: read
+  contents: write
+  packages: write
+  id-token: write
+
+on:
+  push:
+    branches: ['main']
+env:
+  NPM_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
+
+jobs:
+  build:
+    if: "!contains(github.event.head_commit.message, '[docs]')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: 1.0.6
+      - run: bun install --frozen-lockfile
+      - run: bun run tsc
+      - run: bun run lint
+      - run: bun run build-cli
+      - run: bun run sanity-check
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@navikt'
+      - run: npm publish
+        if: github.ref == 'refs/heads/main'
+        working-directory: ./esyfo-cli
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  increment-version:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+      - name: Setup github connection for auth
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+      - run: jq --arg version "1.0.$(date +%F-%H%M)" '.version = $version' package.json > updated.json && mv updated.json package.json
+        working-directory: ./esyfo-cli
+      - run: git add . && git commit -m "[skip ci] bump version to $(jq -r .version esyfo-cli/package.json)" && git push
