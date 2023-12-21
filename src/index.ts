@@ -1,2 +1,5 @@
 /* eslint-disable no-console */
-console.log('Hello via Bun!')
+
+import { getYargsParser } from './yargs-parser.ts'
+
+await getYargsParser(process.argv).demandCommand().strict().parse()
