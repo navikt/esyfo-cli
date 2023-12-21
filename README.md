@@ -42,6 +42,7 @@ Nå er du klar til å bruke `ecli`!
 <!-- COMPUTER SAYS DON'T TOUCH THIS START -->
 
 * `test` - Dette er esyfos aller første kommando
+* `marius` - Dette er en ny test
 
 <!-- COMPUTER SAYS DON'T TOUCH THIS END -->
 
