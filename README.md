@@ -9,6 +9,15 @@ En liten verktøykasse for #team-esyfo
 -   Du må ha [Node.js](https://nodejs.org/en/) installert, husk å bruk verktøy som nvm eller asdf for å håndtere versjoner.
 -   Du må ha [bun.sh](https://bun.sh) installert, dette kan installeres med curl (`curl -fsSL https://bun.sh/install | bash`)
 
+### Konfigurasjon
+
+Du må ha en `.npmrc` fil på root i home-mappen din med følgende innhold:
+
+```
+@navikt:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${NPM_AUTH_TOKEN}
+```
+
 ### Tilgang
 
 Du må ha en PAT (Personal Access Token) for å kunne laste ned pakker fra Github Package Registry. Denne kan
