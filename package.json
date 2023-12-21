@@ -1,30 +1,33 @@
 {
-  "name": "esyfo-cli",
-  "module": "src/index.ts",
-  "type": "module",
-  "scripts": {
-    "tsc": "bun x tsc",
-    "lint": "bun x eslint src/**/*.ts",
-    "lint-staged": "lint-staged",
-    "build": "bun x rimraf esyfo-cli/bin/ecli && bun run build-cli && bun run sanity-check",
-    "build-cli": "bun run src/build.ts",
-    "sanity-check": "./esyfo-cli/bin/ecli --help",
-    "prepare": "husky install",
-    "postinstall": "bun x prettier package.json --write && echo \"Prettiered package.json\""
-  },
-  "devDependencies": {
-    "bun-types": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5.0.0"
-  },
-  "dependencies": {
-    "@typescript-eslint/eslint-plugin": "^6.15.0",
-    "eslint": "^8.56.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-prettier": "^5.1.0",
-    "husky": "^8.0.3",
-    "lint-staged": "^15.2.0",
-    "prettier": "^3.1.1"
-  }
+    "name": "esyfo-cli",
+    "module": "src/index.ts",
+    "type": "module",
+    "scripts": {
+        "tsc": "bun x tsc",
+        "lint": "bun x eslint src/**/*.ts",
+        "lint-staged": "lint-staged",
+        "build": "bun x rimraf esyfo-cli/bin/ecli && bun run build-cli && bun run sanity-check",
+        "build-cli": "bun run src/build.ts",
+        "sanity-check": "./esyfo-cli/bin/ecli --help",
+        "prepare": "husky install",
+        "postinstall": "bun x prettier package.json --write && echo \"Prettiered package.json\""
+    },
+    "devDependencies": {
+        "bun-types": "latest"
+    },
+    "peerDependencies": {
+        "typescript": "^5.0.0"
+    },
+    "dependencies": {
+        "@navikt/eslint-config-teamsykmelding": "^5.0.0",
+        "@typescript-eslint/eslint-plugin": "^6.15.0",
+        "eslint": "^8.56.0",
+        "husky": "^8.0.3",
+        "lint-staged": "^15.2.0",
+        "prettier": "^3.1.1"
+    },
+    "prettier": "@navikt/eslint-config-teamsykmelding/prettier",
+    "eslintConfig": {
+        "extends": "@navikt/eslint-config-teamsykmelding"
+    }
 }

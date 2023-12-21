@@ -1,1 +1,2 @@
-console.log("Hello via Bun!");
+/* eslint-disable no-console */
+console.log('Hello via Bun!')
