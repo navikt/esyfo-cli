@@ -9,6 +9,17 @@ En liten verktøykasse for #team-esyfo
 -   Du må ha [Node.js](https://nodejs.org/en/) installert, husk å bruk verktøy som nvm eller asdf for å håndtere versjoner.
 -   Du må ha [bun.sh](https://bun.sh) installert, dette kan installeres med curl (`curl -fsSL https://bun.sh/install | bash`)
 
+### Tilgang
+
+Du må ha en PAT (Personal Access Token) for å kunne laste ned pakker fra Github Package Registry. Denne kan
+du lage [her](https://github.com/settings/tokens). Du må gi den `read:packages` scope, bruk PAT typen "classic"
+
+Legg til denne i din `~/.bashrc` eller `~/.zshrc` fil:
+
+```bash
+export NPM_AUTH_TOKEN=<din token>
+```
+
 ### Installer CLI
 
 ```bash
