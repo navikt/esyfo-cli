@@ -12,10 +12,10 @@ export async function verifiserRepoer(patch: boolean) {
     const githubrepos = (await getAllRepos()).map((it) => it.name)
     for (const r of config.repos) {
         log(chalk.blueBright.underline(`\n\nVerifiserer innstillinger for ${r.name}`))
-        await verifiserRepo({ name: r.name, patch: patch })
         if (!githubrepos.includes(r.name)) {
-            log(`Repo ${r.name} finnes ikke på github`)
+            log(`Repo ${r.name} finnes ikke på github eller team-esyfo har ikke tilgang`)
         }
+        await verifiserRepo({ name: r.name, patch: patch })
     }
 
     log('\n\n')
