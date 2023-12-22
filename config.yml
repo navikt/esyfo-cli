@@ -1,0 +1,5 @@
+owner: navikt
+repos:
+  - reponame:
+      - dialogmote-frontend
+      - esyfo-cli
