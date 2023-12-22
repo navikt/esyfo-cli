@@ -15,9 +15,7 @@
         "allowSyntheticDefaultImports": true,
         "forceConsistentCasingInFileNames": true,
         "allowJs": true,
-        "types": [
-            "bun-types" // add Bun global
-        ]
+        "types": ["bun-types"]
     },
-    "include": ["./esyfo-cli/package.json", "src/**/*"]
+    "include": ["./esyfo-cli/package.json", "src/**/*", "scripts/**/*"]
 }

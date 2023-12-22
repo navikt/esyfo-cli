@@ -2,7 +2,6 @@
 
 import path from 'node:path'
 
-// @ts-ignore bun script doesn't like importing src
 import { getYargsParser } from '../src/yargs-parser'
 
 const availableCommands = await Promise.all(
