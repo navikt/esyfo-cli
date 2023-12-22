@@ -6,41 +6,21 @@ import { log } from '../common/log'
 
 import { octokit } from './octokit'
 
-async function sleep(ms: number) {
-    return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
-async function hentEllerLagRepo(r: RepoConfig) {
+async function hentRepo(r: RepoConfig) {
     try {
         return await octokit.request('GET /repos/{owner}/{repo}', {
             owner: config.owner,
             repo: r.name,
         })
     } catch (e: any) {
-        if (r.patch && e.status === 404) {
-            await octokit.request('POST /orgs/{org}/repos', {
-                org: config.owner,
-                name: r.name,
-                private: false,
-                auto_init: true,
-                default_branch: 'main',
-                visibility: 'public',
-            })
-            await sleep(4000)
-
-            return await octokit.request('GET /repos/{owner}/{repo}', {
-                owner: config.owner,
-                repo: r.name,
-            })
-        } else {
-            throw e
-        }
+        log(chalk.red(`Repo ${r.name} finnes ikke`))
+        process.exit(1)
     }
 }
 
 export async function verifiserRepo(r: RepoConfig) {
     log(chalk.green('\n\nVerifiserer repo ' + r.name))
-    const repo = await hentEllerLagRepo(r)
+    const repo = await hentRepo(r)
 
     let ok = true
 

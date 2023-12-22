@@ -3,7 +3,7 @@
 import yargs, { Argv } from 'yargs'
 import { hideBin } from 'yargs/helpers'
 
-import { verifiserRepoer, verifiserRepoet } from './actions/verifiser.ts'
+import { verifiserRepoer, verifiserRepoet } from './actions/verifiser'
 
 export const getYargsParser = (argv: string[]): Argv =>
     yargs(hideBin(argv))
