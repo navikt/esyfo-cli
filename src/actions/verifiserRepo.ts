@@ -1,4 +1,5 @@
 import chalk from 'chalk'
+import { OctokitResponse } from '@octokit/types'
 
 import { config, skipEnforceAdmin } from '../config/config'
 import { RepoConfig } from '../config/types'
@@ -19,7 +20,7 @@ async function hentRepo(r: RepoConfig) {
 }
 
 export async function verifiserRepo(r: RepoConfig) {
-    log(chalk.green('\n\nVerifiserer repo ' + r.name))
+    log('\n\n* Verifiserer repo-instillinger *')
     const repo = await hentRepo(r)
 
     let ok = true
@@ -27,7 +28,7 @@ export async function verifiserRepo(r: RepoConfig) {
     function verifiser(key: string, forventet: any) {
         if ((repo.data as any)[key] !== forventet) {
             ok = false
-            log(`${repo.data.full_name} ${key} != ${forventet}`)
+            log(`${repo.data.full_name} ${key} har ikke forventet verdi: ${forventet}`)
         }
     }
 
@@ -42,19 +43,13 @@ export async function verifiserRepo(r: RepoConfig) {
     verifiser('has_projects', false)
     verifiser('has_wiki', false)
 
-    if (!(repo.data.topics as string[]).includes('team-esyfo')) {
-        log(`${repo.data.full_name} mangler team-esyfo topic i ${repo.data.topics}`)
+    if (ok) {
+        log(chalk.green(`Repo-instillinger er ok`))
+    } else {
+        const foreslaaPatch = !r.patch ? ` Kjør med -p flagg for å fikse.` : ``
+        log(chalk.red(`Repo ${r.name} har feil oppsett. ${foreslaaPatch}`))
         if (r.patch) {
-            await octokit.request('PUT /repos/{owner}/{repo}/topics', {
-                owner: config.owner,
-                repo: r.name,
-                names: ['team-esyfo'],
-            } as any)
-        }
-    }
-    if (!ok) {
-        if (r.patch) {
-            log(`Oppdaterer repo innstillinger for ${r.name}`)
+            log(chalk.cyan(`Fikser repo-innstillinger for ${r.name}`))
 
             await octokit.request('PATCH /repos/{owner}/{repo}', {
                 owner: config.owner,
@@ -69,17 +64,35 @@ export async function verifiserRepo(r: RepoConfig) {
                 has_projects: false,
                 has_wiki: false,
             })
-        } else {
-            log(chalk.red(`Repo ${r.name} har feil oppsett`))
         }
     }
-    await verifiserDefaultBranchProtection(r, repo.data.default_branch)
 
+    await verifiserTopic(r, repo)
+    await verifiserDefaultBranchProtection(r, repo.data.default_branch)
     await verifiserAdminTeams(r)
 }
 
+async function verifiserTopic(r: RepoConfig, repo: OctokitResponse<any>) {
+    log('* Verfiserer topic *')
+
+    if ((repo.data.topics as string[]).includes('team-esyfo')) {
+        log(chalk.green('Topic-innstillinger er ok'))
+    } else {
+        const foreslaaPatch = !r.patch ? ` Kjør med -p flagg for å fikse.` : ``
+        log(chalk.red(`${repo.data.full_name} mangler team-esyfo topic. ${foreslaaPatch}`))
+        if (r.patch) {
+            log(chalk.cyan('Legger til team-esyfo topic'))
+            await octokit.request('PUT /repos/{owner}/{repo}/topics', {
+                owner: config.owner,
+                repo: r.name,
+                names: ['team-esyfo'],
+            } as any)
+        }
+    }
+}
+
 async function verifiserAdminTeams(r: RepoConfig) {
-    log(chalk.green('Verifiserer admin teams'))
+    log('* Verifiserer admin teams *')
     const repoTeams = await octokit.request('GET /repos/{owner}/{repo}/teams', {
         owner: config.owner,
         repo: r.name,
@@ -90,15 +103,20 @@ async function verifiserAdminTeams(r: RepoConfig) {
     const aksepterteTeams = ['team-esyfo']
     for (const team of adminTeams) {
         if (!aksepterteTeams.includes(team)) {
-            log(chalk.red(`Team ${team} har admin tilgang til ${r.name}`))
+            log(chalk.red(`Team ${team} har admin tilgang til ${r.name}. Du må fjerne dem i GitHub manuelt`))
             process.exit(1)
         }
     }
 
-    if (r.patch) {
-        for (const team of aksepterteTeams) {
-            if (!adminTeams.includes(team) && r.patch) {
-                log('Gir admin tilgang til team: ' + team + ' for repo: ' + r.name + '')
+    let ok = true
+
+    for (const team of aksepterteTeams) {
+        if (!adminTeams.includes(team)) {
+            const foreslaaPatch = !r.patch ? ` Kjør med -p flagg for å fikse.` : ``
+            log(chalk.red(`Team ${team} har ikke admin-tilgang. ${foreslaaPatch}`))
+            ok = false
+            if (r.patch) {
+                log(chalk.cyan('Gir admin tilgang til team: ' + team + ' for repo: ' + r.name + ''))
                 await octokit.request('PUT /orgs/{org}/teams/{team_slug}/repos/{owner}/{repo}', {
                     org: config.owner,
                     team_slug: team,
@@ -109,11 +127,16 @@ async function verifiserAdminTeams(r: RepoConfig) {
             }
         }
     }
+
+    if (ok) {
+        log(chalk.green('Admin team-innstillinger er ok'))
+    }
 }
 
 async function verifiserDefaultBranchProtection(repo: RepoConfig, branch: string): Promise<void> {
-    log(chalk.green('Verifiserer branch protection rules'))
+    log('* Verifiserer branch protection rules *')
 
+    let ok = true
     try {
         const branchProtection = await octokit.request('GET /repos/{owner}/{repo}/branches/{branch}/protection', {
             owner: config.owner,
@@ -121,13 +144,14 @@ async function verifiserDefaultBranchProtection(repo: RepoConfig, branch: string
             branch,
         })
 
-        let ok = true
-
         function verifiser(key: string, subKey: string, forventet: any) {
             const value = (branchProtection.data as any)[key]
-            if (value[subKey] !== forventet) {
+            if (value == null) {
                 ok = false
-                log(`${key}.${subKey} != ${forventet}`)
+                log(`${key} er ikke satt`)
+            } else if (value[subKey] !== forventet) {
+                ok = false
+                log(`${key}.${subKey} har ikke forventet verdi: ${forventet}`)
             }
         }
 
@@ -135,7 +159,7 @@ async function verifiserDefaultBranchProtection(repo: RepoConfig, branch: string
             const value = (branchProtection.data as any)[key]
             if (value != null) {
                 ok = false
-                log(`${key} != null`)
+                log(`${key} skal ikke være satt`)
             }
         }
 
@@ -151,13 +175,20 @@ async function verifiserDefaultBranchProtection(repo: RepoConfig, branch: string
         verifiser('allow_deletions', 'enabled', false)
         verifiser('required_conversation_resolution', 'enabled', true)
 
-        if (!ok) log(chalk.red(`Repo ${repo.name} har feil branch protection`))
+        if (ok) {
+            log(chalk.green('Branch protection-innstillinger er ok'))
+        } else {
+            const foreslaaPatch = !repo.patch ? ` Kjør med -p flagg for å fikse.` : ``
+            log(chalk.red(`Repo ${repo.name} har feil branch protection. ${foreslaaPatch}`))
+        }
     } catch (e) {
-        log(chalk.red('Repo har ikke satt opp branch protection', e))
+        const foreslaaPatch = !repo.patch ? ` Kjør med -p flagg for å fikse.` : ``
+        log(chalk.red(`Repo har ikke satt opp branch protection. ${foreslaaPatch}`, e))
     }
 
     try {
-        if (repo.patch) {
+        if (repo.patch && !ok) {
+            log(chalk.cyan('Fikser branch protection-innstillinger'))
             await octokit.request('PUT /repos/{owner}/{repo}/branches/{branch}/protection', {
                 owner: config.owner,
                 repo: repo.name,

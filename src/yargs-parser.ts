@@ -4,14 +4,16 @@ import yargs, { Argv } from 'yargs'
 import { hideBin } from 'yargs/helpers'
 
 import { verifiserRepoer, verifiserRepoet } from './actions/verifiser'
+import { printLogo } from './actions/logo'
 
 export const getYargsParser = (argv: string[]): Argv =>
     yargs(hideBin(argv))
         .scriptName('ecli')
+        .middleware(() => printLogo())
         .command('test', 'Dette er esyfos aller første kommando', async () => await console.log('Hello via Bun!'))
         .command(
             'verifiser',
-            'Verifiserer at repo har riktig innstillinger',
+            'Verifiserer at repo har riktig innstillinger i GitHub',
             (yargs) =>
                 yargs
                     .option('repo', {
