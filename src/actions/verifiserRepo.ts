@@ -4,12 +4,11 @@ import { OctokitResponse } from '@octokit/types'
 import { config, skipEnforceAdmin } from '../config/config'
 import { RepoConfig } from '../config/types'
 import { log } from '../common/log'
-
-import { octokit } from './octokit'
+import { getOctokitClient } from '../common/octokit.ts'
 
 async function hentRepo(r: RepoConfig) {
     try {
-        return await octokit.request('GET /repos/{owner}/{repo}', {
+        return await getOctokitClient().request('GET /repos/{owner}/{repo}', {
             owner: config.owner,
             repo: r.name,
         })
@@ -51,7 +50,7 @@ export async function verifiserRepo(r: RepoConfig) {
         if (r.patch) {
             log(chalk.cyan(`Fikser repo-innstillinger for ${r.name}`))
 
-            await octokit.request('PATCH /repos/{owner}/{repo}', {
+            await getOctokitClient().request('PATCH /repos/{owner}/{repo}', {
                 owner: config.owner,
                 repo: r.name,
                 allow_auto_merge: true,
@@ -82,7 +81,7 @@ async function verifiserTopic(r: RepoConfig, repo: OctokitResponse<any>) {
         log(chalk.red(`${repo.data.full_name} mangler team-esyfo topic. ${foreslaaPatch}`))
         if (r.patch) {
             log(chalk.cyan('Legger til team-esyfo topic'))
-            await octokit.request('PUT /repos/{owner}/{repo}/topics', {
+            await getOctokitClient().request('PUT /repos/{owner}/{repo}/topics', {
                 owner: config.owner,
                 repo: r.name,
                 names: ['team-esyfo'],
@@ -93,7 +92,7 @@ async function verifiserTopic(r: RepoConfig, repo: OctokitResponse<any>) {
 
 async function verifiserAdminTeams(r: RepoConfig) {
     log('* Verifiserer admin teams *')
-    const repoTeams = await octokit.request('GET /repos/{owner}/{repo}/teams', {
+    const repoTeams = await getOctokitClient().request('GET /repos/{owner}/{repo}/teams', {
         owner: config.owner,
         repo: r.name,
     })
@@ -117,7 +116,7 @@ async function verifiserAdminTeams(r: RepoConfig) {
             ok = false
             if (r.patch) {
                 log(chalk.cyan('Gir admin tilgang til team: ' + team + ' for repo: ' + r.name + ''))
-                await octokit.request('PUT /orgs/{org}/teams/{team_slug}/repos/{owner}/{repo}', {
+                await getOctokitClient().request('PUT /orgs/{org}/teams/{team_slug}/repos/{owner}/{repo}', {
                     org: config.owner,
                     team_slug: team,
                     owner: config.owner,
@@ -138,11 +137,14 @@ async function verifiserDefaultBranchProtection(repo: RepoConfig, branch: string
 
     let ok = true
     try {
-        const branchProtection = await octokit.request('GET /repos/{owner}/{repo}/branches/{branch}/protection', {
-            owner: config.owner,
-            repo: repo.name,
-            branch,
-        })
+        const branchProtection = await getOctokitClient().request(
+            'GET /repos/{owner}/{repo}/branches/{branch}/protection',
+            {
+                owner: config.owner,
+                repo: repo.name,
+                branch,
+            },
+        )
 
         function verifiser(key: string, subKey: string, forventet: any) {
             const value = (branchProtection.data as any)[key]
@@ -190,7 +192,7 @@ async function verifiserDefaultBranchProtection(repo: RepoConfig, branch: string
     try {
         if (repo.patch && !ok) {
             log(chalk.cyan('Fikser branch protection-innstillinger'))
-            await octokit.request('PUT /repos/{owner}/{repo}/branches/{branch}/protection', {
+            await getOctokitClient().request('PUT /repos/{owner}/{repo}/branches/{branch}/protection', {
                 owner: config.owner,
                 repo: repo.name,
                 branch,

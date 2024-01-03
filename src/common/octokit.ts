@@ -25,7 +25,7 @@ export async function ghGqlQuery<Result = never>(
     return getOctokitClient().graphql<GraphQLResponse<Result>>(query, variables)
 }
 
-function getGithubCliToken(): string {
+export function getGithubCliToken(): string {
     const subProcess = Bun.spawnSync('gh auth status --show-token'.split(' '))
     const stdout = subProcess.stdout.toString()
     const stderr = subProcess.stderr.toString()
