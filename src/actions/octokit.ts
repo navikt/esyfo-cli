@@ -1,6 +1,6 @@
 import { Octokit } from '@octokit/rest'
 
-import { getGithubCliToken } from '../common/githubToken.ts'
+import { getGithubCliToken } from '../common/octokit.ts'
 
 export const octokit = new Octokit({
     auth: getGithubCliToken(),
