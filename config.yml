@@ -1,0 +1,9 @@
+owner: navikt
+repos:
+  - reponame:
+      - esyfo-cli
+  - reponame:
+      - dialogmote-frontend
+    checks:
+      - next-app / Build for dev
+      - next-app / Test and lint
