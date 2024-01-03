@@ -149,7 +149,7 @@ async function verifiserDefaultBranchProtection(repo: RepoConfig, branch: string
             if (value == null) {
                 ok = false
                 log(`${key} er ikke satt`)
-            } else if (value[subKey] !== forventet) {
+            } else if (value[subKey].toString() !== forventet.toString()) {
                 ok = false
                 log(`${key}.${subKey} har ikke forventet verdi: ${forventet}`)
             }
@@ -165,6 +165,7 @@ async function verifiserDefaultBranchProtection(repo: RepoConfig, branch: string
 
         //mangler checks
         verifiser('required_status_checks', 'strict', false)
+        verifiser('required_status_checks', 'contexts', repo.checks || [])
         verifiser('enforce_admins', 'enabled', !skipEnforceAdmin.includes(repo.name))
         verifiser('required_pull_request_reviews', 'dismiss_stale_reviews', false)
         verifiser('required_pull_request_reviews', 'require_code_owner_reviews', false)

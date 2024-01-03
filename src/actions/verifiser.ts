@@ -15,7 +15,7 @@ export async function verifiserRepoer(patch: boolean) {
         if (!githubrepos.includes(r.name)) {
             log(`Repo ${r.name} finnes ikke på github eller team-esyfo har ikke tilgang`)
         }
-        await verifiserRepo({ name: r.name, patch: patch })
+        await verifiserRepo({ name: r.name, patch: patch, checks: r.checks })
     }
 
     log('\n\n')
@@ -32,7 +32,8 @@ export async function verifiserRepoer(patch: boolean) {
 export async function verifiserRepoet(repo: string, patch: boolean) {
     log(chalk.blueBright.underline(`\n\nVerifiserer innstillinger for ${repo}`))
 
-    await verifiserRepo({ name: repo, patch })
+    const repoConfig = config.repos.find((value) => value.name == repo)
+    await verifiserRepo({ name: repo, patch: patch, checks: repoConfig?.checks })
 
     log('\n\nFerdig')
 }
