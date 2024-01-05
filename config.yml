@@ -4,6 +4,7 @@ repos:
       - esyfo-cli
   - reponame:
       - dialogmote-frontend
+      - meroppfolging-frontend
     checks:
       - next-app / Build for dev
       - next-app / Test and lint

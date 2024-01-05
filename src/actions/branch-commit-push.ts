@@ -4,8 +4,9 @@ import prompts from 'prompts'
 
 import { config } from '../config/config'
 import { log } from '../common/log.ts'
+import { GIT_CACHE_DIR } from '../common/cache.ts'
 
-export async function branchCommitPush() {
+export async function branchCommitPush(cache: boolean = false) {
     const commit = await prompts([
         {
             type: 'text',
@@ -32,19 +33,28 @@ export async function branchCommitPush() {
         branchNavn.branch,
         commit.melding,
         config.repos.map((it) => it.name),
+        cache,
     )
 }
 
-export async function branchCommitPushAuto(branchNavn: string, commitmelding: string, repoer: string[]) {
+export async function branchCommitPushAuto(
+    branchNavn: string,
+    commitmelding: string,
+    repoer: string[],
+    cache: boolean = false,
+) {
     const repoerMedEndringer: string[] = []
     for (const r of repoer) {
-        if (r == 'flex-cli') {
+        log(r)
+        if (r == 'esyfo-cli') {
             // skipper dette repoet
         } else {
             let endringer = false
+            const cwd = cache ? `${GIT_CACHE_DIR}/${r}` : `../${r}`
+            log(cwd)
             try {
                 execSync('git diff-index --quiet HEAD', {
-                    cwd: `../${r}`,
+                    cwd: cwd,
                 })
             } catch (e: any) {
                 endringer = true
@@ -52,16 +62,16 @@ export async function branchCommitPushAuto(branchNavn: string, commitmelding: st
             if (endringer) {
                 log('Fant endringer i ' + r)
                 execSync(`git checkout -b ${branchNavn}`, {
-                    cwd: `../${r}`,
+                    cwd: cwd,
                 })
                 execSync('git add .', {
-                    cwd: `../${r}`,
+                    cwd: cwd,
                 })
                 execSync(`git commit -m "${commitmelding}"`, {
-                    cwd: `../${r}`,
+                    cwd: cwd,
                 })
                 execSync(`git push --set-upstream origin ${branchNavn}`, {
-                    cwd: `../${r}`,
+                    cwd: cwd,
                 })
                 repoerMedEndringer.push(r)
             } else {
@@ -91,11 +101,16 @@ export async function branchCommitPushAuto(branchNavn: string, commitmelding: st
         return new Promise((resolve) => setTimeout(resolve, ms))
     }
 
-    async function lagPR(repo: string) {
+    async function lagPR(repo: string, cache: boolean = false) {
         try {
             log('Lager PR for ' + repo)
-            execSync(`gh pr create --title "${commitmelding}" --body "Fra flex-cli"`, {
-                cwd: `../${repo}`,
+            const cwd = cache ? `${GIT_CACHE_DIR}/${repo}` : `../${repo}`
+            execSync(`gh pr create --title "${commitmelding}" --body "Fra esyfo-cli"`, {
+                cwd: cwd,
+            })
+
+            execSync(`git checkout main`, {
+                cwd: cwd,
             })
         } catch (e: any) {
             log('retry om 10 sekunder')
@@ -105,7 +120,7 @@ export async function branchCommitPushAuto(branchNavn: string, commitmelding: st
     }
 
     for (const r of repoerMedEndringer) {
-        await lagPR(r)
+        await lagPR(r, cache)
     }
 
     const automerge = await prompts([
@@ -125,8 +140,9 @@ export async function branchCommitPushAuto(branchNavn: string, commitmelding: st
     async function automergePr(r: string) {
         try {
             log('Automerger PR for ' + r)
+            const cwd = cache ? `${GIT_CACHE_DIR}/${r}` : `../${r}`
             execSync('gh pr merge --auto -s', {
-                cwd: `../${r}`,
+                cwd: cwd,
             })
         } catch (e: any) {
             log('retry om 10 sekunder')
