@@ -2,7 +2,6 @@ import path from 'node:path'
 
 import * as R from 'remeda'
 import chalk from 'chalk'
-import { PushResult } from 'simple-git'
 
 import {
     BaseRepoNode,
@@ -15,6 +14,8 @@ import { log } from '../common/log.ts'
 import { Gitter } from '../common/git.ts'
 import inquirer, { hackilyFixBackToBackPrompt } from '../common/inquirer.ts'
 import { GIT_CACHE_DIR } from '../common/cache.ts'
+
+import { branchCommitPush } from './branch-commit-push.ts'
 
 const reposQuery = /* GraphQL */ `
     query ($team: String!) {
@@ -132,26 +133,20 @@ export async function syncFileAcrossRepos(query: string): Promise<void> {
 
     // Step 4, writing commit message
     await hackilyFixBackToBackPrompt()
-    const commitMessage = await inquirer.prompt<{ message: string }>({
-        type: 'input',
-        name: 'message',
-        message: 'Commit message for sync commits',
-    })
 
     log(`The file "${chalk.yellow(fileToSync)}" will be synced across the following repos:`)
     log(targetRepos.map((it) => ` - ${it.name}`).join('\n'))
-    log(`The commit message will be "${chalk.yellow(commitMessage.message)}"`)
 
     // Step 5, confirm
     await hackilyFixBackToBackPrompt()
     const confirmResult = await inquirer.prompt({
         name: 'confirm',
         type: 'confirm',
-        message: `Do you want to continue? This will create ${otherRepos.length} commits, one for each repo.`,
+        message: `Do you want to continue? This will create ${targetRepos.length} commits, one for each repo.`,
     })
 
     if (confirmResult.confirm) {
-        await copyFileToRepos(sourceRepo.source, targetRepos, fileToSync, commitMessage.message)
+        await copyFileToRepos(sourceRepo.source, targetRepos, fileToSync)
     } else {
         log(chalk.red('Aborting!'))
     }
@@ -180,7 +175,6 @@ async function copyFileToRepos(
     sourceRepo: string,
     targetRepos: { name: string; url: string }[],
     fileToSync: string,
-    message: string,
 ): Promise<void> {
     const gitter = new Gitter('cache')
     const sourceFile = Bun.file(path.join(GIT_CACHE_DIR, sourceRepo, fileToSync))
@@ -191,15 +185,11 @@ async function copyFileToRepos(
             const targetFile = Bun.file(path.join(GIT_CACHE_DIR, it.name, fileToSync))
             await Bun.write(targetFile, sourceFile)
 
-            const branchName = `esyfo-cli-${Math.round(Math.random() * 1000)}`
-            const pushResult: PushResult = await gitter
-                .createRepoGitClient(it.name)
-                .checkoutLocalBranch(branchName)
-                .add(fileToSync)
-                .commit(message)
-                .push(['--set-upstream', 'origin', branchName])
+            log(`${chalk.green(`Copied file to repo ${it.name}`)}`)
 
-            log(`${chalk.green(`Pushed to repo ${pushResult.repo}`)} - ${it.url}`)
+            await gitter.createRepoGitClient(it.name).add(fileToSync)
         }),
     )
+
+    await branchCommitPush(true)
 }
