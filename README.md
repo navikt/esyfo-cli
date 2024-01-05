@@ -44,6 +44,7 @@ Nå er du klar til å bruke `ecli`!
 * `test` - Dette er esyfos aller første kommando
 * `verifiser` - Verifiserer at repo har riktig innstillinger i GitHub
 * `sync-file` - sync a file across specified repos
+* `bcp` - Brancher, committer, pusher og lager pullrequest for lokale endringer i alle repoene som er på disk
 
 <!-- COMPUTER SAYS DON'T TOUCH THIS END -->
 
