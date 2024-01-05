@@ -5,6 +5,7 @@ import { hideBin } from 'yargs/helpers'
 
 import { verifiserRepoer, verifiserRepoet } from './actions/verifiser'
 import { printLogo } from './actions/logo'
+import { syncFileAcrossRepos } from './actions/sync-file.ts'
 
 export const getYargsParser = (argv: string[]): Argv =>
     yargs(hideBin(argv))
@@ -42,4 +43,15 @@ export const getYargsParser = (argv: string[]): Argv =>
                     }),
             (argv) =>
                 argv.all ? verifiserRepoer(!!argv.patch) : verifiserRepoet(argv.repo ? argv.repo : '', !!argv.patch),
+        )
+        .command(
+            'sync-file <query>',
+            'sync a file across specified repos',
+            (yargs) =>
+                yargs.positional('query', {
+                    type: 'string',
+                    demandOption: true,
+                    describe: 'execute this bash command in all repos and return all repos that give the error code 0',
+                }),
+            async (args) => syncFileAcrossRepos(args.query),
         )
