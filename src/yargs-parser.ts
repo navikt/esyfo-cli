@@ -5,6 +5,7 @@ import { hideBin } from 'yargs/helpers'
 
 import { verifiserRepoer, verifiserRepoet } from './actions/verifiser'
 import { printLogo } from './actions/logo'
+import { openPrs } from './actions/prs'
 
 export const getYargsParser = (argv: string[]): Argv =>
     yargs(hideBin(argv))
@@ -42,4 +43,13 @@ export const getYargsParser = (argv: string[]): Argv =>
                     }),
             (argv) =>
                 argv.all ? verifiserRepoer(!!argv.patch) : verifiserRepoet(argv.repo ? argv.repo : '', !!argv.patch),
+        )
+        .command(
+            'prs',
+            'get all open pull requests',
+            (yargs) =>
+                yargs
+                    .option('skip-bots', { type: 'boolean', alias: 'b', describe: "don't include bot pull requests" })
+                    .positional('drafts', { type: 'boolean', default: false, describe: 'include draft pull requests' }),
+            async (args) => openPrs(args.drafts, args.skipBots ?? false),
         )
