@@ -89,7 +89,7 @@ async function getTargetRepos<Repo extends { name: string }>(otherRepos: Repo[])
     }
 }
 
-export async function syncFileAcrossRepos(query: string): Promise<void> {
+export async function syncFilesAcrossRepos(query: string): Promise<void> {
     if (!query) throw new Error('Missing query')
 
     const repos = await cloneAllRepos()
@@ -104,7 +104,7 @@ export async function syncFileAcrossRepos(query: string): Promise<void> {
     log(
         `\n Welcome to ${chalk.red(
             'Interactive File Sync',
-        )}! \n\n We will pick a file from one repo and copy it to other repos. \n\n The steps are: \n   1. Select source repo \n   2. Select file to sync \n   3. Select target repos \n   4. Confirm \n   5. Write commit message \n   6. Select branch name \n   7. Choose to create PR \n   8. Choose to automerge PR \n\n`,
+        )}! \n\n We will pick a file from one repo and copy it to other repos. \n\n The steps are: \n   1. Select source repo \n   2. Select files to sync \n   3. Select target repos \n   4. Confirm \n   5. Write commit message \n   6. Select branch name \n   7. Choose to create PR \n   8. Choose to automerge PR \n\n`,
     )
 
     log(`! Your query ${chalk.yellow(query)} matched ${chalk.green(relevantRepos.length)} repos:`)
