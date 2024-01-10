@@ -7,13 +7,11 @@ import { verifiserRepoer, verifiserRepoet } from './actions/verifiser'
 import { printLogo } from './actions/logo'
 import { openPrs } from './actions/prs'
 import { syncFileAcrossRepos } from './actions/sync-file.ts'
-import { branchCommitPush } from './actions/branch-commit-push.ts'
 
 export const getYargsParser = (argv: string[]): Argv =>
     yargs(hideBin(argv))
         .scriptName('ecli')
         .middleware(() => printLogo())
-        .command('test', 'Dette er esyfos aller første kommando', async () => await console.log('Hello via Bun!'))
         .command(
             'verifiser',
             'Verifiserer at repo har riktig innstillinger i GitHub',
@@ -65,9 +63,4 @@ export const getYargsParser = (argv: string[]): Argv =>
                     describe: 'execute this bash command in all repos and return all repos that give the error code 0',
                 }),
             async (args) => syncFileAcrossRepos(args.query),
-        )
-        .command(
-            'bcp',
-            'Brancher, committer, pusher og lager pullrequest for lokale endringer i alle repoene som er på disk',
-            async () => await branchCommitPush(),
         )

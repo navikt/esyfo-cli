@@ -104,7 +104,7 @@ export async function syncFileAcrossRepos(query: string): Promise<void> {
     log(
         `\n Welcome to ${chalk.red(
             'Interactive File Sync',
-        )}! \n\n We will pick a file from one repo and copy it to other repos. \n\n The steps are: \n   1. Select source repo \n   2. Select file to sync \n   3. Select target repos \n   4. Write commit message \n   5. Confirm \n\n`,
+        )}! \n\n We will pick a file from one repo and copy it to other repos. \n\n The steps are: \n   1. Select source repo \n   2. Select file to sync \n   3. Select target repos \n   4. Confirm \n   5. Write commit message \n   6. Select branch name \n   7. Choose to create PR \n   8. Choose to automerge PR \n\n`,
     )
 
     log(`! Your query ${chalk.yellow(query)} matched ${chalk.green(relevantRepos.length)} repos:`)
@@ -121,20 +121,19 @@ export async function syncFileAcrossRepos(query: string): Promise<void> {
                     .map((it) => ({ name: it.name, value: it.name })),
         },
     ])
-
-    // Step 2, selecting a valid file in the source repo
-    await hackilyFixBackToBackPrompt()
-    const fileToSync = await getValidFileInSource(sourceRepo.source)
+    const filesToSync = []
+    // Step 2, selecting valid files in the source repo
+    do {
+        await hackilyFixBackToBackPrompt()
+        filesToSync.push(await getValidFileInSource(sourceRepo.source))
+    } while (await addMoreFilesCheck(sourceRepo.source))
 
     // Step 3, selecting target repos
     await hackilyFixBackToBackPrompt()
     const otherRepos = relevantRepos.filter((it) => it.name !== sourceRepo.source)
     const targetRepos = await getTargetRepos(otherRepos)
 
-    // Step 4, writing commit message
-    await hackilyFixBackToBackPrompt()
-
-    log(`The file "${chalk.yellow(fileToSync)}" will be synced across the following repos:`)
+    log(`The files "${chalk.yellow(filesToSync)}" will be synced across the following repos:`)
     log(targetRepos.map((it) => ` - ${it.name}`).join('\n'))
 
     // Step 5, confirm
@@ -146,7 +145,7 @@ export async function syncFileAcrossRepos(query: string): Promise<void> {
     })
 
     if (confirmResult.confirm) {
-        await copyFileToRepos(sourceRepo.source, targetRepos, fileToSync)
+        await copyFilesToRepos(sourceRepo.source, targetRepos, filesToSync)
     } else {
         log(chalk.red('Aborting!'))
     }
@@ -171,25 +170,36 @@ async function getValidFileInSource(sourceRepo: string, initialValue?: string): 
     return getValidFileInSource(sourceRepo, file.file)
 }
 
-async function copyFileToRepos(
+async function addMoreFilesCheck(sourceRepo: string): Promise<boolean> {
+    const check = await inquirer.prompt<{ confirm: boolean }>({
+        type: 'confirm',
+        name: 'confirm',
+        message: `Do you want to sync additional files from ${sourceRepo}?`,
+    })
+
+    return check.confirm
+}
+
+async function copyFilesToRepos(
     sourceRepo: string,
     targetRepos: { name: string; url: string }[],
-    fileToSync: string,
+    filesToSync: string[],
 ): Promise<void> {
     const gitter = new Gitter('cache')
-    const sourceFile = Bun.file(path.join(GIT_CACHE_DIR, sourceRepo, fileToSync))
 
-    await Promise.all(
-        targetRepos.map(async (it) => {
-            log(`Copying ${chalk.yellow(`${it.name}/${fileToSync}`)} from ${chalk.yellow(sourceRepo)}`)
-            const targetFile = Bun.file(path.join(GIT_CACHE_DIR, it.name, fileToSync))
-            await Bun.write(targetFile, sourceFile)
+    filesToSync.forEach((file) => {
+        const sourceFile = Bun.file(path.join(GIT_CACHE_DIR, sourceRepo, file))
+
+        targetRepos.map((it) => {
+            log(`Copying ${chalk.yellow(`${it.name}/${file}`)} from ${chalk.yellow(sourceRepo)}`)
+            const targetFile = Bun.file(path.join(GIT_CACHE_DIR, it.name, file))
+            Bun.write(targetFile, sourceFile)
 
             log(`${chalk.green(`Copied file to repo ${it.name}`)}`)
 
-            await gitter.createRepoGitClient(it.name).add(fileToSync)
-        }),
-    )
+            gitter.createRepoGitClient(it.name).add(file)
+        })
+    })
 
     await branchCommitPush(true)
 }

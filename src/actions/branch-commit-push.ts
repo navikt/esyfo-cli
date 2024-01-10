@@ -11,7 +11,7 @@ export async function branchCommitPush(cache: boolean = false) {
         {
             type: 'text',
             name: 'melding',
-            message: 'Hvilken commit melding vil du gi?',
+            message: 'What should commit message be?',
         },
     ])
 
@@ -22,7 +22,7 @@ export async function branchCommitPush(cache: boolean = false) {
         {
             type: 'text',
             name: 'branch',
-            message: 'Hva skal branchnavnet være?',
+            message: 'What branch name do you want to use?',
         },
     ])
 
@@ -60,7 +60,7 @@ export async function branchCommitPushAuto(
                 endringer = true
             }
             if (endringer) {
-                log('Fant endringer i ' + r)
+                log('Found changes in ' + r)
                 execSync(`git checkout -b ${branchNavn}`, {
                     cwd: cwd,
                 })
@@ -75,13 +75,13 @@ export async function branchCommitPushAuto(
                 })
                 repoerMedEndringer.push(r)
             } else {
-                log('Fant ingen endringer i ' + r)
+                log('Didnt find any changes in ' + r)
             }
         }
     }
 
     if (repoerMedEndringer.length == 0) {
-        log('Ingen endringer å lage PR for')
+        log('No changes to make PR of')
         process.exit(1)
     }
 
@@ -89,7 +89,7 @@ export async function branchCommitPushAuto(
         {
             type: 'confirm',
             name: 'ok',
-            message: `Vil du lage PR for endringene i ${repoerMedEndringer.join(', ')}?`,
+            message: `Do you want to create a Pull Request for the changes in ${repoerMedEndringer.join(', ')}?`,
         },
     ])
 
@@ -103,7 +103,7 @@ export async function branchCommitPushAuto(
 
     async function lagPR(repo: string, cache: boolean = false) {
         try {
-            log('Lager PR for ' + repo)
+            log('Creating Pull Request for ' + repo)
             const cwd = cache ? `${GIT_CACHE_DIR}/${repo}` : `../${repo}`
             execSync(`gh pr create --title "${commitmelding}" --body "Fra esyfo-cli"`, {
                 cwd: cwd,
@@ -113,7 +113,7 @@ export async function branchCommitPushAuto(
                 cwd: cwd,
             })
         } catch (e: any) {
-            log('retry om 10 sekunder')
+            log('retry in 10 seconds')
             await sleep(10000)
             await lagPR(repo)
         }
@@ -127,9 +127,9 @@ export async function branchCommitPushAuto(
         {
             type: 'confirm',
             name: 'ok',
-            message: `Vil du automerge endringene i ${repoerMedEndringer.join(
+            message: `Do you want to automatically merge the changes in ${repoerMedEndringer.join(
                 ', ',
-            )} til master slik at det går i produksjon?`,
+            )} to main (will deploy to production)?`,
         },
     ])
 
@@ -139,13 +139,13 @@ export async function branchCommitPushAuto(
 
     async function automergePr(r: string) {
         try {
-            log('Automerger PR for ' + r)
+            log('Automatically merge pull request for ' + r)
             const cwd = cache ? `${GIT_CACHE_DIR}/${r}` : `../${r}`
             execSync('gh pr merge --auto -s', {
                 cwd: cwd,
             })
         } catch (e: any) {
-            log('retry om 10 sekunder')
+            log('retry in 10 seconds')
             await sleep(10000)
             await automergePr(r)
         }
