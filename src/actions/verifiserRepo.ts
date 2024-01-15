@@ -69,6 +69,7 @@ export async function verifiserRepo(r: RepoConfig) {
     await verifiserTopic(r, repo)
     await verifiserDefaultBranchProtection(r, repo.data.default_branch)
     await verifiserAdminTeams(r)
+    await verifiserLabels(r)
 }
 
 async function verifiserTopic(r: RepoConfig, repo: OctokitResponse<any>) {
@@ -215,5 +216,27 @@ async function verifiserDefaultBranchProtection(repo: RepoConfig, branch: string
         }
     } catch (e) {
         log(chalk.red('Feil med oppdatering av branch protection', e))
+    }
+}
+
+async function verifiserLabels(repo: RepoConfig) {
+    const labels = await getOctokitClient().request('GET /repos/{owner}/{repo}/labels', {
+        owner: config.owner,
+        repo: repo.name,
+    })
+    if (!labels.data.map((l) => l.name).includes('automerge')) {
+        const foreslaaPatch = !repo.patch ? ` Kjør med -p flagg for å fikse.` : ``
+        log(chalk.red(`Mangler automerge label i repoet ${repo.name}. ${foreslaaPatch}`))
+        if (repo.patch) {
+            log(`Lager automerge label i repoet ${repo.name}`)
+
+            await getOctokitClient().request('POST /repos/{owner}/{repo}/labels', {
+                owner: config.owner,
+                repo: repo.name,
+                name: 'automerge',
+                description: 'Kandidat for automerging hvis alt går grønt',
+                color: 'f29513',
+            })
+        }
     }
 }
