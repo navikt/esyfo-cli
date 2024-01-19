@@ -6,12 +6,12 @@ import { hideBin } from 'yargs/helpers'
 import { verifiserRepoer, verifiserRepoet } from './actions/verifiser'
 import { printLogo } from './actions/logo'
 import { openPrs } from './actions/prs'
+import { syncFilesAcrossRepos } from './actions/sync-file.ts'
 
 export const getYargsParser = (argv: string[]): Argv =>
     yargs(hideBin(argv))
         .scriptName('ecli')
         .middleware(() => printLogo())
-        .command('test', 'Dette er esyfos aller første kommando', async () => await console.log('Hello via Bun!'))
         .command(
             'verifiser',
             'Verifiserer at repo har riktig innstillinger i GitHub',
@@ -52,4 +52,15 @@ export const getYargsParser = (argv: string[]): Argv =>
                     .option('skip-bots', { type: 'boolean', alias: 'b', describe: "don't include bot pull requests" })
                     .positional('drafts', { type: 'boolean', default: false, describe: 'include draft pull requests' }),
             async (args) => openPrs(args.drafts, args.skipBots ?? false),
+        )
+        .command(
+            'sync-file <query>',
+            'sync files across specified repos',
+            (yargs) =>
+                yargs.positional('query', {
+                    type: 'string',
+                    demandOption: true,
+                    describe: 'execute this bash command in all repos and return all repos that give the error code 0',
+                }),
+            async (args) => syncFilesAcrossRepos(args.query),
         )
