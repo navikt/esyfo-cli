@@ -3,8 +3,15 @@ repos:
   - reponame:
       - esyfo-cli
   - reponame:
+      - aktivitetskrav-frontend
       - dialogmote-frontend
       - meroppfolging-frontend
+      - oppfolgingsplan-frontend
     checks:
       - next-app / Build for dev
       - next-app / Test and lint
+  - reponame:
+      - aktivitetskrav-mikrofrontend
+      - dialogmote-mikrofrontend
+    checks:
+      - vite-mikrofrontend / build
