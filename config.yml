@@ -15,3 +15,24 @@ repos:
       - dialogmote-mikrofrontend
     checks:
       - vite-mikrofrontend / build
+  - reponame:
+      - esyfo-proxy
+    checks:
+      - build and push
+  - reponame:
+      - esyfovarsel
+      - lps-oppfolgingsplan-mottak
+      - syfobrukertilgang
+      - syfomotebehov
+      - syfooppfolgingsplanservice
+    checks:
+      - jar-app / Test
+      - jar-app / Build
+  - reponame:
+      - aktivitetskrav-backend
+      - meroppfolging-backend
+      - oppfolgingsplan-backend
+    checks:
+      - boot-jar-app / Test
+      - boot-jar-app / Build
+
