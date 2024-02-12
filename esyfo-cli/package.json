@@ -1,12 +1,12 @@
 {
-  "name": "@navikt/esyfo-cli",
-  "version": "1.0.2024-01-23-0747",
-  "description": "CLI for diverse verktøy for team-esyfo",
-  "bin": {
-    "ecli": "./bin/ecli"
-  },
-  "files": [
-    "package.json",
-    "bin/ecli"
-  ]
+    "name": "@navikt/esyfo-cli",
+    "version": "1.0.2024-02-12-0952",
+    "description": "CLI for diverse verktøy for team-esyfo",
+    "bin": {
+        "ecli": "./bin/ecli"
+    },
+    "files": [
+        "package.json",
+        "bin/ecli"
+    ]
 }
