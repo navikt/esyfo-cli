@@ -49,9 +49,13 @@ export class Gitter {
         const repoClient = this.createRepoGitClient(repo)
 
         if (this.type === 'cache') {
-            repoClient.clean([CleanOptions.FORCE, CleanOptions.RECURSIVE]).reset(ResetMode.HARD, ['origin/HEAD']).pull({
-                '--rebase': null,
-            })
+            repoClient
+                .clean([CleanOptions.FORCE, CleanOptions.RECURSIVE])
+                .reset(ResetMode.HARD, ['origin/HEAD'])
+                .checkout(defaultBranch)
+                .pull({
+                    '--rebase': null,
+                })
         } else {
             try {
                 const currentBranch = await repoClient.revparse(['--abbrev-ref', 'HEAD'])
