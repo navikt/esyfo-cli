@@ -35,4 +35,8 @@ repos:
     checks:
       - boot-jar-app / Test
       - boot-jar-app / Build
+  - reponame:
+      - oppfolgingsplan-lps-demo
+    checks:
+      - build
 
