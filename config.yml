@@ -13,6 +13,7 @@ repos:
   - reponame:
       - aktivitetskrav-mikrofrontend
       - dialogmote-mikrofrontend
+      - meroppfolging-mikrofrontend
     checks:
       - vite-mikrofrontend / build
   - reponame:
@@ -35,4 +36,10 @@ repos:
     checks:
       - boot-jar-app / Test
       - boot-jar-app / Build
-
+  - reponame:
+      - oppfolgingsplan-lps-demo
+      - syfooppdfgen
+    checks:
+      - build
+  - reponame:
+      - teamesyfo-github-actions-workflows
