@@ -2,7 +2,12 @@ import * as R from 'remeda'
 import { parseISO } from 'date-fns'
 import chalk from 'chalk'
 
-import { BaseRepoNodeFragment, ghGqlQuery, OrgTeamRepoResult, removeIgnoredAndArchived } from '../common/octokit.ts'
+import {
+    BaseRepoNodeFragment,
+    ghGqlQuery,
+    OrgTeamRepoResult,
+    removeIgnoredArchivedAndNonAdmin,
+} from '../common/octokit.ts'
 import { log } from '../common/log.ts'
 import { coloredTimestamp } from '../common/date-utils.ts'
 import { authorToColorAvatar } from '../common/format-utils.ts'
@@ -31,6 +36,7 @@ const reposQuery = /* GraphQL */ `
                 repositories(orderBy: { field: PUSHED_AT, direction: DESC }) {
                     nodes {
                         ...BaseRepoNode
+                        viewerPermission
                         pullRequests(first: 50, orderBy: { field: UPDATED_AT, direction: DESC }, states: OPEN) {
                             nodes {
                                 title
@@ -68,7 +74,7 @@ async function getPrs(
 
     const openPrs = R.pipe(
         queryResult.organization.team.repositories.nodes,
-        removeIgnoredAndArchived,
+        removeIgnoredArchivedAndNonAdmin,
         R.flatMap((repo) =>
             R.pipe(
                 repo.pullRequests.nodes,
