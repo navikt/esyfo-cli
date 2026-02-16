@@ -31,7 +31,7 @@ const reposQuery = /* GraphQL */ `
                 repositories(orderBy: { field: PUSHED_AT, direction: DESC }) {
                     nodes {
                         ...BaseRepoNode
-                        pullRequests(first: 10, orderBy: { field: UPDATED_AT, direction: DESC }, states: OPEN) {
+                        pullRequests(first: 50, orderBy: { field: UPDATED_AT, direction: DESC }, states: OPEN) {
                             nodes {
                                 title
                                 updatedAt
