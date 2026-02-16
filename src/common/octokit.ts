@@ -64,6 +64,7 @@ export type BaseRepoNode<AdditionalRepoProps> = {
     defaultBranchRef: {
         name: string
     }
+    viewerPermission: string
 } & AdditionalRepoProps
 
 export type OrgTeamResult<Result> = {
@@ -82,5 +83,13 @@ export const removeIgnoredAndArchived: <AdditionalRepoProps>(
     nodes: BaseRepoNode<AdditionalRepoProps>[],
 ) => BaseRepoNode<AdditionalRepoProps>[] = R.createPipe(
     R.filter((it) => !it.isArchived),
+    R.filter(blacklisted),
+)
+
+export const removeIgnoredArchivedAndNonAdmin: <AdditionalRepoProps>(
+    nodes: BaseRepoNode<AdditionalRepoProps>[],
+) => BaseRepoNode<AdditionalRepoProps>[] = R.createPipe(
+    R.filter((it) => !it.isArchived),
+    R.filter((it) => it.viewerPermission === 'ADMIN'),
     R.filter(blacklisted),
 )

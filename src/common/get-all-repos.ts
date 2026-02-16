@@ -3,7 +3,7 @@ import chalk from 'chalk'
 import { ghGqlQuery, OrgTeamRepoResult, removeIgnoredAndArchived } from './octokit.ts'
 import { log } from './log.ts'
 
-type RepoWithBranch = { defaultBranchRef: { name: string } }
+export type RepoWithBranch = { defaultBranchRef: { name: string } }
 
 const reposQuery = /* GraphQL */ `
     query ($team: String!) {
@@ -18,6 +18,7 @@ const reposQuery = /* GraphQL */ `
                         defaultBranchRef {
                             name
                         }
+                        viewerPermission
                     }
                 }
             }

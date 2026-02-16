@@ -6,6 +6,7 @@ import { hideBin } from 'yargs/helpers'
 import { verifiserRepoer, verifiserRepoet } from './actions/verifiser'
 import { printLogo } from './actions/logo'
 import { openPrs } from './actions/prs'
+import { ourRepos } from './actions/repos'
 import { syncFilesAcrossRepos } from './actions/sync-file.ts'
 
 export const getYargsParser = (argv: string[]): Argv =>
@@ -63,4 +64,10 @@ export const getYargsParser = (argv: string[]): Argv =>
                     describe: 'execute this bash command in all repos and return all repos that give the error code 0',
                 }),
             async (args) => syncFilesAcrossRepos(args.query),
+        )
+        .command(
+            'repos',
+            'get all non-archived repos for team-esyfo',
+            (yargs) => yargs,
+            async () => ourRepos(),
         )
