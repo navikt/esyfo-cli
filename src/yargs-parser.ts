@@ -68,6 +68,12 @@ export const getYargsParser = (argv: string[]): Argv =>
         .command(
             'repos',
             'get all non-archived repos for team-esyfo',
-            (yargs) => yargs,
-            async () => ourRepos(),
+            (yargs) =>
+                yargs.option('output', {
+                    alias: 'o',
+                    description: 'Output file path for repositories JSON',
+                    type: 'string',
+                    default: 'repos.json',
+                }),
+            async (args) => ourRepos(args.output),
         )

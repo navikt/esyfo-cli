@@ -17,10 +17,10 @@ function toRepositoryNodes(repos: BaseRepoNode<RepoWithBranch>[]): RepositoryNod
     }))
 }
 
-export async function ourRepos(): Promise<void> {
+export async function ourRepos(outputFile = 'repos.json'): Promise<void> {
     const githubrepos = (await getAllRepos()) as BaseRepoNode<RepoWithBranch>[]
     const repositories = toRepositoryNodes(removeIgnoredArchivedAndNonAdmin(githubrepos))
 
     const pretty = JSON.stringify(repositories, null, 2)
-    console.log(pretty)
+    await Bun.write(outputFile, `${pretty}\n`)
 }
