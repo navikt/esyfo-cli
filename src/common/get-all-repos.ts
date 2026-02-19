@@ -3,7 +3,16 @@ import chalk from 'chalk'
 import { ghGqlQuery, OrgTeamRepoResult, removeIgnoredAndArchived } from './octokit.ts'
 import { log } from './log.ts'
 
-export type RepoWithBranch = { defaultBranchRef: { name: string } }
+export type RepoWithBranchAndTopics = {
+    defaultBranchRef: { name: string }
+    repositoryTopics: {
+        nodes: {
+            topic: {
+                name: string
+            }
+        }[]
+    }
+}
 
 const reposQuery = /* GraphQL */ `
     query ($team: String!) {
@@ -12,6 +21,7 @@ const reposQuery = /* GraphQL */ `
                 repositories(orderBy: { field: PUSHED_AT, direction: ASC }) {
                     nodes {
                         name
+                        description
                         isArchived
                         pushedAt
                         url
@@ -19,6 +29,13 @@ const reposQuery = /* GraphQL */ `
                             name
                         }
                         viewerPermission
+                        repositoryTopics(first: 20) {
+                            nodes {
+                                topic {
+                                    name
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -29,7 +46,7 @@ const reposQuery = /* GraphQL */ `
 export async function getAllRepos() {
     log(chalk.green(`Getting all active repositories for team-esyfo...`))
 
-    const result = await ghGqlQuery<OrgTeamRepoResult<RepoWithBranch>>(reposQuery, {
+    const result = await ghGqlQuery<OrgTeamRepoResult<RepoWithBranchAndTopics>>(reposQuery, {
         team: 'team-esyfo',
     })
 

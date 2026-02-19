@@ -58,6 +58,7 @@ export const BaseRepoNodeFragment = /* GraphQL */ `
 
 export type BaseRepoNode<AdditionalRepoProps> = {
     name: string
+    description?: string
     isArchived: boolean
     pushedAt: string
     url: string
