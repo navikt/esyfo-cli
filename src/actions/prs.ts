@@ -93,7 +93,7 @@ async function getPrs(
     return openPrs
 }
 
-export async function openPrs(includeDrafts: boolean, noBot: boolean): Promise<void> {
+export async function openPrs(includeDrafts: boolean, noBot: boolean, listView: boolean): Promise<void> {
     const openPrs = await getPrs('team-esyfo', { includeDrafts, noBot })
 
     R.pipe(
@@ -102,13 +102,23 @@ export async function openPrs(includeDrafts: boolean, noBot: boolean): Promise<v
         R.sortBy([([, prs]) => R.first(prs)?.updatedAt ?? '', 'desc']),
         R.forEach(([repo, prs]) => {
             log(chalk.greenBright(repo))
-            prs.forEach((pr) => {
+            if (listView) {
+                prs.forEach((pr) => {
+                    log(
+                        `\t${pr.title} (${pr.permalink})\n\tBy ${authorToColorAvatar(pr.author.login)} ${
+                            pr.author.login
+                        } ${coloredTimestamp(parseISO(pr.updatedAt))} ago${pr.isDraft ? ' (draft)' : ''}`,
+                    )
+                })
+            } else {
                 log(
-                    `\t${pr.title} (${pr.permalink})\n\tBy ${authorToColorAvatar(pr.author.login)} ${
-                        pr.author.login
-                    } ${coloredTimestamp(parseISO(pr.updatedAt))} ago${pr.isDraft ? ' (draft)' : ''}`,
+                    `\tnot dependabot: ${
+                        prs.filter((pr) => !pr.author.login.includes('dependabot')).length
+                    }\t dependabot: ${prs.filter((pr) => pr.author.login.includes('dependabot')).length}${
+                        prs.some((pr) => pr.isDraft) ? '\t(some are drafts)' : ''
+                    }`,
                 )
-            })
+            }
         }),
     )
 }

@@ -51,8 +51,14 @@ export const getYargsParser = (argv: string[]): Argv =>
             (yargs) =>
                 yargs
                     .option('skip-bots', { type: 'boolean', alias: 'b', describe: "don't include bot pull requests" })
+                    .option('list-view', {
+                        type: 'boolean',
+                        defauilt: false,
+                        alias: 'l',
+                        describe: 'list all the pull requests instead of just counting them',
+                    })
                     .positional('drafts', { type: 'boolean', default: false, describe: 'include draft pull requests' }),
-            async (args) => openPrs(args.drafts, args.skipBots ?? false),
+            async (args) => openPrs(args.drafts, args.skipBots ?? false, args.listView ?? false),
         )
         .command(
             'sync-file <query>',
