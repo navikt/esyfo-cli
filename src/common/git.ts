@@ -80,17 +80,23 @@ export class Gitter {
         return 'updated'
     }
 
-    public async clone(repo: string, silent: boolean, shallow: boolean): Promise<'cloned' | 'skipped'> {
-        if (this.exists(repo)) {
+    public async clone(
+        repo: string,
+        silent: boolean,
+        shallow: boolean,
+        localPath?: string,
+    ): Promise<'cloned' | 'skipped'> {
+        const dest = localPath ?? repo
+        if (this.exists(dest)) {
             if (!silent) {
-                log(`${repo} already exists, skipping clone`)
+                log(`${dest} already exists, skipping clone`)
             }
             return 'skipped'
         }
 
         const remote = `git@github.com:navikt/${repo}.git`
         const t1 = performance.now()
-        await this.git.clone(remote, repo, shallow ? { '--depth': 1 } : undefined)
+        await this.git.clone(remote, dest, shallow ? { '--depth': 1 } : undefined)
 
         if (!silent) {
             log(`Cloned ${repo}${shallow ? ' (shallow)' : ''} OK (${Math.round(performance.now() - t1)}ms))`)

@@ -1,9 +1,5 @@
 import { BaseRepoNode, removeIgnoredArchivedAndNonAdmin } from '../common/octokit.ts'
-import { getAllRepos } from '../common/get-all-repos'
-
-import { RepoWithBranchAndTopics } from './../common/get-all-repos'
-
-type RepoType = 'backend' | 'frontend' | 'microfrontend' | 'other'
+import { extractTypeFromTopics, getAllRepos, RepoType, RepoWithBranchAndTopics } from '../common/get-all-repos'
 
 type RepositoryNode = {
     title: string
@@ -11,14 +7,6 @@ type RepositoryNode = {
     url: string
     topics: string[]
     type: RepoType
-}
-
-function extractTypeFromTopics(repo: BaseRepoNode<RepoWithBranchAndTopics>): RepoType {
-    const topics = repo.repositoryTopics.nodes.map((it) => it.topic.name)
-    if (topics.includes('backend')) return 'backend'
-    if (topics.includes('frontend')) return 'frontend'
-    if (topics.includes('microfrontend')) return 'microfrontend'
-    return 'other'
 }
 
 function toRepositoryNodes(repos: BaseRepoNode<RepoWithBranchAndTopics>[]): RepositoryNode[] {
