@@ -3,10 +3,11 @@ import chalk from 'chalk'
 import { BaseRepoNode, ghGqlQuery, OrgTeamRepoResult, removeIgnoredAndArchived } from './octokit.ts'
 import { log } from './log.ts'
 
-export type RepoType = 'backend' | 'frontend' | 'microfrontend' | 'other'
+export type RepoType = 'backend' | 'frontend' | 'microfrontend' | 'monorepo' | 'other'
 
 export function extractTypeFromTopics(repo: BaseRepoNode<RepoWithBranchAndTopics>): RepoType {
     const topics = repo.repositoryTopics.nodes.map((it) => it.topic.name)
+    if (topics.includes('monorepo')) return 'monorepo'
     if (topics.includes('backend')) return 'backend'
     if (topics.includes('frontend')) return 'frontend'
     if (topics.includes('microfrontend')) return 'microfrontend'
