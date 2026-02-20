@@ -76,13 +76,15 @@ export const getYargsParser = (argv: string[]): Argv =>
             'repos',
             'get all non-archived repos for team-esyfo',
             (yargs) =>
-                yargs.option('output', {
-                    alias: 'o',
-                    description: 'Output file path for repositories JSON',
-                    type: 'string',
-                    default: 'repos.json',
-                }),
-            async (args) => ourRepos(args.output),
+                yargs
+                    .option('useMarkdown', { type: 'boolean', alias: 'b', describe: 'write output in Markdown format' })
+                    .option('output', {
+                        alias: 'o',
+                        description: 'Output file path for file with repositories',
+                        type: 'string',
+                        default: 'repos.json',
+                    }),
+            async (args) => ourRepos(args.output, args.useMarkdown ?? false),
         )
         .command(
             'clone-team-repos',
