@@ -3,12 +3,22 @@ import { getAllRepos } from '../common/get-all-repos'
 
 import { RepoWithBranchAndTopics } from './../common/get-all-repos'
 
+type RepoType = 'backend' | 'frontend' | 'microfrontend' | 'other'
+
 type RepositoryNode = {
     title: string
     description?: string
     url: string
-    viewerPermission: string
     topics: string[]
+    type: RepoType
+}
+
+function extractTypeFromTopics(repo: BaseRepoNode<RepoWithBranchAndTopics>): RepoType {
+    const topics = repo.repositoryTopics.nodes.map((it) => it.topic.name)
+    if (topics.includes('backend')) return 'backend'
+    if (topics.includes('frontend')) return 'frontend'
+    if (topics.includes('microfrontend')) return 'microfrontend'
+    return 'other'
 }
 
 function toRepositoryNodes(repos: BaseRepoNode<RepoWithBranchAndTopics>[]): RepositoryNode[] {
@@ -16,8 +26,8 @@ function toRepositoryNodes(repos: BaseRepoNode<RepoWithBranchAndTopics>[]): Repo
         title: repo.name,
         description: repo.description ?? undefined,
         url: repo.url,
-        viewerPermission: repo.viewerPermission,
         topics: repo.repositoryTopics.nodes.map((it) => it.topic.name),
+        type: extractTypeFromTopics(repo),
     }))
 }
 
