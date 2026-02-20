@@ -6,6 +6,8 @@ import { hideBin } from 'yargs/helpers'
 import { verifiserRepoer, verifiserRepoet } from './actions/verifiser'
 import { printLogo } from './actions/logo'
 import { openPrs } from './actions/prs'
+import { ourRepos } from './actions/repos'
+import { cloneTeamRepos } from './actions/clone-team-repos'
 import { syncFilesAcrossRepos } from './actions/sync-file.ts'
 
 export const getYargsParser = (argv: string[]): Argv =>
@@ -50,8 +52,14 @@ export const getYargsParser = (argv: string[]): Argv =>
             (yargs) =>
                 yargs
                     .option('skip-bots', { type: 'boolean', alias: 'b', describe: "don't include bot pull requests" })
+                    .option('list-view', {
+                        type: 'boolean',
+                        defauilt: false,
+                        alias: 'l',
+                        describe: 'list all the pull requests instead of just counting them',
+                    })
                     .positional('drafts', { type: 'boolean', default: false, describe: 'include draft pull requests' }),
-            async (args) => openPrs(args.drafts, args.skipBots ?? false),
+            async (args) => openPrs(args.drafts, args.skipBots ?? false, args.listView ?? false),
         )
         .command(
             'sync-file <query>',
@@ -63,4 +71,41 @@ export const getYargsParser = (argv: string[]): Argv =>
                     describe: 'execute this bash command in all repos and return all repos that give the error code 0',
                 }),
             async (args) => syncFilesAcrossRepos(args.query),
+        )
+        .command(
+            'repos',
+            'get all non-archived repos for team-esyfo',
+            (yargs) =>
+                yargs.option('output', {
+                    alias: 'o',
+                    description: 'Output file path for repositories JSON',
+                    type: 'string',
+                    default: 'repos.json',
+                }),
+            async (args) => ourRepos(args.output),
+        )
+        .command(
+            'clone-team-repos',
+            'git clone all repositories owned by team',
+            (yargs) =>
+                yargs
+                    .option('team', {
+                        alias: 't',
+                        description: 'GitHub team to clone repositories for',
+                        type: 'string',
+                        default: 'team-esyfo',
+                    })
+                    .option('destination', {
+                        alias: 'd',
+                        description: 'Destination file path for cloned repositories',
+                        type: 'string',
+                        demandOption: true,
+                    })
+                    .option('use-sub-folders', {
+                        alias: 's',
+                        description: 'Should repos be spread over subfolders like backend, frontend, microfrontends',
+                        type: 'boolean',
+                        default: false,
+                    }),
+            async (args) => cloneTeamRepos(args.team, args.destination, args.useSubFolders),
         )

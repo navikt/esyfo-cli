@@ -2,7 +2,12 @@ import * as R from 'remeda'
 import { parseISO } from 'date-fns'
 import chalk from 'chalk'
 
-import { BaseRepoNodeFragment, ghGqlQuery, OrgTeamRepoResult, removeIgnoredAndArchived } from '../common/octokit.ts'
+import {
+    BaseRepoNodeFragment,
+    ghGqlQuery,
+    OrgTeamRepoResult,
+    removeIgnoredArchivedAndNonAdmin,
+} from '../common/octokit.ts'
 import { log } from '../common/log.ts'
 import { coloredTimestamp } from '../common/date-utils.ts'
 import { authorToColorAvatar } from '../common/format-utils.ts'
@@ -31,6 +36,7 @@ const reposQuery = /* GraphQL */ `
                 repositories(orderBy: { field: PUSHED_AT, direction: DESC }) {
                     nodes {
                         ...BaseRepoNode
+                        viewerPermission
                         pullRequests(first: 50, orderBy: { field: UPDATED_AT, direction: DESC }, states: OPEN) {
                             nodes {
                                 title
@@ -68,7 +74,7 @@ async function getPrs(
 
     const openPrs = R.pipe(
         queryResult.organization.team.repositories.nodes,
-        removeIgnoredAndArchived,
+        removeIgnoredArchivedAndNonAdmin,
         R.flatMap((repo) =>
             R.pipe(
                 repo.pullRequests.nodes,
@@ -82,12 +88,19 @@ async function getPrs(
         R.mapValues((value) => value.map((it) => it[1])),
     )
 
-    log(`Found ${chalk.greenBright(Object.values(openPrs).flat().length)} open prs for team ${team}\n`)
+    log(`Found ${chalk.greenBright(Object.values(openPrs).flat().length)} open prs for team ${team}`)
+    log(
+        `Created by dependabot: ${chalk.greenBright(
+            Object.values(openPrs)
+                .flat()
+                .filter((pr) => pr.author.login.includes('dependabot')).length,
+        )}\n`,
+    )
 
     return openPrs
 }
 
-export async function openPrs(includeDrafts: boolean, noBot: boolean): Promise<void> {
+export async function openPrs(includeDrafts: boolean, noBot: boolean, listView: boolean): Promise<void> {
     const openPrs = await getPrs('team-esyfo', { includeDrafts, noBot })
 
     R.pipe(
@@ -96,13 +109,23 @@ export async function openPrs(includeDrafts: boolean, noBot: boolean): Promise<v
         R.sortBy([([, prs]) => R.first(prs)?.updatedAt ?? '', 'desc']),
         R.forEach(([repo, prs]) => {
             log(chalk.greenBright(repo))
-            prs.forEach((pr) => {
+            if (listView) {
+                prs.forEach((pr) => {
+                    log(
+                        `\t${pr.title} (${pr.permalink})\n\tBy ${authorToColorAvatar(pr.author.login)} ${
+                            pr.author.login
+                        } ${coloredTimestamp(parseISO(pr.updatedAt))} ago${pr.isDraft ? ' (draft)' : ''}`,
+                    )
+                })
+            } else {
                 log(
-                    `\t${pr.title} (${pr.permalink})\n\tBy ${authorToColorAvatar(pr.author.login)} ${
-                        pr.author.login
-                    } ${coloredTimestamp(parseISO(pr.updatedAt))} ago${pr.isDraft ? ' (draft)' : ''}`,
+                    `\tnot dependabot: ${
+                        prs.filter((pr) => !pr.author.login.includes('dependabot')).length
+                    }\t dependabot: ${prs.filter((pr) => pr.author.login.includes('dependabot')).length}${
+                        prs.some((pr) => pr.isDraft) ? '\t(some are drafts)' : ''
+                    }`,
                 )
-            })
+            }
         }),
     )
 }

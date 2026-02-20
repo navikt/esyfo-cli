@@ -1,0 +1,20 @@
+[tools]
+node = "24"
+
+[tasks.clone-repos]
+description = "Clone all team repos into desination folder"
+usage = '''
+flag "--destination <destination>" help="Pre-existing folder to clone all repoisitories in"
+'''
+run = 'bun run src/index.ts clone-team-repos --destination=${usage_destination?} --use-sub-folders=true'
+
+[tasks.prs]
+description = "Get prs for team"
+run = 'bun run src/index.ts prs'
+
+[tasks.repos]
+description = "Clone all team repos into desination folder"
+usage = '''
+flag "--destination <destination>" help="Filename the json list of repoisitories should be written to"
+'''
+run = 'bun run src/index.ts repos --output=${usage_destination?}'

@@ -44,6 +44,8 @@ Nå er du klar til å bruke `ecli`!
 * `verifiser` - Verifiserer at repo har riktig innstillinger i GitHub
 * `prs` - get all open pull requests
 * `sync-file` - sync files across specified repos
+* `repos` - get all non-archived repos for team-esyfo
+* `clone-team-repos` - git clone all repositories owned by team
 
 <!-- COMPUTER SAYS DON'T TOUCH THIS END -->
 
