@@ -13,8 +13,14 @@ description = "Get prs for team"
 run = 'bun run src/index.ts prs'
 
 [tasks.repos]
-description = "Clone all team repos into desination folder"
 usage = '''
-flag "--destination <destination>" help="Filename the json list of repoisitories should be written to"
+arg "<file>" help="The file to output list of repositories as json to" default="repos.json"
 '''
-run = 'bun run src/index.ts repos --output=${usage_destination?}'
+run = 'bun run src/index.ts repos --output=${usage_file}'
+
+[tasks.repos-md]
+usage = '''
+arg "<file>" help="The file to output the repoisitories to in markdown representation" default="repos.md"
+'''
+run = 'bun run src/index.ts repos --output=${usage_file} --useMarkdown=true' 
+

@@ -18,11 +18,43 @@ function toRepositoryNodes(repos: BaseRepoNode<RepoWithBranchAndTopics>[]): Repo
         type: extractTypeFromTopics(repo),
     }))
 }
+function capitalizeFirstLetter(str: string): string {
+    if (!str) {
+        return '' // Handles empty or null strings
+    }
+    return str.charAt(0).toUpperCase() + str.slice(1)
+}
+function toMarkdown(repositories: RepositoryNode[]): string {
+    const grouped = repositories.reduce<Record<string, RepositoryNode[]>>((acc, repo) => {
+        const key = repo.type ?? 'unknown'
+        if (!acc[key]) acc[key] = []
+        acc[key].push(repo)
+        return acc
+    }, {})
 
-export async function ourRepos(outputFile = 'repos.json'): Promise<void> {
+    return Object.entries(grouped)
+        .map(([type, repos]) => {
+            const header = `## ${capitalizeFirstLetter(type)}`
+            const tableHeader = `| Navn | Beskrivelse | Topics |\n| --- | --- | --- |`
+            const rows = repos
+                .map(
+                    (repo) =>
+                        `| [${repo.title}](${repo.url}) | ${repo.description ?? ''} | ${repo.topics.join(', ')} |`,
+                )
+                .join('\n')
+            return `${header}\n\n${tableHeader}\n${rows}`
+        })
+        .join('\n\n')
+}
+
+export async function ourRepos(outputFile = 'repos.json', useMarkdown = false): Promise<void> {
     const githubrepos = (await getAllRepos()) as BaseRepoNode<RepoWithBranchAndTopics>[]
     const repositories = toRepositoryNodes(removeIgnoredArchivedAndNonAdmin(githubrepos))
-
-    const pretty = JSON.stringify(repositories, null, 2)
-    await Bun.write(outputFile, `${pretty}\n`)
+    if (useMarkdown) {
+        await Bun.write(outputFile, `${toMarkdown(repositories)}\n`)
+        return
+    } else {
+        const pretty = JSON.stringify(repositories, null, 2)
+        await Bun.write(outputFile, `${pretty}\n`)
+    }
 }
