@@ -80,7 +80,7 @@ export class Gitter {
         return 'updated'
     }
 
-    private async clone(repo: string, silent: boolean, shallow: boolean): Promise<'cloned'> {
+    public async clone(repo: string, silent: boolean, shallow: boolean): Promise<'cloned'> {
         const remote = `git@github.com:navikt/${repo}.git`
         const t1 = performance.now()
         await this.git.clone(remote, repo, shallow ? { '--depth': 1 } : undefined)

@@ -43,11 +43,11 @@ const reposQuery = /* GraphQL */ `
     }
 `
 
-export async function getAllRepos() {
-    log(chalk.green(`Getting all active repositories for team-esyfo...`))
+export async function getAllRepos(team: string = 'team-esyfo') {
+    log(chalk.green(`Getting all active repositories for ${team}...`))
 
     const result = await ghGqlQuery<OrgTeamRepoResult<RepoWithBranchAndTopics>>(reposQuery, {
-        team: 'team-esyfo',
+        team: team,
     })
 
     return removeIgnoredAndArchived(result.organization.team.repositories.nodes)
