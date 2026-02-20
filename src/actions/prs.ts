@@ -88,7 +88,14 @@ async function getPrs(
         R.mapValues((value) => value.map((it) => it[1])),
     )
 
-    log(`Found ${chalk.greenBright(Object.values(openPrs).flat().length)} open prs for team ${team}\n`)
+    log(`Found ${chalk.greenBright(Object.values(openPrs).flat().length)} open prs for team ${team}`)
+    log(
+        `Created by dependabot: ${chalk.greenBright(
+            Object.values(openPrs)
+                .flat()
+                .filter((pr) => pr.author.login.includes('dependabot')).length,
+        )}\n`,
+    )
 
     return openPrs
 }
