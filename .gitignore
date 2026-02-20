@@ -135,3 +135,5 @@ dist
 # Finder (MacOS) folder config
 .DS_Store
 
+# Default file as outbut from repos action
+repos.json
