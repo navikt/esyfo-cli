@@ -37,6 +37,15 @@ npm i -g @navikt/esyfo-cli
 
 Nå er du klar til å bruke `ecli`!
 
+Vi har også noen mise tasks for forenkle enkelte operasjoner
+Kjør
+
+```bash
+mise tasks
+```
+
+for å få oversikt over tilgjengelige tasks.
+
 ### Automatisk generert dokumentasjon
 
 <!-- COMPUTER SAYS DON'T TOUCH THIS START -->
