@@ -1,0 +1,69 @@
+# Mapping av repo-type → Copilot-konfigurasjonsfiler
+# Brukes av `ecli copilot sync` for å distribuere riktige filer til hvert repo.
+
+# Felles for ALLE repos
+common:
+  agents:
+    - esyfo-reviewer.agent.md
+    - nais.agent.md
+    - auth.agent.md
+    - research.agent.md
+    - security-champion.agent.md
+    - observability.agent.md
+  prompts:
+    - nais-manifest.prompt.md
+  skills:
+    - observability-setup
+
+# Profiler per repo-type (additivt til common)
+profiles:
+  backend:
+    copilot_instructions:
+      - base.md
+      - backend.md
+    team_agent: esyfo-backend.agent.md
+    agents:
+      - kafka.agent.md
+      - database.agent.md
+    instructions:
+      - kotlin.instructions.md
+      - sql.instructions.md
+      - testing.instructions.md
+    prompts:
+      - kafka-topic.prompt.md
+    skills:
+      - flyway-migration
+
+  frontend:
+    copilot_instructions:
+      - base.md
+      - frontend.md
+    team_agent: esyfo-frontend.agent.md
+    agents:
+      - frontend.agent.md
+    instructions:
+      - typescript.instructions.md
+      - testing.instructions.md
+
+  microfrontend:
+    copilot_instructions:
+      - base.md
+      - microfrontend.md
+    team_agent: esyfo-frontend.agent.md
+    agents:
+      - frontend.agent.md
+    instructions:
+      - typescript.instructions.md
+      - testing.instructions.md
+
+  other:
+    copilot_instructions:
+      - base.md
+    team_agent: null
+
+# Override per spesifikt repo
+overrides:
+  esyfo-cli:
+    skip: true
+  teamesyfo-github-actions-workflows:
+    skip: true

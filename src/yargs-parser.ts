@@ -9,6 +9,7 @@ import { openPrs } from './actions/prs'
 import { ourRepos } from './actions/repos'
 import { cloneTeamRepos } from './actions/clone-team-repos'
 import { syncFilesAcrossRepos } from './actions/sync-file.ts'
+import { copilotSync } from './actions/copilot-sync.ts'
 
 export const getYargsParser = (argv: string[]): Argv =>
     yargs(hideBin(argv))
@@ -110,4 +111,33 @@ export const getYargsParser = (argv: string[]): Argv =>
                         default: false,
                     }),
             async (args) => cloneTeamRepos(args.team, args.destination, args.useSubFolders),
+        )
+        .command(
+            'copilot sync',
+            'Synkroniser GitHub Copilot-konfigurasjon (agenter, instruksjoner, prompts, skills) til team-repos',
+            (yargs) =>
+                yargs
+                    .option('repo', {
+                        alias: 'r',
+                        description: 'Spesifikt repo å synkronisere',
+                        type: 'string',
+                    })
+                    .option('all', {
+                        alias: 'a',
+                        description: 'Synkroniser alle konfigurerte repos',
+                        type: 'boolean',
+                        default: true,
+                    })
+                    .option('dry-run', {
+                        alias: 'd',
+                        description: 'Vis hva som ville endret seg (ingen faktiske endringer)',
+                        type: 'boolean',
+                        default: false,
+                    }),
+            async (args) =>
+                copilotSync({
+                    repo: args.repo,
+                    all: args.all,
+                    dryRun: args.dryRun,
+                }),
         )

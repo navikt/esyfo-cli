@@ -94,7 +94,7 @@ export class Gitter {
             return 'skipped'
         }
 
-        const remote = `git@github.com:navikt/${repo}.git`
+        const remote = `https://github.com/navikt/${repo}.git`
         const t1 = performance.now()
         await this.git.clone(remote, dest, shallow ? { '--depth': 1 } : undefined)
 
