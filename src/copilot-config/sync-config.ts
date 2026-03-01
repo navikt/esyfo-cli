@@ -86,3 +86,49 @@ export function getFilesForProfile(
 export function isRepoSkipped(config: CopilotSyncConfig, repoName: string): boolean {
     return config.overrides[repoName]?.skip === true
 }
+
+/**
+ * Merge files from multiple profiles (for monorepos), deduplicating.
+ * copilot_instructions are concatenated in order; other files are unioned.
+ */
+export function getFilesForProfiles(
+    config: CopilotSyncConfig,
+    profiles: RepoProfile[],
+): ReturnType<typeof getFilesForProfile> {
+    if (profiles.length === 0) return getFilesForProfile(config, 'other')
+    if (profiles.length === 1) return getFilesForProfile(config, profiles[0])
+
+    const instructionTemplates: string[] = ['base.md']
+    const agents = new Set<string>(config.common.agents)
+    const instructions = new Set<string>()
+    const prompts = new Set<string>(config.common.prompts ?? [])
+    const skills = new Set<string>(config.common.skills ?? [])
+    let teamAgent: string | null = null
+
+    for (const profile of profiles) {
+        const profileConfig = config.profiles[profile]
+        if (!profileConfig) continue
+
+        // Append profile-specific instruction templates (skip base.md, already added)
+        for (const t of profileConfig.copilot_instructions) {
+            if (t !== 'base.md' && !instructionTemplates.includes(t)) {
+                instructionTemplates.push(t)
+            }
+        }
+
+        for (const a of profileConfig.agents ?? []) agents.add(a)
+        for (const i of profileConfig.instructions ?? []) instructions.add(i)
+        for (const p of profileConfig.prompts ?? []) prompts.add(p)
+        for (const s of profileConfig.skills ?? []) skills.add(s)
+        if (!teamAgent && profileConfig.team_agent) teamAgent = profileConfig.team_agent
+    }
+
+    return {
+        copilotInstructions: instructionTemplates,
+        agents: [...agents],
+        instructions: [...instructions],
+        prompts: [...prompts],
+        skills: [...skills],
+        teamAgent,
+    }
+}

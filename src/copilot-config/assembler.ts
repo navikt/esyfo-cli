@@ -5,7 +5,7 @@ import chalk from 'chalk'
 
 import { log } from '../common/log.ts'
 
-import { CopilotSyncConfig, getFilesForProfile, RepoProfile } from './sync-config.ts'
+import { CopilotSyncConfig, getFilesForProfile, getFilesForProfiles, RepoProfile } from './sync-config.ts'
 import { RepoStackInfo } from './detector.ts'
 
 const MANAGED_HEADER = '<!-- Managed by esyfo-cli. Do not edit manually. Changes will be overwritten. -->\n'
@@ -22,7 +22,10 @@ export async function assembleForRepo(
     stack: RepoStackInfo,
     config: CopilotSyncConfig,
 ): Promise<AssemblyResult> {
-    const files = getFilesForProfile(config, profile)
+    const files =
+        stack.subProfiles && stack.subProfiles.length > 1
+            ? getFilesForProfiles(config, stack.subProfiles)
+            : getFilesForProfile(config, profile)
     const result: AssemblyResult = { filesWritten: [], filesUnchanged: [] }
 
     // Ensure target directories exist

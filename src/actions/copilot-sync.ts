@@ -8,7 +8,13 @@ import { log } from '../common/log.ts'
 import { Gitter } from '../common/git.ts'
 import { GIT_CACHE_DIR } from '../common/cache.ts'
 import { extractTypeFromTopics, RepoWithBranchAndTopics, RepoType } from '../common/get-all-repos.ts'
-import { loadCopilotSyncConfig, isRepoSkipped, getFilesForProfile, RepoProfile } from '../copilot-config/sync-config.ts'
+import {
+    loadCopilotSyncConfig,
+    isRepoSkipped,
+    getFilesForProfile,
+    getFilesForProfiles,
+    RepoProfile,
+} from '../copilot-config/sync-config.ts'
 import { detectRepoStack, logStackInfo } from '../copilot-config/detector.ts'
 import { assembleForRepo, AssemblyResult } from '../copilot-config/assembler.ts'
 
@@ -113,10 +119,16 @@ export async function copilotSync(options: { repo?: string; all?: boolean; dryRu
         }
 
         const effectiveProfile = stack.type
+        const isMonorepo = stack.subProfiles && stack.subProfiles.length > 1
+        if (isMonorepo) {
+            log(chalk.magenta(`  [MONOREPO] ${repo.name} → profiles: ${stack.subProfiles!.join(', ')}`))
+        }
         logStackInfo(repo.name, stack)
 
         if (options.dryRun) {
-            const files = getFilesForProfile(config, effectiveProfile)
+            const files = isMonorepo
+                ? getFilesForProfiles(config, stack.subProfiles!)
+                : getFilesForProfile(config, effectiveProfile)
             log(
                 chalk.dim(
                     `    Would write: copilot-instructions.md, ${files.agents.length} agents, ${files.instructions.length} instructions, ${files.prompts.length} prompts, ${files.skills.length} skills`,
