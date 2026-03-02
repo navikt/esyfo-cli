@@ -13,8 +13,9 @@ applyTo: "**/*.{test,spec}.{ts,tsx,kt,kts}"
 ## Kotlin (Kotest + MockK)
 - Use Context7 to check Kotest version and API
 - Use `should` matchers for assertions
+- Use Kotest DescribeSpec as the standard test style
 - Use MockK for mocking — prefer `coEvery` for suspend functions
-- Check `build.gradle.kts` for actual test dependencies (Testcontainers, H2, etc.)
+- Use Testcontainers for integration tests with real databases
 - Use MockOAuth2Server for auth testing
 
 ```kotlin

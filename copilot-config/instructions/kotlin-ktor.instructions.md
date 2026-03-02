@@ -52,6 +52,7 @@ authenticate("azureAd") {
 ## Testing
 
 - Use Kotest for structure and assertions
+- Use Kotest DescribeSpec as the standard test style
 - Use MockK for mocking — prefer `coEvery` for suspend functions
 - Use Testcontainers for integration tests with real databases
 - Use `testApplication { }` for route testing

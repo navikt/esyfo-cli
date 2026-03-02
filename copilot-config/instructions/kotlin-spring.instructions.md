@@ -84,7 +84,7 @@ spring:
 ## Testing
 
 - Use `@SpringBootTest` for integration tests
-- Use H2 in-memory database for repository tests when Testcontainers is not available
+- Use Testcontainers for integration tests with real databases
 - Use MockOAuth2Server for auth testing
 - Use `@MockkBean` for mocking Spring beans
 

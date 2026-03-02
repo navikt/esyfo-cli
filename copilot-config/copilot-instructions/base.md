@@ -16,7 +16,7 @@
 - **Observability**: Prometheus metrics, Grafana Loki logs, Tempo tracing (OpenTelemetry)
 
 ## Conventions
-- Norwegian user-facing text, English code and comments
+- English code, comments, and text — except domain terms (e.g. dialogmøte, sykmelding, oppfølgingsplan)
 - Use Context7 (`context7-resolve-library-id` → `context7-query-docs`) for library-specific patterns
 - Check existing code patterns in the repository before writing new code
 - Follow the ✅ Always / ⚠️ Ask First / 🚫 Never boundaries in agent and instruction files
