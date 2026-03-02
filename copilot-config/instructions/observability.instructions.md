@@ -12,7 +12,7 @@ applyTo: "**/*.kt,**/*.ts,**/*.tsx"
 - **Alert Manager**: Alert routing (Slack integration)
 
 ## Health Endpoints
-NAIS apps expose health and metrics endpoints (paths vary per repo — check existing routes).
+NAIS apps expose health and metrics endpoints (paths vary per repo — check existing NAIS manifests and application config).
 
 ## Metric Naming
 - Use `snake_case` with unit suffix (`_seconds`, `_bytes`, `_total`)
@@ -20,9 +20,13 @@ NAIS apps expose health and metrics endpoints (paths vary per repo — check exi
 - Avoid high-cardinality labels (`user_id`, `email`, `transaction_id`)
 
 ## Structured Logging
-Log to stdout/stderr with structured JSON. Use `kv()` fields for context:
+Log to stdout/stderr with structured JSON. Follow the existing logging pattern in the codebase (look for `kv()` helpers, MDC, or structured argument patterns):
 ```kotlin
-logger.info("Processing event", kv("event_id", eventId), kv("user_id", userId))
+// Structured fields — check which pattern this repo uses
+logger.info("Processing event", kv("event_id", eventId))
+// or with MDC for request-scoped context
+MDC.put("x_request_id", requestId)
+logger.info("Processing event: eventId={}", eventId)
 ```
 
 ## Boundaries
@@ -41,5 +45,5 @@ logger.info("Processing event", kv("event_id", eventId), kv("user_id", userId))
 ### 🚫 Never
 - Use high-cardinality labels
 - Log sensitive data (PII, tokens, passwords)
-- Skip the `/metrics` endpoint
+- Skip exposing a Prometheus metrics scrape endpoint
 - Use camelCase for metric names

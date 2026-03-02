@@ -8,17 +8,15 @@ Configure metrics, structured logging, and tracing for a NAV application.
 
 ## Steps
 
-1. Read NAIS manifest to check current observability config
+1. Read NAIS manifest to check current observability config and endpoint paths
 2. Check `build.gradle.kts` or `package.json` for existing observability dependencies
 3. Use Context7 to look up the metrics library API (Micrometer, prom-client, etc.)
-4. Search codebase for existing metric definitions and patterns
+4. Search codebase for existing metric definitions, logging patterns, and health endpoints
 
 ## Backend (Kotlin)
 
-### Required Endpoints
-- `/isalive` — Liveness check
-- `/isready` — Readiness check (verify dependencies)
-- `/metrics` — Prometheus scrape endpoint
+### Health & Metrics Endpoints
+Check existing NAIS manifests and `application.yaml` for the actual paths — these vary per repo (e.g. `/isalive` vs `/internal/health/livenessState`, `/metrics` vs `/internal/prometheus`).
 
 ### NAIS Auto-Instrumentation
 ```yaml
@@ -30,8 +28,9 @@ spec:
 ```
 
 ### Structured Logging
+Follow the existing logging pattern in the codebase (look for `kv()` helpers, MDC, or structured argument patterns):
 ```kotlin
-logger.info("Processing request", kv("request_id", id), kv("user_id", userId))
+logger.info("Processing event", kv("event_id", eventId))
 ```
 
 ## Frontend (Next.js/Vite)
@@ -47,7 +46,7 @@ spec:
 
 ## Checklist
 
-- [ ] Health endpoints implemented (`/isalive`, `/isready`, `/metrics`)
+- [ ] Health and metrics endpoints implemented (verify paths from NAIS manifest)
 - [ ] Auto-instrumentation enabled in NAIS manifest
 - [ ] Structured logging configured (JSON to stdout)
 - [ ] Custom business metrics defined where relevant

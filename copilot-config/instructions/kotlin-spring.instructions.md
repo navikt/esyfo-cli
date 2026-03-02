@@ -43,13 +43,29 @@ class ResourceService(
 
 ## Database Access (Spring Data JDBC)
 
+Check existing repository implementations in the codebase — patterns vary (CrudRepository interface, NamedParameterJdbcTemplate, etc.):
+
 ```kotlin
+// Option A: CrudRepository interface
 @Repository
 interface ResourceRepository : CrudRepository<ResourceEntity, UUID> {
     fun findByIdent(ident: String): List<ResourceEntity>
 
     @Query("SELECT * FROM resource WHERE status = :status")
     fun findByStatus(status: String): List<ResourceEntity>
+}
+
+// Option B: NamedParameterJdbcTemplate (raw SQL)
+@Repository
+class ResourceRepository(
+    private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate
+) {
+    fun findById(id: UUID): ResourceEntity? {
+        val sql = "SELECT * FROM resource WHERE id = :id"
+        return namedParameterJdbcTemplate.query(sql, mapOf("id" to id)) { rs, _ ->
+            ResourceEntity(id = rs.getObject("id", UUID::class.java))
+        }.firstOrNull()
+    }
 }
 ```
 

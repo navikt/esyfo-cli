@@ -13,7 +13,8 @@ applyTo: "**/*.{test,spec}.kt,**/*.kts,**/*Test.kt,**/*Spec.kt"
 ## Kotest + MockK
 - Use Context7 to check Kotest version and API
 - Use `should` matchers for assertions
-- Use Kotest DescribeSpec as the standard test style
+- Use Kotest DescribeSpec as the standard test style for new tests
+- Check existing tests in the repo and follow their patterns for consistency
 - Use MockK for mocking — prefer `coEvery` for suspend functions
 - Use Testcontainers for integration tests with real databases
 - Use MockOAuth2Server for auth testing

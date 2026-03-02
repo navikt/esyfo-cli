@@ -35,11 +35,12 @@ sealed class ApplicationConfig {
 ## Observability
 
 ```kotlin
-// Structured logging with KotlinLogging
-private val logger = KotlinLogging.logger {}
+// Structured logging — follow existing pattern in the codebase (logger(), KotlinLogging, or SLF4J)
+private val logger = LoggerFactory.getLogger(MyClass::class.java)
 
-logger.info { "Processing event: ${event.id}" }
-logger.error(exception) { "Failed to process event" }
+// Check which structured logging pattern this repo uses (kv(), MDC, etc.)
+logger.info("Processing event", kv("event_id", eventId))
+logger.error("Failed to process event", exception)
 
 // Prometheus metrics with Micrometer
 val requestCounter = Counter.builder("http_requests_total")
@@ -50,7 +51,7 @@ val requestCounter = Counter.builder("http_requests_total")
 ## Error Handling
 - Use Kotlin Result type or sealed classes for expected failures
 - Throw exceptions only for unexpected/unrecoverable errors
-- Always log errors with structured context (using `kv()` fields)
+- Always log errors with structured context
 
 ## Testing
 - Check `build.gradle.kts` for actual test dependencies before writing tests

@@ -11,22 +11,22 @@ apiVersion: nais.io/v1alpha1
 kind: Application
 metadata:
   name: app-name
-  namespace: team-namespace
+  namespace: team-esyfo
   labels:
-    team: team-namespace
+    team: team-esyfo
 spec:
   image: {{image}}
   port: 8080
 
+  # Paths vary per repo — check existing manifests for actual values
   prometheus:
     enabled: true
-    path: /metrics
-
+    path: /metrics  # or /internal/prometheus
   liveness:
-    path: /isalive
+    path: /isalive  # or /internal/health/livenessState
     initialDelay: 5
   readiness:
-    path: /isready
+    path: /isready  # or /internal/health/readinessState
     initialDelay: 5
 
   resources:

@@ -1,24 +1,24 @@
 ---
-description: Set up a Kafka topic and River consumer for team-esyfo
+description: Set up a Kafka topic and consumer for team-esyfo
 ---
 
 # Set Up Kafka Topic and Consumer
 
-Create a new Kafka topic configuration and River consumer.
+Create a new Kafka topic configuration and consumer.
 
 ## Steps
 
 1. Read existing NAIS manifest for Kafka pool configuration
-2. Search codebase for existing River implementations to follow patterns
-3. Use Context7 to verify Rapids & Rivers API
+2. Search codebase for existing Kafka consumer implementations to follow patterns (e.g. `@KafkaListener`, River classes)
+3. Use Context7 to verify the Kafka library API used in this repo
 
 ## Checklist
 
 - [ ] Add Kafka pool to NAIS manifest (if not already present)
-- [ ] Create River class with proper validation (`demandValue`, `requireKey`)
-- [ ] Include standard metadata fields (`@event_name`, `@id`, `@created_at`)
-- [ ] Implement idempotency check on `@id`
-- [ ] Add error handling in `onError`
+- [ ] Create consumer class following existing patterns in the repo
+- [ ] Define message payload and key types matching the topic schema
+- [ ] Implement idempotent processing where needed
+- [ ] Add error handling and logging consistent with existing consumers
 - [ ] Add metrics (events processed counter, processing duration timer)
-- [ ] Add structured logging with `event_id`
-- [ ] Write TestRapid test
+- [ ] Add structured logging with relevant identifiers
+- [ ] Write tests following existing Kafka test patterns in the repo
