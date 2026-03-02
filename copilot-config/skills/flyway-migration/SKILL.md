@@ -14,7 +14,7 @@ Create a new Flyway migration file following team-esyfo conventions.
 
 ## Conventions
 
-- Use `IF NOT EXISTS` / `IF EXISTS` for safety
+- Prefer fail-fast in versioned migrations — use `IF NOT EXISTS` / `IF EXISTS` only when idempotency is intentional
 - Use `TIMESTAMPTZ` for timestamps (with `DEFAULT NOW()`)
 - Use `UUID` with `gen_random_uuid()` for primary keys where appropriate
 - Use `TEXT` instead of `VARCHAR`
@@ -25,11 +25,11 @@ Create a new Flyway migration file following team-esyfo conventions.
 
 ```sql
 -- V{number}__{description}.sql
-CREATE TABLE IF NOT EXISTS table_name (
+CREATE TABLE table_name (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS idx_table_name_field ON table_name(field);
+CREATE INDEX idx_table_name_field ON table_name(field);
 ```

@@ -102,12 +102,12 @@ spring:
 - Use `@SpringBootTest` for integration tests
 - Use Testcontainers for integration tests with real databases
 - Use MockOAuth2Server for auth testing
-- Use `@MockkBean` for mocking Spring beans
+- Use `@MockkBean` for mocking Spring beans (requires `com.ninja-squad:springmockk` — verify it is in `build.gradle.kts` before using)
 
 ```kotlin
 @SpringBootTest
 class ResourceServiceTest {
-    @MockkBean
+    @MockkBean  // requires com.ninja-squad:springmockk on test classpath
     private lateinit var repository: ResourceRepository
 
     @Autowired

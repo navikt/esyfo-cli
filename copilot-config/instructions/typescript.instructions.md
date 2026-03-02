@@ -101,6 +101,6 @@ import { useState } from "react";
 - Changing data fetching strategy
 
 ### 🚫 Never
-- Use numeric spacing without `space-` prefix
+- Use numeric padding/margin values without `space-` prefix (note: `gap` on layout components like VStack/HStack/HGrid accepts numeric values e.g. `gap="4"`)
 - Skip responsive props
 - Ignore accessibility requirements

@@ -20,8 +20,8 @@ applyTo: "**/db/migration/**/*.sql"
 ## Patterns
 
 ```sql
--- Creating a table
-CREATE TABLE IF NOT EXISTS table_name (
+-- Creating a table (prefer fail-fast in versioned migrations)
+CREATE TABLE table_name (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     ident VARCHAR(11) NOT NULL,
     status TEXT NOT NULL DEFAULT 'pending',
@@ -49,11 +49,11 @@ EXECUTE FUNCTION update_updated_at_column();
 ```
 
 ```sql
--- Adding a column
-ALTER TABLE table_name ADD COLUMN IF NOT EXISTS column_name TEXT;
+-- Adding a column (use IF NOT EXISTS only when idempotency is intentional)
+ALTER TABLE table_name ADD COLUMN column_name TEXT;
 
 -- Adding an index
-CREATE INDEX IF NOT EXISTS idx_table_column ON table_name(column_name);
+CREATE INDEX idx_table_column ON table_name(column_name);
 
 -- Foreign key with CASCADE
 ALTER TABLE child_table

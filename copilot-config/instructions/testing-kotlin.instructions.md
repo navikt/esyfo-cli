@@ -1,5 +1,5 @@
 ---
-applyTo: "**/*.{test,spec}.kt,**/*.kts,**/*Test.kt,**/*Spec.kt"
+applyTo: "**/*.{test,spec}.kt,**/*Test.kt,**/*Spec.kt"
 ---
 
 # Testing Standards (Kotlin)
@@ -13,13 +13,14 @@ applyTo: "**/*.{test,spec}.kt,**/*.kts,**/*Test.kt,**/*Spec.kt"
 ## Kotest + MockK
 - Use Context7 to check Kotest version and API
 - Use `should` matchers for assertions
-- Use Kotest DescribeSpec as the standard test style for new tests
-- Check existing tests in the repo and follow their patterns for consistency
+- **Check existing tests first** — follow the repo's established test style for consistency
+- For new test suites without existing patterns, prefer Kotest DescribeSpec
 - Use MockK for mocking — prefer `coEvery` for suspend functions
 - Use Testcontainers for integration tests with real databases
 - Use MockOAuth2Server for auth testing
 
 ```kotlin
+// Option A: DescribeSpec (preferred for new test suites)
 class ResourceServiceTest : DescribeSpec({
     val service = ResourceService(mockk())
 
@@ -32,6 +33,19 @@ class ResourceServiceTest : DescribeSpec({
         }
     }
 })
+
+// Option B: JUnit5 with Kotest matchers (common in Spring Boot repos)
+class ResourceServiceTest {
+    private val service = ResourceService(mockk())
+
+    @Test
+    fun `should process event correctly`() {
+        val input = createTestInput()
+        val result = service.process(input)
+        result shouldBe expectedResult
+        result.status shouldBe "completed"
+    }
+}
 ```
 
 ### Testing Auth (MockOAuth2Server)

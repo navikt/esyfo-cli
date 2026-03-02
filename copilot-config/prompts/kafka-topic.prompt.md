@@ -9,7 +9,7 @@ Create a new Kafka topic configuration and consumer.
 ## Steps
 
 1. Read existing NAIS manifest for Kafka pool configuration
-2. Search codebase for existing Kafka consumer implementations to follow patterns (e.g. `@KafkaListener`, River classes)
+2. Search codebase for existing Kafka consumer implementations to follow patterns (e.g. `@KafkaListener`)
 3. Use Context7 to verify the Kafka library API used in this repo
 
 ## Checklist
