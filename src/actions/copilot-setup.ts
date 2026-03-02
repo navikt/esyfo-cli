@@ -9,8 +9,19 @@ const USER_AGENTS_SOURCE = path.resolve(import.meta.dir, '../../copilot-config/u
 const USER_AGENTS_TARGET = path.join(Bun.env.HOME ?? Bun.env.USERPROFILE ?? '~', '.config', 'copilot', 'agents')
 const MCP_CONFIG_PATH = path.join(Bun.env.HOME ?? Bun.env.USERPROFILE ?? '~', '.copilot', 'mcp-config.json')
 
+interface McpServer {
+    command?: string
+    type?: string
+    url?: string
+    args?: string[]
+    env?: Record<string, string>
+    headers?: Record<string, string>
+    tools?: string[]
+}
+
 interface McpConfig {
-    servers: Record<string, { command: string; args?: string[]; env?: Record<string, string> }>
+    mcpServers?: Record<string, McpServer>
+    servers?: Record<string, McpServer>
 }
 
 export async function copilotSetup(options: { force?: boolean }): Promise<void> {
@@ -56,7 +67,7 @@ async function installUserAgents(force: boolean): Promise<void> {
 async function configureMcp(): Promise<void> {
     log(chalk.cyan('\n🔌 Configuring MCP servers...'))
 
-    const desiredServers: McpConfig['servers'] = {
+    const desiredServers: Record<string, McpServer> = {
         context7: {
             command: 'npx',
             args: ['-y', '@upstash/context7-mcp@latest'],
@@ -65,11 +76,14 @@ async function configureMcp(): Promise<void> {
 
     if (fs.existsSync(MCP_CONFIG_PATH)) {
         const existing = JSON.parse(await Bun.file(MCP_CONFIG_PATH).text()) as McpConfig
+        // Support both mcpServers (Copilot CLI) and servers (older format)
+        const serversKey = existing.mcpServers ? 'mcpServers' : 'servers'
+        const servers = existing[serversKey] ?? {}
         let changed = false
 
         for (const [name, server] of Object.entries(desiredServers)) {
-            if (!existing.servers[name]) {
-                existing.servers[name] = server
+            if (!servers[name]) {
+                servers[name] = server
                 changed = true
                 log(chalk.green(`  ✓ Added ${name}`))
             } else {
@@ -78,11 +92,11 @@ async function configureMcp(): Promise<void> {
         }
 
         if (changed) {
-            fs.mkdirSync(path.dirname(MCP_CONFIG_PATH), { recursive: true })
+            existing[serversKey] = servers
             await Bun.write(MCP_CONFIG_PATH, JSON.stringify(existing, null, 2) + '\n')
         }
     } else {
-        const config: McpConfig = { servers: desiredServers }
+        const config: McpConfig = { mcpServers: desiredServers }
         fs.mkdirSync(path.dirname(MCP_CONFIG_PATH), { recursive: true })
         await Bun.write(MCP_CONFIG_PATH, JSON.stringify(config, null, 2) + '\n')
         for (const name of Object.keys(desiredServers)) {
