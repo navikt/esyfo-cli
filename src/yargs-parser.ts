@@ -11,6 +11,7 @@ import { cloneTeamRepos } from './actions/clone-team-repos'
 import { syncFilesAcrossRepos } from './actions/sync-file.ts'
 import { copilotSync } from './actions/copilot-sync.ts'
 import { copilotSetup } from './actions/copilot-setup.ts'
+import { copilotStatus } from './actions/copilot-status.ts'
 
 export const getYargsParser = (argv: string[]): Argv =>
     yargs(hideBin(argv))
@@ -132,7 +133,7 @@ export const getYargsParser = (argv: string[]): Argv =>
                                     alias: 'a',
                                     description: 'Synkroniser alle konfigurerte repos',
                                     type: 'boolean',
-                                    default: true,
+                                    default: false,
                                 })
                                 .option('dry-run', {
                                     alias: 'd',
@@ -159,6 +160,17 @@ export const getYargsParser = (argv: string[]): Argv =>
                             }),
                         async (args) => copilotSetup({ force: args.force }),
                     )
-                    .demandCommand(1, 'Vennligst spesifiser en subkommando: sync eller setup'),
+                    .command(
+                        'status',
+                        'Vis sync-status for team-repos (sjekk om repos er i sync med templates)',
+                        (yargs) =>
+                            yargs.option('repo', {
+                                alias: 'r',
+                                description: 'Sjekk et spesifikt repo',
+                                type: 'string',
+                            }),
+                        async (args) => copilotStatus({ repo: args.repo }),
+                    )
+                    .demandCommand(1, 'Vennligst spesifiser en subkommando: sync, setup eller status'),
             () => {},
         )

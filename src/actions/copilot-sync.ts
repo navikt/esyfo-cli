@@ -8,8 +8,10 @@ import { log } from '../common/log.ts'
 import { Gitter } from '../common/git.ts'
 import { GIT_CACHE_DIR } from '../common/cache.ts'
 import { extractTypeFromTopics, RepoWithBranchAndTopics, RepoType } from '../common/get-all-repos.ts'
+import inquirer from '../common/inquirer.ts'
 import {
     loadCopilotSyncConfig,
+    CopilotSyncConfig,
     isRepoSkipped,
     getFilesForProfile,
     getFilesForProfiles,
@@ -51,25 +53,19 @@ const reposQuery = /* GraphQL */ `
     }
 `
 
-type RepoNode = BaseRepoNode<RepoWithBranchAndTopics>
+export type RepoNode = BaseRepoNode<RepoWithBranchAndTopics>
 
-function repoTypeToProfile(type: RepoType): RepoProfile {
+export function repoTypeToProfile(type: RepoType): RepoProfile {
     if (type === 'monorepo') return 'other'
     return type
 }
 
-interface SyncResult {
-    repo: string
-    profile: RepoProfile
-    assembly: AssemblyResult
-    hasChanges: boolean
+export function loadSyncConfig(): CopilotSyncConfig {
+    const configPath = path.resolve(import.meta.dir, '../../copilot-config/copilot-sync-config.yml')
+    return loadCopilotSyncConfig(configPath)
 }
 
-export async function copilotSync(options: { repo?: string; all?: boolean; dryRun?: boolean }): Promise<void> {
-    const configPath = path.resolve(import.meta.dir, '../../copilot-config/copilot-sync-config.yml')
-    const config = loadCopilotSyncConfig(configPath)
-
-    // Fetch repos
+export async function fetchCopilotRepos(config: CopilotSyncConfig, repoFilter?: string): Promise<RepoNode[]> {
     log(chalk.green('Fetching team-esyfo repositories...'))
     const result = await ghGqlQuery<OrgTeamRepoResult<RepoWithBranchAndTopics>>(reposQuery, {
         team: 'team-esyfo',
@@ -77,11 +73,11 @@ export async function copilotSync(options: { repo?: string; all?: boolean; dryRu
 
     let repos = removeIgnoredAndArchived(result.organization.team.repositories.nodes) as RepoNode[]
 
-    if (options.repo) {
-        repos = repos.filter((r) => r.name === options.repo)
+    if (repoFilter) {
+        repos = repos.filter((r) => r.name === repoFilter)
         if (repos.length === 0) {
-            log(chalk.red(`Repository '${options.repo}' not found in team-esyfo`))
-            return
+            log(chalk.red(`Repository '${repoFilter}' not found in team-esyfo`))
+            return []
         }
     }
 
@@ -93,6 +89,45 @@ export async function copilotSync(options: { repo?: string; all?: boolean; dryRu
         }
         return true
     })
+
+    return repos
+}
+
+interface SyncResult {
+    repo: string
+    profile: RepoProfile
+    assembly: AssemblyResult
+    hasChanges: boolean
+}
+
+export async function copilotSync(options: { repo?: string; all?: boolean; dryRun?: boolean }): Promise<void> {
+    // Require explicit --repo or --all
+    if (!options.repo && !options.all) {
+        log(chalk.yellow('Spesifiser --repo <navn> for ett repo, eller --all for alle repos.'))
+        log(chalk.dim('  Eksempler:'))
+        log(chalk.dim('    ecli copilot sync -r mitt-repo'))
+        log(chalk.dim('    ecli copilot sync --all --dry-run'))
+        log(chalk.dim('    ecli copilot sync --all'))
+        return
+    }
+
+    const config = loadSyncConfig()
+    const repos = await fetchCopilotRepos(config, options.repo)
+    if (repos.length === 0) return
+
+    // Confirm before bulk sync (unless dry-run)
+    if (!options.repo && repos.length > 1 && !options.dryRun) {
+        const { confirm } = await inquirer.prompt<{ confirm: boolean }>({
+            type: 'confirm',
+            name: 'confirm',
+            message: `Synce ${repos.length} repos og opprette PRer?`,
+            default: false,
+        })
+        if (!confirm) {
+            log(chalk.dim('Avbrutt.'))
+            return
+        }
+    }
 
     log(`Found ${chalk.yellow(repos.length)} repos to process\n`)
 

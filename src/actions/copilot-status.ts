@@ -1,0 +1,176 @@
+import fs from 'node:fs'
+import path from 'node:path'
+import { execSync } from 'node:child_process'
+
+import chalk from 'chalk'
+
+import { log } from '../common/log.ts'
+import { Gitter } from '../common/git.ts'
+import { GIT_CACHE_DIR } from '../common/cache.ts'
+import { extractTypeFromTopics } from '../common/get-all-repos.ts'
+import { detectRepoStack } from '../copilot-config/detector.ts'
+import { assembleForRepo } from '../copilot-config/assembler.ts'
+
+import { loadSyncConfig, fetchCopilotRepos, repoTypeToProfile } from './copilot-sync.ts'
+
+type SyncState = 'synced' | 'outdated' | 'missing'
+
+interface RepoStatus {
+    repo: string
+    profile: string
+    stack: string
+    state: SyncState
+    detail: string
+}
+
+export async function copilotStatus(options: { repo?: string }): Promise<void> {
+    const config = loadSyncConfig()
+    const repos = await fetchCopilotRepos(config, options.repo)
+    if (repos.length === 0) return
+
+    log(`Found ${chalk.yellow(repos.length)} repos to check\n`)
+
+    // Clone/pull
+    log(chalk.green('Cloning/pulling repositories...'))
+    const gitter = new Gitter('cache')
+    await Promise.all(repos.map((r) => gitter.cloneOrPull(r.name, r.defaultBranchRef.name, true)))
+    log('')
+
+    log(chalk.green('Checking sync status...\n'))
+
+    const statuses: RepoStatus[] = []
+
+    for (const repo of repos) {
+        const repoPath = path.join(GIT_CACHE_DIR, repo.name)
+        const topicType = extractTypeFromTopics(repo)
+        const profile = repoTypeToProfile(topicType)
+
+        const stack = await detectRepoStack(repoPath)
+        stack.repoName = repo.name
+        if (stack.type === 'other' && profile !== 'other') {
+            stack.type = profile
+        }
+
+        const effectiveProfile = stack.type
+
+        // Run assembly to compute expected state (writes to cached repo)
+        const assembly = await assembleForRepo(repoPath, effectiveProfile, stack, config)
+
+        // Use git to detect actual content drift (modified + untracked)
+        let hasChanges = false
+        let changedCount = 0
+        try {
+            execSync('git diff-index --quiet HEAD -- .github/', { cwd: repoPath, stdio: 'pipe' })
+        } catch {
+            hasChanges = true
+            const diff = execSync('git diff-index --name-only HEAD -- .github/', {
+                cwd: repoPath,
+                encoding: 'utf8',
+            }).trim()
+            changedCount = diff ? diff.split('\n').length : 0
+        }
+
+        // Also check for untracked .github/ files
+        try {
+            const untracked = execSync('git ls-files --others --exclude-standard .github/', {
+                cwd: repoPath,
+                encoding: 'utf8',
+            }).trim()
+            if (untracked.length > 0) {
+                hasChanges = true
+                changedCount += untracked.split('\n').length
+            }
+        } catch {
+            // ignore
+        }
+
+        // Reset cached repo back to clean state
+        try {
+            execSync('git checkout -- .github/', { cwd: repoPath, stdio: 'pipe' })
+            execSync('git clean -fd .github/', { cwd: repoPath, stdio: 'pipe' })
+        } catch {
+            // repo might not have .github/ yet
+        }
+
+        const stackParts: string[] = [effectiveProfile]
+        if (stack.framework) stackParts.push(stack.framework)
+
+        const totalFiles = assembly.filesWritten.length + assembly.filesUnchanged.length
+
+        let state: SyncState
+        let detail: string
+        if (!fs.existsSync(path.join(repoPath, '.github', 'copilot-instructions.md'))) {
+            state = 'missing'
+            detail = 'no copilot config'
+        } else if (hasChanges) {
+            state = 'outdated'
+            detail = `${changedCount} file${changedCount !== 1 ? 's' : ''} differ`
+        } else {
+            state = 'synced'
+            detail = `${totalFiles} files`
+        }
+
+        statuses.push({
+            repo: repo.name,
+            profile: effectiveProfile,
+            stack: stackParts.join(' / '),
+            state,
+            detail,
+        })
+    }
+
+    // Print table
+    const maxRepo = Math.max(4, ...statuses.map((s) => s.repo.length))
+    const maxStack = Math.max(5, ...statuses.map((s) => s.stack.length))
+
+    const header = `  ${'Repo'.padEnd(maxRepo)}  ${'Stack'.padEnd(maxStack)}  ${'Status'.padEnd(10)}  Detail`
+    log(chalk.bold(header))
+    log(chalk.dim('  ' + '─'.repeat(header.length - 2)))
+
+    for (const s of statuses) {
+        const icon = stateIcon(s.state)
+        const stateStr = stateLabel(s.state)
+        log(
+            `  ${s.repo.padEnd(maxRepo)}  ${chalk.dim(s.stack.padEnd(maxStack))}  ${icon} ${stateStr.padEnd(
+                8,
+            )}  ${chalk.dim(s.detail)}`,
+        )
+    }
+
+    // Summary
+    const synced = statuses.filter((s) => s.state === 'synced').length
+    const missing = statuses.filter((s) => s.state === 'missing').length
+    const outdated = statuses.filter((s) => s.state === 'outdated').length
+
+    log('')
+    log(chalk.bold('Summary:'))
+    if (synced > 0) log(chalk.green(`  ✅ ${synced} synced`))
+    if (missing > 0) log(chalk.red(`  ❌ ${missing} missing config`))
+    if (outdated > 0) log(chalk.yellow(`  ⚠️  ${outdated} outdated`))
+
+    if (missing > 0 || outdated > 0) {
+        log(chalk.dim(`\n  Kjør ${chalk.white('ecli copilot sync --all')} for å synkronisere.`))
+    }
+}
+
+function stateIcon(state: SyncState): string {
+    switch (state) {
+        case 'synced':
+            return chalk.green('✅')
+        case 'outdated':
+            return chalk.yellow('⚠️ ')
+        case 'missing':
+            return chalk.red('❌')
+    }
+}
+
+function stateLabel(state: SyncState): string {
+    switch (state) {
+        case 'synced':
+            return chalk.green('synced')
+        case 'outdated':
+            return chalk.yellow('stale')
+        case 'missing':
+            return chalk.red('missing')
+    }
+}
