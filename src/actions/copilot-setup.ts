@@ -7,7 +7,10 @@ import { log } from '../common/log.ts'
 import { COPILOT_CONFIG_BASE } from '../copilot-config/paths.ts'
 
 const PLUGIN_SOURCE = path.resolve(COPILOT_CONFIG_BASE, 'user-agents')
-const HOME = Bun.env.HOME ?? Bun.env.USERPROFILE ?? '~'
+const HOME = Bun.env.HOME ?? Bun.env.USERPROFILE
+if (!HOME) {
+    throw new Error('Could not determine home directory: neither HOME nor USERPROFILE is set')
+}
 const COPILOT_DIR = path.join(HOME, '.copilot')
 const PLUGIN_TARGET = path.join(COPILOT_DIR, 'installed-plugins', '_direct', 'esyfo-agents')
 const COPILOT_CONFIG_PATH = path.join(COPILOT_DIR, 'config.json')

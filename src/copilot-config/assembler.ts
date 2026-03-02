@@ -64,7 +64,7 @@ export async function assembleForRepo(
     if (files.teamAgent) {
         const agentPath = path.join(agentsDir, 'esyfo.agent.md')
         managedFiles.add(agentPath)
-        const agentContent = await readConfigFile('agents', files.teamAgent)
+        const agentContent = await readConfigFile('user-agents/agents', files.teamAgent)
         await writeIfChanged(agentPath, MANAGED_HEADER + agentContent, result)
     }
 
@@ -72,7 +72,7 @@ export async function assembleForRepo(
     for (const agent of files.agents) {
         const agentPath = path.join(agentsDir, agent)
         managedFiles.add(agentPath)
-        const agentContent = await readConfigFile('agents', agent)
+        const agentContent = await readConfigFile('user-agents/agents', agent)
         await writeIfChanged(agentPath, MANAGED_HEADER + agentContent, result)
     }
 
