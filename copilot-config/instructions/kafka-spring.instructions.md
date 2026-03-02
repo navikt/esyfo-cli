@@ -31,15 +31,15 @@ spring:
 class EventConsumer(
     private val service: EventService
 ) {
-    private val logger = KotlinLogging.logger {}
+    private val logger = LoggerFactory.getLogger(EventConsumer::class.java)
 
     @KafkaListener(topics = ["\${kafka.topic.input}"], groupId = "\${spring.kafka.consumer.group-id}")
     fun consume(record: ConsumerRecord<String, String>) {
         val event = objectMapper.readValue(record.value(), EventDTO::class.java)
-        logger.info { "Received event: ${event.id}" }
+        logger.info("Received event: ${event.id}")
 
         if (service.alreadyProcessed(event.id)) {
-            logger.info { "Event ${event.id} already processed, skipping" }
+            logger.info("Event ${event.id} already processed, skipping")
             return
         }
 
@@ -55,16 +55,16 @@ class EventConsumer(
 class EventProducer(
     private val kafkaTemplate: KafkaTemplate<String, String>
 ) {
-    private val logger = KotlinLogging.logger {}
+    private val logger = LoggerFactory.getLogger(EventProducer::class.java)
 
     fun publish(topic: String, key: String, event: Any) {
         val payload = objectMapper.writeValueAsString(event)
         kafkaTemplate.send(topic, key, payload)
             .whenComplete { result, ex ->
                 if (ex != null) {
-                    logger.error(ex) { "Failed to publish to $topic" }
+                    logger.error("Failed to publish to $topic", ex)
                 } else {
-                    logger.info { "Published to $topic at offset ${result.recordMetadata.offset()}" }
+                    logger.info("Published to $topic at offset ${result.recordMetadata.offset()}")
                 }
             }
     }

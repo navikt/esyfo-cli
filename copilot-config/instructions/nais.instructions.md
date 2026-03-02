@@ -15,8 +15,8 @@ metadata:
   labels:
     team: team-esyfo
 spec:
-  image: {{image}}
-  port: 8080
+  image: {{ image }}
+  port: 8080  # Check existing manifests — varies per repo (e.g. 3000 for frontend)
 
   # Paths vary per repo — check existing manifests for actual values
   prometheus:
@@ -127,4 +127,6 @@ spec:
 - Store secrets in Git
 - Deploy without CI/CD pipeline
 - Skip health endpoints
-- Set CPU limits (causes throttling)
+
+### ⚠️ Ask First (cont.)
+- Changing CPU limits (can cause throttling — follow existing manifests)

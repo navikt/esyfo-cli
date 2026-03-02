@@ -57,7 +57,7 @@ interface ResourceRepository : CrudRepository<ResourceEntity, UUID> {
 
 // Option B: NamedParameterJdbcTemplate (raw SQL)
 @Repository
-class ResourceRepository(
+class JdbcResourceRepository(
     private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate
 ) {
     fun findById(id: UUID): ResourceEntity? {
@@ -78,7 +78,7 @@ class ProtectedController {
     @GetMapping("/api/protected")
     fun protectedEndpoint(): ResponseEntity<Any> {
         // Token validation is handled automatically by the filter
-        return ResponseEntity.ok(data)
+        return ResponseEntity.ok(mapOf("status" to "ok"))
     }
 }
 ```

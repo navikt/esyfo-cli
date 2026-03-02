@@ -8,7 +8,7 @@ applyTo: "**/*.{ts,tsx}"
 - Use strict TypeScript — avoid `any` and type assertions where possible
 - Prefer `interface` over `type` for object shapes
 - Use `const` over `let`, never `var`
-- Prefer named exports over default exports
+- Follow framework conventions for exports (e.g. `export default` for Next.js pages/components, named exports elsewhere)
 
 ## Aksel Spacing (CRITICAL)
 

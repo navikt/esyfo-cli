@@ -26,8 +26,8 @@ metadata:
   labels:
     team: team-esyfo
 spec:
-  image: {{image}}
-  port: 8080
+  image: {{ image }}
+  port: 8080  # Check existing manifests for actual port
   # Check existing manifests for correct paths — these vary per repo
   prometheus:
     enabled: true
