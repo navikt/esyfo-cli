@@ -7,11 +7,12 @@ import { log } from '../common/log.ts'
 
 import { CopilotSyncConfig, getFilesForProfile, getFilesForProfiles, RepoProfile } from './sync-config.ts'
 import { RepoStackInfo } from './detector.ts'
+import { COPILOT_CONFIG_BASE } from './paths.ts'
 
 const MANAGED_HEADER =
     '<!-- Managed by esyfo-cli. Do not edit manually. Changes will be overwritten.\n' +
     '     For repo-specific customizations, create your own files without this header. -->\n'
-const CONFIG_BASE = path.resolve(import.meta.dir, '../../copilot-config')
+const CONFIG_BASE = COPILOT_CONFIG_BASE
 
 export interface AssemblyResult {
     filesWritten: string[]

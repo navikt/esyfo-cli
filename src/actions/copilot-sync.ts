@@ -17,6 +17,7 @@ import {
     getFilesForProfiles,
     RepoProfile,
 } from '../copilot-config/sync-config.ts'
+import { COPILOT_CONFIG_BASE } from '../copilot-config/paths.ts'
 import { detectRepoStack, logStackInfo } from '../copilot-config/detector.ts'
 import {
     assembleForRepo,
@@ -61,7 +62,7 @@ export function repoTypeToProfile(type: RepoType): RepoProfile {
 }
 
 export function loadSyncConfig(): CopilotSyncConfig {
-    const configPath = path.resolve(import.meta.dir, '../../copilot-config/copilot-sync-config.yml')
+    const configPath = path.resolve(COPILOT_CONFIG_BASE, 'copilot-sync-config.yml')
     return loadCopilotSyncConfig(configPath)
 }
 

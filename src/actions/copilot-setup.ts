@@ -4,8 +4,9 @@ import path from 'node:path'
 import chalk from 'chalk'
 
 import { log } from '../common/log.ts'
+import { COPILOT_CONFIG_BASE } from '../copilot-config/paths.ts'
 
-const PLUGIN_SOURCE = path.resolve(import.meta.dir, '../../copilot-config/user-agents')
+const PLUGIN_SOURCE = path.resolve(COPILOT_CONFIG_BASE, 'user-agents')
 const HOME = Bun.env.HOME ?? Bun.env.USERPROFILE ?? '~'
 const COPILOT_DIR = path.join(HOME, '.copilot')
 const PLUGIN_TARGET = path.join(COPILOT_DIR, 'installed-plugins', '_direct', 'esyfo-agents')

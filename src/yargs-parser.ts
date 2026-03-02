@@ -141,7 +141,12 @@ export const getYargsParser = (argv: string[]): Argv =>
                                     type: 'boolean',
                                     default: false,
                                 })
-                                .conflicts('all', 'repo'),
+                                .check((argv) => {
+                                    if (argv.all && argv.repo) {
+                                        throw new Error('Bruk enten --all eller --repo, ikke begge.')
+                                    }
+                                    return true
+                                }),
                         async (args) =>
                             copilotSync({
                                 repo: args.repo,
