@@ -11,8 +11,8 @@ applyTo: "**/*.kt,**/*.ts,**/*.tsx"
 - **Grafana Tempo**: Distributed tracing (OpenTelemetry)
 - **Alert Manager**: Alert routing (Slack integration)
 
-## Required Health Endpoints
-Every NAIS app must implement: `/isalive`, `/isready`, `/metrics`
+## Health Endpoints
+NAIS apps expose health and metrics endpoints (paths vary per repo — check existing routes).
 
 ## Metric Naming
 - Use `snake_case` with unit suffix (`_seconds`, `_bytes`, `_total`)
@@ -29,7 +29,7 @@ logger.info("Processing event", kv("event_id", eventId), kv("user_id", userId))
 
 ### ✅ Always
 - Use snake_case for metric names with unit suffix
-- Include `/metrics`, `/isalive`, `/isready` endpoints
+- Ensure health and metrics endpoints exist
 - Log to stdout/stderr (not files)
 - Use structured logging (JSON)
 - Include `trace_id` in logs

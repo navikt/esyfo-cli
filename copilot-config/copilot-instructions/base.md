@@ -14,7 +14,6 @@
 - **Platform**: NAIS (Kubernetes on GCP)
 - **Auth**: Azure AD (internal users), TokenX (on-behalf-of token exchange), ID-porten (citizens), Maskinporten (machine-to-machine)
 - **Observability**: Prometheus metrics, Grafana Loki logs, Tempo tracing (OpenTelemetry)
-- **Required endpoints**: `/isalive`, `/isready`, `/metrics`
 
 ## Conventions
 - Norwegian user-facing text, English code and comments

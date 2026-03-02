@@ -27,7 +27,6 @@
 ## Boundaries
 
 ### ✅ Always
-- Implement `/isalive`, `/isready`, `/metrics` endpoints
 - Use Flyway for database migrations
 - Add Prometheus metrics for business operations
 - Validate JWT issuer, audience, and expiration
