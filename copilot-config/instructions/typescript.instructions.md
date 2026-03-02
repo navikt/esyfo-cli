@@ -58,7 +58,7 @@ import { Heading, BodyShort, Label } from "@navikt/ds-react";
 
 ## React
 - Use functional components with hooks
-- Use Aksel components from `@navikt/ds-react` — check Context7 for current API
+- Use Aksel components from `@navikt/ds-react` — check [aksel.nav.no](https://aksel.nav.no) for component API
 - Follow existing component patterns in the codebase
 - Co-locate related files (component, test, styles)
 

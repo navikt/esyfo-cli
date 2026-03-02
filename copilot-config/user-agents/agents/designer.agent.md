@@ -11,7 +11,7 @@ Utviklere har sjelden den beste intuisjonen for design — ta eierskap over desi
 
 ## Aksel designsystem
 
-Bruk ALLTID Context7 for å slå opp NAV Aksel-komponenter (`@navikt/ds-react`) før du designer.
+Sjekk ALLTID [aksel.nav.no](https://aksel.nav.no) for NAV Aksel-komponenter (`@navikt/ds-react`) før du designer. Aksel er IKKE tilgjengelig i Context7 — bruk aksel.nav.no direkte.
 
 ### Spacing (KRITISK)
 - **Alltid** bruk Aksel spacing tokens: `space-4`, `space-8`, `space-12`, `space-16`, `space-20`, `space-24`, `space-32`
@@ -22,7 +22,7 @@ Bruk ALLTID Context7 for å slå opp NAV Aksel-komponenter (`@navikt/ds-react`) 
 ### Komponenter
 - Bruk Aksel-komponenter for alle standard UI-elementer
 - Følg Aksel's komposisjonsmønstre (`<Table>`, `<Table.Header>`, `<Table.Row>`)
-- Sjekk aksel.nav.no via Context7 for komponent-API
+- Sjekk aksel.nav.no for komponent-API
 
 ### Tilgjengelighet (WCAG 2.1 AA)
 - Alle interaktive elementer skal være tastatur-tilgjengelige

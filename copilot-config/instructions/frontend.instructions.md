@@ -25,11 +25,10 @@ applyTo: "**/*.tsx,**/*.ts,**/*.css"
 - Error messages must be programmatically associated with inputs
 - Use `aria-live` for dynamic content updates
 
-## Context7 Workflow
+## Documentation Lookup
 ```
-Step 1: Identify framework and Aksel version from package.json
-Step 2: context7-resolve-library-id → resolve @navikt/ds-react (or framework)
-Step 3: context7-query-docs → get component API, patterns, usage examples
+For Aksel (@navikt/ds-react): Check aksel.nav.no for component API and usage examples
+For other libraries: context7-resolve-library-id → context7-query-docs
 ```
 
 ## Testing
@@ -44,7 +43,7 @@ Step 3: context7-query-docs → get component API, patterns, usage examples
 - Use Aksel components from `@navikt/ds-react`
 - Use design tokens for styling
 - Follow WCAG 2.1 AA accessibility standards
-- Check Context7 for component API before using
+- Check [aksel.nav.no](https://aksel.nav.no) for Aksel component API before using
 - Follow existing patterns in the codebase
 
 ### ⚠️ Ask First
