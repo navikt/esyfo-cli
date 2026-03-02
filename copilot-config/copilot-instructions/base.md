@@ -1,8 +1,14 @@
 # {{repo_name}}
 
+{{description}}
+
 ## Team
 - **Team**: team-esyfo, NAV IT
 - **Org**: navikt
+
+## Commands
+
+{{commands}}
 
 ## NAV Principles
 - **Team First**: Autonomous teams with circles of autonomy
@@ -17,6 +23,24 @@
 
 ## Conventions
 - English code and comments — Norwegian for user-facing text and domain terms (e.g. dialogmote, sykmelding, oppfolgingsplan)
-- Use Context7 (`context7-resolve-library-id` → `context7-query-docs`) for library-specific patterns
+- Use Context7 (`context7-resolve-library-id` → `context7-query-docs`) for library-specific patterns (not available for NAV-internal libs like Aksel/NAIS — use aksel.nav.no and doc.nais.io instead)
 - Check existing code patterns in the repository before writing new code
 - Follow the ✅ Always / ⚠️ Ask First / 🚫 Never boundaries in agent and instruction files
+
+## Documentation and Working Notes
+
+| Tier | Location | Purpose | Persists | Checked in |
+|------|----------|---------|----------|------------|
+| **Session** | `~/.copilot/session-state/` | Scratch work for one task | No | No |
+| **Local notes** | `.local-notes/` | Plans, architecture drafts, research, AI reviews | Yes | No |
+| **Permanent docs** | `docs/` | Finalized documentation (ADRs, API docs) | Yes | Yes |
+
+**Defaults**: Planning/research/drafts → `.local-notes/`. Finalized docs → `docs/`. Task tracking → session state.
+
+## Keeping Copilot Config in Sync
+
+When making changes that affect patterns described in `.github/` config files (instructions, prompts, skills), **suggest** updating the relevant files — but do not update them automatically.
+
+Examples: upgrading frameworks, changing test patterns, adding auth mechanisms, changing DB access patterns, adding Kafka topics, modifying build tooling.
+
+Format: *"This change affects patterns in `.github/instructions/<file>` — want me to update it?"*

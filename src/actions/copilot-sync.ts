@@ -33,6 +33,7 @@ const reposQuery = /* GraphQL */ `
                 repositories(orderBy: { field: PUSHED_AT, direction: DESC }) {
                     nodes {
                         name
+                        description
                         isArchived
                         pushedAt
                         url
@@ -162,6 +163,7 @@ export async function copilotSync(options: { repo?: string; all?: boolean; dryRu
         // Detect stack
         const stack = await detectRepoStack(repoPath)
         stack.repoName = repo.name
+        stack.repoDescription = repo.description ?? undefined
         // Use topic-based type if detector didn't find specific type
         if (stack.type === 'other' && profile !== 'other') {
             stack.type = profile
@@ -180,7 +182,7 @@ export async function copilotSync(options: { repo?: string; all?: boolean; dryRu
                 ? getFilesForProfiles(config, stack.subProfiles!)
                 : getFilesForProfile(config, effectiveProfile)
             resolveConditionalFiles(files, stack)
-            const parts = ['copilot-instructions.md']
+            const parts = ['copilot-instructions.md (scaffold if missing)']
             if (files.agents.length > 0) parts.push(`${files.agents.length} agents`)
             parts.push(`${files.instructions.length} instructions`)
             if (files.prompts.length > 0) parts.push(`${files.prompts.length} prompts`)

@@ -10,6 +10,7 @@ import { RepoProfile } from './sync-config.ts'
 export interface RepoStackInfo {
     type: RepoProfile
     repoName?: string
+    repoDescription?: string
     language?: 'kotlin' | 'typescript'
     framework?: string
     /** For monorepos: Kotlin framework detected in a backend sub-app */

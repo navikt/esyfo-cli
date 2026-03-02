@@ -54,11 +54,11 @@ export async function assembleForRepo(
         fs.mkdirSync(dir, { recursive: true })
     }
 
-    // 1. Assemble copilot-instructions.md
+    // 1. Scaffold copilot-instructions.md (repo-owned, not CLI-managed)
+    // Only created if the file doesn't exist. Never overwritten — developers own this file.
     const copilotInstructionsPath = path.join(githubDir, 'copilot-instructions.md')
-    managedFiles.add(copilotInstructionsPath)
     const instructionsContent = assembleCopilotInstructions(files.copilotInstructions, stack)
-    await writeIfChanged(copilotInstructionsPath, MANAGED_HEADER + instructionsContent, result)
+    await scaffoldIfMissing(copilotInstructionsPath, instructionsContent, result)
 
     // 2. Copy team agent (renamed to esyfo.agent.md in target)
     if (files.teamAgent) {
@@ -205,17 +205,38 @@ function assembleCopilotInstructions(templates: string[], stack: RepoStackInfo):
 }
 
 function replaceTemplateVars(content: string, stack: RepoStackInfo): string {
+    const buildCmd = resolveBuildCommand(stack)
+    // Use function-style replacements to avoid $ being interpreted as special replacement patterns
     return content
-        .replace(/\{\{repo_name\}\}/g, stack.repoName ?? 'unknown')
-        .replace(/\{\{framework\}\}/g, stack.framework ?? 'unknown')
-        .replace(
-            /\{\{database\}\}/g,
+        .replace(/\{\{repo_name\}\}/g, () => stack.repoName ?? 'unknown')
+        .replace(/\{\{description\}\}/g, () => stack.repoDescription ?? '')
+        .replace(/\{\{commands\}\}/g, () => buildCmd)
+        .replace(/\{\{framework\}\}/g, () => stack.framework ?? 'unknown')
+        .replace(/\{\{database\}\}/g, () =>
             stack.hasDatabase ? `PostgreSQL${stack.databaseLib ? ` (via ${stack.databaseLib})` : ''}` : 'N/A',
         )
-        .replace(/\{\{database_details\}\}/g, stack.databaseLib ? ` (via ${stack.databaseLib})` : '')
-        .replace(/\{\{messaging\}\}/g, stack.hasKafka ? 'Apache Kafka' : 'N/A')
-        .replace(/\{\{testing\}\}/g, stack.testingLib ?? 'check package.json/build.gradle.kts')
-        .replace(/\{\{bundler\}\}/g, stack.bundler ?? 'N/A')
+        .replace(/\{\{database_details\}\}/g, () => (stack.databaseLib ? ` (via ${stack.databaseLib})` : ''))
+        .replace(/\{\{messaging\}\}/g, () => (stack.hasKafka ? 'Apache Kafka' : 'N/A'))
+        .replace(/\{\{testing\}\}/g, () => stack.testingLib ?? 'check package.json/build.gradle.kts')
+        .replace(/\{\{bundler\}\}/g, () => stack.bundler ?? 'N/A')
+}
+
+function resolveBuildCommand(stack: RepoStackInfo): string {
+    if (stack.language === 'kotlin') {
+        return ['```bash', './gradlew build   # Build + test + lint', './gradlew test    # Tests only', '```'].join(
+            '\n',
+        )
+    }
+    if (stack.language === 'typescript') {
+        return [
+            '```bash',
+            'npm run build     # Build',
+            'npm run test      # Tests',
+            'npm run lint      # Lint',
+            '```',
+        ].join('\n')
+    }
+    return 'Check `package.json` or `build.gradle.kts` for available commands.'
 }
 
 async function readConfigFile(subdir: string, filename: string): Promise<string> {
@@ -242,6 +263,23 @@ async function writeIfChanged(targetPath: string, content: string, result: Assem
             result.filesSkipped.push(relativePath)
             return
         }
+    }
+
+    await Bun.write(targetPath, content)
+    result.filesWritten.push(relativePath)
+}
+
+/**
+ * Create a scaffold file only if it doesn't exist yet.
+ * No managed header — the file is repo-owned from the start.
+ */
+async function scaffoldIfMissing(targetPath: string, content: string, result: AssemblyResult): Promise<void> {
+    const relativePath = targetPath.split('.github/').pop() ?? targetPath
+    const existingFile = Bun.file(targetPath)
+
+    if (await existingFile.exists()) {
+        result.filesSkipped.push(relativePath)
+        return
     }
 
     await Bun.write(targetPath, content)

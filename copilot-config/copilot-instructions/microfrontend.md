@@ -20,6 +20,7 @@
 ## Boundaries
 
 ### ✅ Always
+- Run `npm run build` after changes to verify the build
 - Use Aksel components and spacing tokens
 - Keep bundle size minimal
 - Test keyboard navigation

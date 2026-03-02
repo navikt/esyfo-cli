@@ -21,21 +21,28 @@ fun Application.api() {
 }
 ```
 
-## Database Access (Kotliquery)
+## Database Access
+
+Check `build.gradle.kts` for the actual database library before writing queries. Common patterns in team-esyfo Ktor apps:
 
 ```kotlin
-class RepositoryPostgres(private val dataSource: DataSource) : Repository {
-    override fun findById(id: Long): Entity? {
-        return using(sessionOf(dataSource)) { session ->
-            session.run(
-                queryOf("SELECT * FROM table WHERE id = ?", id)
-                    .map { row -> Entity(id = row.long("id"), name = row.string("name")) }
-                    .asSingle
-            )
-        }
-    }
+// Extension functions on a database interface (raw JDBC / HikariCP):
+fun DatabaseInterface.findById(id: Long): Entity? {
+    val stmt = "SELECT * FROM table WHERE id = ?"
+    return connection.prepareStatement(stmt).use { ps ->
+        ps.setLong(1, id)
+        ps.executeQuery().toList { toEntity() }
+    }.firstOrNull()
+}
+
+// Kotliquery (if dependency is present):
+using(sessionOf(dataSource)) { session ->
+    session.run(queryOf("SELECT * FROM table WHERE id = ?", id)
+        .map { row -> Entity(row.long("id"), row.string("name")) }.asSingle)
 }
 ```
+
+**Always follow the existing data access pattern in the repo.**
 
 ## Auth (Ktor JWT)
 
@@ -52,7 +59,7 @@ authenticate("azureAd") {
 ## Structured Logging
 
 ```kotlin
-// Structured fields — check which pattern this repo uses
+// Check which pattern this repo uses
 logger.info("Processing event", kv("event_id", eventId))
 // or with MDC for request-scoped context
 MDC.put("x_request_id", requestId)

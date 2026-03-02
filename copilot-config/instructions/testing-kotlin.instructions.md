@@ -12,7 +12,7 @@ applyTo: "**/*.{test,spec}.kt,**/*Test.kt,**/*Spec.kt,**/*Spek.kt"
 
 ## Kotest + MockK
 - Use Context7 to check Kotest version and API
-- Use `should` matchers for assertions
+- Use `should` matchers for assertions (Kotest or Kluent `shouldBeEqualTo`)
 - **Check existing tests first** — follow the repo's established test style for consistency
 - For new test suites without existing patterns, prefer Kotest DescribeSpec
 - Use MockK for mocking — prefer `coEvery` for suspend functions

@@ -12,13 +12,14 @@
 - Check `build.gradle.kts` for actual dependencies before suggesting libraries
 - Use Flyway for all database migrations — never modify existing migrations
 - Parameterized queries always — never string interpolation in SQL
-- Implement Repository pattern for database access
-- Structured logging with KotlinLogging and `kv()` fields
+- Follow the existing data access pattern in the repository (extension functions, repositories, etc.)
+- Structured logging — check which pattern this repo uses (KotlinLogging, SLF4J, kv() fields, MDC)
 - Follow existing code patterns in the repository
 
 ## Boundaries
 
 ### ✅ Always
+- Run `./gradlew build` after changes
 - Use Flyway for database migrations
 - Add Prometheus metrics for business operations
 - Validate JWT issuer, audience, and expiration
