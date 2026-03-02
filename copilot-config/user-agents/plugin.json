@@ -1,6 +1,6 @@
 {
     "name": "esyfo-agents",
-    "description": "Rolle-baserte Copilot-agenter for team-esyfo. Orchestrator, planner, coder, designer og reviewer.",
+    "description": "Kjøkken-agenter for team-esyfo. Hovmester, kokken, mattilsynet (+ souschef og konditor internt).",
     "version": "1.0.0",
     "author": {
         "name": "team-esyfo",

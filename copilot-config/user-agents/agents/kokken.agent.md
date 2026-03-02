@@ -1,6 +1,6 @@
 ---
-name: coder
-description: "Implementerer kode basert på planer og instruksjoner — følger etablerte mønstre"
+name: kokken
+description: "Smeller sammen koden — implementerer basert på planer og etablerte mønstre"
 model: "GPT-5.3-Codex"
 tools: ["edit", "search", "read", "web", "execute", "context7/*", "memory"]
 ---
