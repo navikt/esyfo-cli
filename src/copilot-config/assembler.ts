@@ -14,6 +14,25 @@ const MANAGED_HEADER =
     '     For repo-specific customizations, create your own files without this header. -->\n'
 const CONFIG_BASE = COPILOT_CONFIG_BASE
 
+const FRONTMATTER_RE = /^(---\n[\s\S]*?\n---\n)/
+const MANAGED_MARKER = '<!-- Managed by esyfo-cli'
+
+/** Prepend managed header after YAML frontmatter so Copilot still parses applyTo/description. */
+function withManagedHeader(content: string): string {
+    const match = content.match(FRONTMATTER_RE)
+    if (match) {
+        return match[1] + MANAGED_HEADER + content.slice(match[1].length)
+    }
+    return MANAGED_HEADER + content
+}
+
+/** Check if file content has the managed header at the expected position (line 1 or right after frontmatter). */
+function isManagedContent(content: string): boolean {
+    if (content.startsWith(MANAGED_MARKER)) return true
+    const match = content.match(FRONTMATTER_RE)
+    return !!match && content.slice(match[1].length).startsWith(MANAGED_MARKER)
+}
+
 export interface AssemblyResult {
     filesWritten: string[]
     filesUnchanged: string[]
@@ -65,7 +84,7 @@ export async function assembleForRepo(
         const agentPath = path.join(agentsDir, 'esyfo.agent.md')
         managedFiles.add(agentPath)
         const agentContent = await readConfigFile('user-agents/agents', files.teamAgent)
-        await writeIfChanged(agentPath, MANAGED_HEADER + agentContent, result)
+        await writeIfChanged(agentPath, withManagedHeader(agentContent), result)
     }
 
     // 3. Copy agents (if any configured in profile — currently agents are delivered via plugin only)
@@ -73,7 +92,7 @@ export async function assembleForRepo(
         const agentPath = path.join(agentsDir, agent)
         managedFiles.add(agentPath)
         const agentContent = await readConfigFile('user-agents/agents', agent)
-        await writeIfChanged(agentPath, MANAGED_HEADER + agentContent, result)
+        await writeIfChanged(agentPath, withManagedHeader(agentContent), result)
     }
 
     // 4. Copy instructions
@@ -81,7 +100,7 @@ export async function assembleForRepo(
         const instructionPath = path.join(instructionsDir, instruction)
         managedFiles.add(instructionPath)
         const content = await readConfigFile('instructions', instruction)
-        await writeIfChanged(instructionPath, MANAGED_HEADER + content, result)
+        await writeIfChanged(instructionPath, withManagedHeader(content), result)
     }
 
     // 5. Copy prompts
@@ -89,7 +108,7 @@ export async function assembleForRepo(
         const promptPath = path.join(promptsDir, prompt)
         managedFiles.add(promptPath)
         const content = await readConfigFile('prompts', prompt)
-        await writeIfChanged(promptPath, MANAGED_HEADER + content, result)
+        await writeIfChanged(promptPath, withManagedHeader(content), result)
     }
 
     // 6. Copy skills
@@ -99,7 +118,7 @@ export async function assembleForRepo(
         const skillPath = path.join(skillDir, 'SKILL.md')
         managedFiles.add(skillPath)
         const content = await readConfigFile(`skills/${skill}`, 'SKILL.md')
-        await writeIfChanged(skillPath, MANAGED_HEADER + content, result)
+        await writeIfChanged(skillPath, withManagedHeader(content), result)
     }
 
     // 7. Clean up stale managed files (files we previously managed but no longer need)
@@ -213,7 +232,7 @@ async function writeIfChanged(targetPath: string, content: string, result: Assem
             return
         }
         // Only overwrite files we manage (have our header)
-        if (!existing.startsWith('<!-- Managed by esyfo-cli')) {
+        if (!isManagedContent(existing)) {
             result.filesSkipped.push(relativePath)
             return
         }
@@ -257,7 +276,7 @@ async function cleanStaleManagedFiles(
                 const skillMd = path.join(fullPath, 'SKILL.md')
                 if (fs.existsSync(skillMd) && !currentManagedFiles.has(skillMd)) {
                     const content = await Bun.file(skillMd).text()
-                    if (content.startsWith('<!-- Managed by esyfo-cli')) {
+                    if (isManagedContent(content)) {
                         fs.unlinkSync(skillMd)
                         try {
                             fs.rmdirSync(fullPath)
@@ -274,7 +293,7 @@ async function cleanStaleManagedFiles(
 
             if (!currentManagedFiles.has(fullPath)) {
                 const content = await Bun.file(fullPath).text()
-                if (content.startsWith('<!-- Managed by esyfo-cli')) {
+                if (isManagedContent(content)) {
                     fs.unlinkSync(fullPath)
                     const relativePath = fullPath.split('.github/').pop() ?? fullPath
                     result.filesRemoved.push(relativePath)
