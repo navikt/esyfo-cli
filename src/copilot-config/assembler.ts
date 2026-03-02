@@ -18,6 +18,7 @@ export interface AssemblyResult {
     filesWritten: string[]
     filesUnchanged: string[]
     filesRemoved: string[]
+    filesSkipped: string[]
 }
 
 export async function assembleForRepo(
@@ -34,7 +35,7 @@ export async function assembleForRepo(
     // Augment with conditional files based on detected stack
     resolveConditionalFiles(files, stack)
 
-    const result: AssemblyResult = { filesWritten: [], filesUnchanged: [], filesRemoved: [] }
+    const result: AssemblyResult = { filesWritten: [], filesUnchanged: [], filesRemoved: [], filesSkipped: [] }
 
     // Track all files we intend to write (for stale cleanup)
     const managedFiles = new Set<string>()
@@ -237,7 +238,7 @@ async function writeIfChanged(targetPath: string, content: string, result: Assem
         }
         // Only overwrite files we manage (have our header)
         if (!existing.startsWith('<!-- Managed by esyfo-cli')) {
-            log(chalk.yellow(`  ⚠ Skipping ${relativePath} — not managed by esyfo-cli`))
+            result.filesSkipped.push(relativePath)
             return
         }
     }

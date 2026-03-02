@@ -190,7 +190,7 @@ export async function copilotSync(options: { repo?: string; all?: boolean; dryRu
             results.push({
                 repo: repo.name,
                 profile: effectiveProfile,
-                assembly: { filesWritten: [], filesUnchanged: [], filesRemoved: [] },
+                assembly: { filesWritten: [], filesUnchanged: [], filesRemoved: [], filesSkipped: [] },
                 hasChanges: false,
             })
             continue
@@ -226,6 +226,9 @@ export async function copilotSync(options: { repo?: string; all?: boolean; dryRu
         }
         if (assembly.filesUnchanged.length > 0) {
             log(chalk.dim(`    - ${assembly.filesUnchanged.length} files unchanged`))
+        }
+        if (assembly.filesSkipped.length > 0) {
+            log(chalk.yellow(`    ⚠ ${assembly.filesSkipped.length} files skipped (not managed by esyfo-cli)`))
         }
 
         results.push({ repo: repo.name, profile: effectiveProfile, assembly, hasChanges })
