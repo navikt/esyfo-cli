@@ -1,8 +1,8 @@
 ---
-applyTo: "**/*.{test,spec}.{ts,tsx,kt,kts}"
+applyTo: "**/*.{test,spec}.kt,**/*.kts,**/*Test.kt,**/*Spec.kt"
 ---
 
-# Testing Standards
+# Testing Standards (Kotlin)
 
 ## General
 - Tests should describe behavior, not implementation
@@ -10,7 +10,7 @@ applyTo: "**/*.{test,spec}.{ts,tsx,kt,kts}"
 - Use descriptive test names that explain expected behavior
 - Arrange → Act → Assert pattern
 
-## Kotlin (Kotest + MockK)
+## Kotest + MockK
 - Use Context7 to check Kotest version and API
 - Use `should` matchers for assertions
 - Use Kotest DescribeSpec as the standard test style
@@ -47,36 +47,9 @@ val token = mockOAuth2Server.issueToken(
 ```
 
 ## Integration Tests
-- Use real dependencies where feasible (Testcontainers for databases, MSW for HTTP mocks)
+- Use real dependencies where feasible (Testcontainers for databases)
 - Test the full flow, not just units in isolation
 - Clean up test data after each test
-
-## TypeScript (Vitest/Jest + Testing Library)
-- Use Context7 to check the test runner and Testing Library version
-- Use `screen.getByRole()` over `getByTestId()`
-- Test user interactions, not component internals
-- Use `userEvent` over `fireEvent` for realistic interactions
-- Test accessibility: keyboard navigation, screen reader behavior
-
-```typescript
-describe('formatNumber', () => {
-  it('should format numbers with Norwegian locale', () => {
-    const formatted = new Intl.NumberFormat('nb-NO').format(151354);
-    expect(formatted).toMatch(/151\s354/); // handles both regular and non-breaking space
-  });
-});
-```
-
-### Testing React Components
-
-```typescript
-import { render, screen } from '@testing-library/react';
-
-it('should render title', () => {
-  render(<MetricCard title="Total" value={100} />);
-  expect(screen.getByText('Total')).toBeInTheDocument();
-});
-```
 
 ## Test Naming
 

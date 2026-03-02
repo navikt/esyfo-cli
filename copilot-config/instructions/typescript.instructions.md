@@ -12,15 +12,15 @@ applyTo: "**/*.{ts,tsx}"
 
 ## Aksel Spacing (CRITICAL)
 
-**Always** use Aksel spacing tokens, **never** Tailwind padding/margin:
+**Prefer** Aksel spacing tokens over Tailwind padding/margin:
 
 ```tsx
-// ✅ Correct
+// ✅ Preferred
 <Box paddingBlock={{ xs: "space-16", md: "space-24" }} paddingInline="space-16">
   {children}
 </Box>
 
-// ❌ Wrong — never use Tailwind spacing
+// ⚠️ Avoid when Aksel spacing tokens are available
 <div className="p-4 md:p-6">
 ```
 
@@ -90,7 +90,7 @@ import { useState } from "react";
 ## Boundaries
 
 ### ✅ Always
-- Use Aksel components and spacing tokens with `space-` prefix
+- Prefer Aksel components and spacing tokens with `space-` prefix
 - Mobile-first responsive design
 - Norwegian number formatting
 - Explicit error handling
@@ -101,7 +101,6 @@ import { useState } from "react";
 - Changing data fetching strategy
 
 ### 🚫 Never
-- Use Tailwind `p-*`/`m-*` utilities for spacing
 - Use numeric spacing without `space-` prefix
 - Skip responsive props
 - Ignore accessibility requirements

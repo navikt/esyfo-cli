@@ -12,9 +12,8 @@
 - Follow existing code patterns in the repository
 - Mobile-first responsive design with breakpoints: `xs`, `sm`, `md`, `lg`, `xl`
 
-## Aksel Spacing (CRITICAL)
-- **Always** use Aksel spacing tokens with `space-` prefix: `space-4`, `space-8`, `space-12`, `space-16`, `space-20`, `space-24`, `space-32`, `space-40`
-- **Never** use Tailwind padding/margin utilities (`p-4`, `mx-2`, etc.)
+## Aksel Spacing
+- **Prefer** Aksel spacing tokens with `space-` prefix (`space-4`, `space-8`, `space-12`, `space-16`, `space-20`, `space-24`, `space-32`, `space-40`) over Tailwind `p-*`/`m-*` utilities
 - Use `Box` with `paddingBlock`/`paddingInline` for directional spacing
 - Use `VStack`/`HStack` with `gap` for layout, `HGrid` for responsive grids
 
@@ -34,6 +33,5 @@
 - Changing authentication flow or data fetching strategy
 
 ### 🚫 Never
-- Use Tailwind `p-*`/`m-*` utilities for spacing
 - Skip responsive props
 - Ignore accessibility requirements

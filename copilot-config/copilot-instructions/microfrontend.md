@@ -13,9 +13,8 @@
 - Follow existing code patterns in the repository
 - Mobile-first responsive design with breakpoints: `xs`, `sm`, `md`, `lg`, `xl`
 
-## Aksel Spacing (CRITICAL)
-- **Always** use Aksel spacing tokens with `space-` prefix: `space-4`, `space-8`, `space-12`, `space-16`, `space-20`, `space-24`, `space-32`, `space-40`
-- **Never** use Tailwind padding/margin utilities (`p-4`, `mx-2`, etc.)
+## Aksel Spacing
+- **Prefer** Aksel spacing tokens with `space-` prefix (`space-4`, `space-8`, `space-12`, `space-16`, `space-20`, `space-24`, `space-32`, `space-40`) over Tailwind `p-*`/`m-*` utilities
 - Use `Box` with `paddingBlock`/`paddingInline` for directional spacing
 
 ## Boundaries
@@ -27,9 +26,8 @@
 
 ### ⚠️ Ask First
 - Adding new external dependencies (bundle size impact)
-- Deviating from Aksel patterns
+- Adding custom Tailwind utilities or deviating from Aksel patterns
 
 ### 🚫 Never
-- Use Tailwind `p-*`/`m-*` utilities for spacing
 - Import heavy libraries without justification
 - Skip accessibility requirements

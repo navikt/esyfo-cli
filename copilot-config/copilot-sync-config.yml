@@ -28,7 +28,7 @@ profiles:
     agents: []
     instructions:
       - kotlin.instructions.md
-      - testing.instructions.md
+      - testing-kotlin.instructions.md
       # sql, kafka, and framework-specific kotlin instructions are resolved
       # dynamically by the assembler based on detected stack
     prompts: []
@@ -45,7 +45,7 @@ profiles:
     instructions:
       - typescript.instructions.md
       - frontend.instructions.md
-      - testing.instructions.md
+      - testing-typescript.instructions.md
 
   microfrontend:
     copilot_instructions:
@@ -56,7 +56,7 @@ profiles:
     instructions:
       - typescript.instructions.md
       - frontend.instructions.md
-      - testing.instructions.md
+      - testing-typescript.instructions.md
 
   other:
     copilot_instructions:
