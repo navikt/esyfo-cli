@@ -42,7 +42,7 @@ spec:
 ```yaml
 gcp:
   sqlInstances:
-    - type: POSTGRES_15
+    - type: POSTGRES_15  # Check repo's existing manifests for actual version
       databases:
         - name: myapp-db
           envVarPrefix: DB

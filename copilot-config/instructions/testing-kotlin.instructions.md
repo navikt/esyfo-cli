@@ -1,5 +1,5 @@
 ---
-applyTo: "**/*.{test,spec}.kt,**/*Test.kt,**/*Spec.kt"
+applyTo: "**/*.{test,spec}.kt,**/*Test.kt,**/*Spec.kt,**/*Spek.kt"
 ---
 
 # Testing Standards (Kotlin)

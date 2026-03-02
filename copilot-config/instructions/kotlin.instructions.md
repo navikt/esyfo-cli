@@ -12,16 +12,13 @@ applyTo: "**/*.kt"
 
 ## Configuration Pattern
 
-Use sealed classes for environment-specific configuration:
+Follow the existing configuration approach in the codebase. Common patterns:
+- Environment data classes with properties
+- Sealed class hierarchies for multi-environment config
 
 ```kotlin
-sealed class ApplicationConfig {
-    abstract val database: DatabaseConfig
-
-    data class Dev(...) : ApplicationConfig()
-    data class Prod(...) : ApplicationConfig()
-    data class Local(...) : ApplicationConfig()
-}
+// Check existing config classes before creating new ones
+// Follow whichever pattern the repo already uses
 ```
 
 ## Database Access
@@ -30,7 +27,7 @@ sealed class ApplicationConfig {
 - Check `build.gradle.kts` for actual dependencies — do not assume any specific ORM
 - Parameterized queries always — never string interpolation in SQL
 - Use Flyway for all schema migrations
-- Implement Repository pattern with interface + implementation
+- **Follow the repo's existing data access pattern** (Repository interfaces, extension functions, etc.)
 
 ## Observability
 
@@ -61,8 +58,7 @@ val requestCounter = Counter.builder("http_requests_total")
 ## Boundaries
 
 ### ✅ Always
-- Use sealed classes for state and configuration
-- Implement Repository pattern for database access
+- Follow existing patterns in the codebase for config and data access
 - Add Prometheus metrics for business operations
 - Use Flyway for database migrations
 

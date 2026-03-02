@@ -93,11 +93,9 @@ async function detectKotlinStack(repoPath: string, stack: RepoStackInfo): Promis
     }
 
     // Kafka detection
-    stack.hasKafka = content.includes('kafka') || content.includes('rapids-and-rivers')
+    stack.hasKafka = content.includes('kafka')
     if (stack.hasKafka) {
-        if (content.includes('rapids-and-rivers')) {
-            stack.kafkaLib = 'rapids-and-rivers'
-        } else if (content.includes('spring-kafka') || content.includes('org.springframework.kafka')) {
+        if (content.includes('spring-kafka') || content.includes('org.springframework.kafka')) {
             stack.kafkaLib = 'spring-kafka'
         }
     }

@@ -139,7 +139,7 @@ export function resolveConditionalFiles(
         if (stack.kafkaLib === 'spring-kafka') {
             files.instructions.push('kafka-spring.instructions.md')
         } else {
-            files.instructions.push('kafka-rapids.instructions.md')
+            files.instructions.push('kafka.instructions.md')
         }
         files.prompts.push('kafka-topic.prompt.md')
     }
