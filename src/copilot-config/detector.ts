@@ -40,7 +40,7 @@ export async function detectRepoStack(repoPath: string): Promise<RepoStackInfo> 
     // Check for monorepo first (root package.json with workspaces)
     if (hasPackageJson) {
         const monorepoProfiles = await detectMonorepoProfiles(repoPath)
-        if (monorepoProfiles.length > 1) {
+        if (monorepoProfiles.length >= 1) {
             stack.subProfiles = monorepoProfiles
             stack.type = monorepoProfiles[0]
             stack.language = 'typescript'

@@ -174,93 +174,98 @@ export async function copilotSync(options: { repo?: string; all?: boolean; dryRu
     log(chalk.green('Detecting stacks and assembling config...\n'))
 
     for (const repo of succeededRepos) {
-        const repoPath = path.join(GIT_CACHE_DIR, repo.name)
-        const topicType = extractTypeFromTopics(repo)
-        const profile = repoTypeToProfile(topicType)
+        try {
+            const repoPath = path.join(GIT_CACHE_DIR, repo.name)
+            const topicType = extractTypeFromTopics(repo)
+            const profile = repoTypeToProfile(topicType)
 
-        if (profile === 'other') {
-            log(chalk.yellow(`  [WARN] ${repo.name} mangler topics. Faller tilbake til 'other'-profil.`))
-        }
+            if (profile === 'other') {
+                log(chalk.yellow(`  [WARN] ${repo.name} mangler topics. Faller tilbake til 'other'-profil.`))
+            }
 
-        // Detect stack
-        const stack = await detectRepoStack(repoPath)
-        stack.repoName = repo.name
-        stack.repoDescription = repo.description ?? undefined
-        // Use topic-based type if detector didn't find specific type
-        if (stack.type === 'other' && profile !== 'other') {
-            stack.type = profile
-        }
+            // Detect stack
+            const stack = await detectRepoStack(repoPath)
+            stack.repoName = repo.name
+            stack.repoDescription = repo.description ?? undefined
+            // Use topic-based type if detector didn't find specific type
+            if (stack.type === 'other' && profile !== 'other') {
+                stack.type = profile
+            }
 
-        const effectiveProfile = stack.type
-        const isMonorepo = stack.subProfiles && stack.subProfiles.length > 1
-        if (isMonorepo) {
-            log(chalk.magenta(`  [MONOREPO] ${repo.name} → profiles: ${stack.subProfiles!.join(', ')}`))
-        }
-        logStackInfo(repo.name, stack)
+            const effectiveProfile = stack.type
+            const isMonorepo = stack.subProfiles && stack.subProfiles.length > 1
+            if (isMonorepo) {
+                log(chalk.magenta(`  [MONOREPO] ${repo.name} → profiles: ${stack.subProfiles!.join(', ')}`))
+            }
+            logStackInfo(repo.name, stack)
 
-        if (options.dryRun) {
-            const files = isMonorepo
-                ? getFilesForProfiles(config, stack.subProfiles!)
-                : getFilesForProfile(config, effectiveProfile)
-            resolveConditionalFiles(files, stack)
-            const parts = ['copilot-instructions.md (scaffold if missing)']
-            if (files.agents.length > 0) parts.push(`${files.agents.length} agents`)
-            parts.push(`${files.instructions.length} instructions`)
-            if (files.prompts.length > 0) parts.push(`${files.prompts.length} prompts`)
-            if (files.skills.length > 0) parts.push(`${files.skills.length} skills`)
-            log(chalk.dim(`    Would write: ${parts.join(', ')}`))
-            if (files.teamAgent) log(chalk.dim(`    + esyfo.agent.md (from ${files.teamAgent})`))
-            const wouldWrite =
-                files.agents.length +
-                files.instructions.length +
-                files.prompts.length +
-                files.skills.length +
-                (files.teamAgent ? 1 : 0)
-            results.push({
-                repo: repo.name,
-                profile: effectiveProfile,
-                assembly: { filesWritten: [], filesUnchanged: [], filesRemoved: [], filesSkipped: [] },
-                hasChanges: wouldWrite > 0,
-            })
+            if (options.dryRun) {
+                const files = isMonorepo
+                    ? getFilesForProfiles(config, stack.subProfiles!)
+                    : getFilesForProfile(config, effectiveProfile)
+                resolveConditionalFiles(files, stack)
+                const parts = ['copilot-instructions.md (scaffold if missing)']
+                if (files.agents.length > 0) parts.push(`${files.agents.length} agents`)
+                parts.push(`${files.instructions.length} instructions`)
+                if (files.prompts.length > 0) parts.push(`${files.prompts.length} prompts`)
+                if (files.skills.length > 0) parts.push(`${files.skills.length} skills`)
+                log(chalk.dim(`    Would write: ${parts.join(', ')}`))
+                if (files.teamAgent) log(chalk.dim(`    + esyfo.agent.md (from ${files.teamAgent})`))
+                const wouldWrite =
+                    files.agents.length +
+                    files.instructions.length +
+                    files.prompts.length +
+                    files.skills.length +
+                    (files.teamAgent ? 1 : 0)
+                results.push({
+                    repo: repo.name,
+                    profile: effectiveProfile,
+                    assembly: { filesWritten: [], filesUnchanged: [], filesRemoved: [], filesSkipped: [] },
+                    hasChanges: wouldWrite > 0,
+                })
+                continue
+            }
+
+            // Assemble files
+            const assembly = await assembleForRepo(repoPath, effectiveProfile, stack, config)
+
+            // Check for actual git changes
+            let hasChanges = false
+            try {
+                execSync('git diff-index --quiet HEAD -- .github/', { cwd: repoPath, stdio: 'pipe' })
+            } catch {
+                hasChanges = true
+            }
+
+            // Also check for untracked files in .github
+            try {
+                const untracked = execSync('git ls-files --others --exclude-standard .github/', {
+                    cwd: repoPath,
+                    encoding: 'utf8',
+                }).trim()
+                if (untracked.length > 0) hasChanges = true
+            } catch {
+                // ignore
+            }
+
+            if (assembly.filesWritten.length > 0) {
+                log(chalk.green(`    ✓ ${assembly.filesWritten.length} files written`))
+            }
+            if (assembly.filesRemoved.length > 0) {
+                log(chalk.red(`    🗑 ${assembly.filesRemoved.length} stale files removed`))
+            }
+            if (assembly.filesUnchanged.length > 0) {
+                log(chalk.dim(`    - ${assembly.filesUnchanged.length} files unchanged`))
+            }
+            if (assembly.filesSkipped.length > 0) {
+                log(chalk.yellow(`    ⚠ ${assembly.filesSkipped.length} files skipped (not managed by esyfo-cli)`))
+            }
+
+            results.push({ repo: repo.name, profile: effectiveProfile, assembly, hasChanges })
+        } catch (e) {
+            log(chalk.red(`  ✗ Failed to process ${repo.name}: ${(e as Error).message}`))
             continue
         }
-
-        // Assemble files
-        const assembly = await assembleForRepo(repoPath, effectiveProfile, stack, config)
-
-        // Check for actual git changes
-        let hasChanges = false
-        try {
-            execSync('git diff-index --quiet HEAD -- .github/', { cwd: repoPath, stdio: 'pipe' })
-        } catch {
-            hasChanges = true
-        }
-
-        // Also check for untracked files in .github
-        try {
-            const untracked = execSync('git ls-files --others --exclude-standard .github/', {
-                cwd: repoPath,
-                encoding: 'utf8',
-            }).trim()
-            if (untracked.length > 0) hasChanges = true
-        } catch {
-            // ignore
-        }
-
-        if (assembly.filesWritten.length > 0) {
-            log(chalk.green(`    ✓ ${assembly.filesWritten.length} files written`))
-        }
-        if (assembly.filesRemoved.length > 0) {
-            log(chalk.red(`    🗑 ${assembly.filesRemoved.length} stale files removed`))
-        }
-        if (assembly.filesUnchanged.length > 0) {
-            log(chalk.dim(`    - ${assembly.filesUnchanged.length} files unchanged`))
-        }
-        if (assembly.filesSkipped.length > 0) {
-            log(chalk.yellow(`    ⚠ ${assembly.filesSkipped.length} files skipped (not managed by esyfo-cli)`))
-        }
-
-        results.push({ repo: repo.name, profile: effectiveProfile, assembly, hasChanges })
     }
 
     // Summary

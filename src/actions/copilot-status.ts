@@ -69,93 +69,106 @@ export async function copilotStatus(options: { repo?: string }): Promise<void> {
 
     for (const repo of succeededRepos) {
         const repoPath = path.join(GIT_CACHE_DIR, repo.name)
-        const topicType = extractTypeFromTopics(repo)
-        const profile = repoTypeToProfile(topicType)
-
-        const stack = await detectRepoStack(repoPath)
-        stack.repoName = repo.name
-        if (stack.type === 'other' && profile !== 'other') {
-            stack.type = profile
-        }
-
-        const effectiveProfile = stack.type
-
-        // Check if copilot config exists BEFORE assembly (to detect truly missing repos)
-        const hasCopilotConfig = fs.existsSync(path.join(repoPath, '.github', 'copilot-instructions.md'))
-
-        // Run assembly to compute expected state (writes to cached repo)
-        const assembly = await assembleForRepo(repoPath, effectiveProfile, stack, config)
-
-        // Use git to detect actual content drift (modified + untracked)
-        let hasChanges = false
-        let changedCount = 0
         try {
-            execSync('git diff-index --quiet HEAD -- .github/', { cwd: repoPath, stdio: 'pipe' })
-        } catch {
-            hasChanges = true
-            const diff = execSync('git diff-index --name-only HEAD -- .github/', {
-                cwd: repoPath,
-                encoding: 'utf8',
-            }).trim()
-            changedCount = diff ? diff.split('\n').length : 0
-        }
+            const topicType = extractTypeFromTopics(repo)
+            const profile = repoTypeToProfile(topicType)
 
-        // Also check for untracked .github/ files
-        try {
-            const untracked = execSync('git ls-files --others --exclude-standard .github/', {
-                cwd: repoPath,
-                encoding: 'utf8',
-            }).trim()
-            if (untracked.length > 0) {
-                hasChanges = true
-                changedCount += untracked.split('\n').length
+            const stack = await detectRepoStack(repoPath)
+            stack.repoName = repo.name
+            if (stack.type === 'other' && profile !== 'other') {
+                stack.type = profile
             }
-        } catch {
-            // ignore
-        }
 
-        // Reset cached repo back to clean state
-        try {
-            execSync('git checkout -- .github/', { cwd: repoPath, stdio: 'pipe' })
-        } catch {
-            // repo might not have .github/ yet
-        }
-        try {
-            execSync('git clean -fd .github/', { cwd: repoPath, stdio: 'pipe' })
-        } catch {
-            // ignore
-        }
+            const effectiveProfile = stack.type
 
-        const stackParts: string[] = [effectiveProfile]
-        if (stack.subProfiles && stack.subProfiles.length > 1) {
-            const frameworks = [stack.framework, stack.kotlinFramework].filter(Boolean)
-            stackParts.push(frameworks.length > 0 ? frameworks.join(' + ') : stack.subProfiles.join(' + '))
-        } else if (stack.framework) {
-            stackParts.push(stack.framework)
+            // Check if copilot config exists BEFORE assembly (to detect truly missing repos)
+            const hasCopilotConfig = fs.existsSync(path.join(repoPath, '.github', 'copilot-instructions.md'))
+
+            let assembly: Awaited<ReturnType<typeof assembleForRepo>>
+            let hasChanges = false
+            let changedCount = 0
+
+            try {
+                // Run assembly to compute expected state (writes to cached repo)
+                assembly = await assembleForRepo(repoPath, effectiveProfile, stack, config)
+
+                // Use git to detect actual content drift (modified + untracked)
+                try {
+                    execSync('git diff-index --quiet HEAD -- .github/', { cwd: repoPath, stdio: 'pipe' })
+                } catch {
+                    hasChanges = true
+                    try {
+                        const diff = execSync('git diff-index --name-only HEAD -- .github/', {
+                            cwd: repoPath,
+                            encoding: 'utf8',
+                        }).trim()
+                        changedCount = diff ? diff.split('\n').length : 0
+                    } catch {
+                        changedCount = 1
+                    }
+                }
+
+                // Also check for untracked .github/ files
+                try {
+                    const untracked = execSync('git ls-files --others --exclude-standard .github/', {
+                        cwd: repoPath,
+                        encoding: 'utf8',
+                    }).trim()
+                    if (untracked.length > 0) {
+                        hasChanges = true
+                        changedCount += untracked.split('\n').length
+                    }
+                } catch {
+                    // ignore
+                }
+            } finally {
+                // Reset cached repo back to clean state — must always run
+                try {
+                    execSync('git checkout -- .github/', { cwd: repoPath, stdio: 'pipe' })
+                } catch {
+                    // repo might not have .github/ yet
+                }
+                try {
+                    execSync('git clean -fd .github/', { cwd: repoPath, stdio: 'pipe' })
+                } catch {
+                    // ignore
+                }
+            }
+
+            const stackParts: string[] = [effectiveProfile]
+            if (stack.subProfiles && stack.subProfiles.length > 1) {
+                const frameworks = [stack.framework, stack.kotlinFramework].filter(Boolean)
+                stackParts.push(frameworks.length > 0 ? frameworks.join(' + ') : stack.subProfiles.join(' + '))
+            } else if (stack.framework) {
+                stackParts.push(stack.framework)
+            }
+
+            const totalFiles = assembly.filesWritten.length + assembly.filesUnchanged.length
+
+            let state: SyncState
+            let detail: string
+            if (!hasCopilotConfig) {
+                state = 'missing'
+                detail = 'no copilot config'
+            } else if (hasChanges) {
+                state = 'outdated'
+                detail = `${changedCount} file${changedCount !== 1 ? 's' : ''} differ`
+            } else {
+                state = 'synced'
+                detail = `${totalFiles} files`
+            }
+
+            statuses.push({
+                repo: repo.name,
+                profile: effectiveProfile,
+                stack: stackParts.join(' / '),
+                state,
+                detail,
+            })
+        } catch (e) {
+            log(chalk.red(`  ✗ Failed to process ${repo.name}: ${(e as Error).message}`))
+            continue
         }
-
-        const totalFiles = assembly.filesWritten.length + assembly.filesUnchanged.length
-
-        let state: SyncState
-        let detail: string
-        if (!hasCopilotConfig) {
-            state = 'missing'
-            detail = 'no copilot config'
-        } else if (hasChanges) {
-            state = 'outdated'
-            detail = `${changedCount} file${changedCount !== 1 ? 's' : ''} differ`
-        } else {
-            state = 'synced'
-            detail = `${totalFiles} files`
-        }
-
-        statuses.push({
-            repo: repo.name,
-            profile: effectiveProfile,
-            stack: stackParts.join(' / '),
-            state,
-            detail,
-        })
     }
 
     // Print table

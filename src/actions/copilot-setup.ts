@@ -51,10 +51,14 @@ export async function copilotSetup(options: { force?: boolean }): Promise<void> 
     log(chalk.green('🔧 Setting up GitHub Copilot for team-esyfo\n'))
 
     await installPlugin(options.force ?? false)
-    await registerPlugin()
-    await configureMcp()
+    const registerOk = await registerPlugin()
+    const mcpOk = await configureMcp()
 
-    log(chalk.green('\n✅ Setup complete!'))
+    if (registerOk && mcpOk) {
+        log(chalk.green('\n✅ Setup complete!'))
+    } else {
+        log(chalk.yellow('\n⚠ Setup partially complete — se feilene over'))
+    }
     log(chalk.dim('  Plugin installed to: ' + PLUGIN_TARGET))
     log(chalk.dim('  MCP config at: ' + MCP_CONFIG_PATH))
     log(chalk.dim('\n  Restart Copilot CLI for changes to take effect.'))
@@ -103,11 +107,18 @@ async function copyFileIfChanged(source: string, target: string, force: boolean)
     log(chalk.green(`  ✓ ${fileName}`))
 }
 
-async function registerPlugin(): Promise<void> {
+async function registerPlugin(): Promise<boolean> {
     let config: CopilotConfig
 
     if (fs.existsSync(COPILOT_CONFIG_PATH)) {
-        config = JSON.parse(await Bun.file(COPILOT_CONFIG_PATH).text()) as CopilotConfig
+        const raw = await Bun.file(COPILOT_CONFIG_PATH).text()
+        try {
+            config = JSON.parse(raw) as CopilotConfig
+        } catch {
+            log(chalk.red(`  ✗ Could not parse ${COPILOT_CONFIG_PATH}`))
+            log(chalk.red('    The file contains invalid JSON. Fix it manually or delete it and re-run setup.'))
+            return false
+        }
     } else {
         fs.mkdirSync(path.dirname(COPILOT_CONFIG_PATH), { recursive: true })
         config = { installed_plugins: [] }
@@ -134,9 +145,10 @@ async function registerPlugin(): Promise<void> {
 
     config.installed_plugins = plugins
     await Bun.write(COPILOT_CONFIG_PATH, JSON.stringify(config, null, 2) + '\n')
+    return true
 }
 
-async function configureMcp(): Promise<void> {
+async function configureMcp(): Promise<boolean> {
     log(chalk.cyan('\n🔌 Configuring MCP servers...'))
 
     const desiredServers: Record<string, McpServer> = {
@@ -147,7 +159,15 @@ async function configureMcp(): Promise<void> {
     }
 
     if (fs.existsSync(MCP_CONFIG_PATH)) {
-        const existing = JSON.parse(await Bun.file(MCP_CONFIG_PATH).text()) as McpConfig
+        let existing: McpConfig
+        const raw = await Bun.file(MCP_CONFIG_PATH).text()
+        try {
+            existing = JSON.parse(raw) as McpConfig
+        } catch {
+            log(chalk.red(`  ✗ Could not parse ${MCP_CONFIG_PATH}`))
+            log(chalk.red('    The file contains invalid JSON. Fix it manually or delete it and re-run setup.'))
+            return false
+        }
         // Support both mcpServers (Copilot CLI) and servers (older format)
         const serversKey = existing.mcpServers ? 'mcpServers' : existing.servers ? 'servers' : 'mcpServers'
         const servers = existing[serversKey] ?? {}
@@ -175,4 +195,5 @@ async function configureMcp(): Promise<void> {
             log(chalk.green(`  ✓ Added ${name}`))
         }
     }
+    return true
 }
