@@ -49,6 +49,16 @@ authenticate("azureAd") {
 }
 ```
 
+## Structured Logging
+
+```kotlin
+// Structured fields — check which pattern this repo uses
+logger.info("Processing event", kv("event_id", eventId))
+// or with MDC for request-scoped context
+MDC.put("x_request_id", requestId)
+logger.info("Processing event: eventId={}", eventId)
+```
+
 ## Testing
 
 - Use Kotest for structure and assertions

@@ -1,5 +1,5 @@
 ---
-applyTo: "**/*.kt,**/*.ts,**/*.tsx"
+applyTo: "**/*"
 ---
 
 # Security Standards

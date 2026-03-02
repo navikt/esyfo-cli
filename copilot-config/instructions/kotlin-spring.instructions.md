@@ -97,6 +97,16 @@ spring:
     enabled: true
 ```
 
+## Structured Logging
+
+```kotlin
+// Structured fields — check which pattern this repo uses
+logger.info("Processing event", kv("event_id", eventId))
+// or with MDC for request-scoped context
+MDC.put("x_request_id", requestId)
+logger.info("Processing event: eventId={}", eventId)
+```
+
 ## Testing
 
 - Use `@SpringBootTest` for integration tests

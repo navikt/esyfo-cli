@@ -1,5 +1,5 @@
 ---
-applyTo: "**/*.kt,**/*.ts,**/*.tsx"
+applyTo: "**/*"
 ---
 
 # Observability Standards
@@ -20,14 +20,7 @@ NAIS apps expose health and metrics endpoints (paths vary per repo — check exi
 - Avoid high-cardinality labels (`user_id`, `email`, `transaction_id`)
 
 ## Structured Logging
-Log to stdout/stderr with structured JSON. Follow the existing logging pattern in the codebase (look for `kv()` helpers, MDC, or structured argument patterns):
-```kotlin
-// Structured fields — check which pattern this repo uses
-logger.info("Processing event", kv("event_id", eventId))
-// or with MDC for request-scoped context
-MDC.put("x_request_id", requestId)
-logger.info("Processing event: eventId={}", eventId)
-```
+Log to stdout/stderr with structured JSON. Follow the existing logging pattern in the codebase — look for structured argument patterns, helpers, or context propagation already in use.
 
 ## Boundaries
 

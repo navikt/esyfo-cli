@@ -1,5 +1,5 @@
 ---
-applyTo: "**/*.kt,**/*.ts,**/*.tsx"
+applyTo: "**/*"
 ---
 
 # Authentication Standards
@@ -51,7 +51,7 @@ maskinporten:
 3. Search codebase for existing auth implementations and follow them
 
 ## Testing
-Use `no.nav.security:mock-oauth2-server` for Kotlin or equivalent mock server for testing JWT validation.
+Use the appropriate mock auth server for your framework (search the codebase for existing test auth setup before adding new dependencies).
 
 ## Boundaries
 
