@@ -12,6 +12,8 @@ export interface RepoStackInfo {
     repoName?: string
     language?: 'kotlin' | 'typescript'
     framework?: string
+    /** For monorepos: Kotlin framework detected in a backend sub-app */
+    kotlinFramework?: string
     hasDatabase?: boolean
     hasKafka?: boolean
     hasNais?: boolean
@@ -40,9 +42,9 @@ export async function detectRepoStack(repoPath: string): Promise<RepoStackInfo> 
         if (monorepoProfiles.length > 1) {
             stack.subProfiles = monorepoProfiles
             stack.type = monorepoProfiles[0]
-            // Enrich stack with details from root for template vars
             stack.language = 'typescript'
-            await detectTypeScriptStack(repoPath, stack)
+            // Deep-scan sub-apps for framework/DB/Kafka details
+            await enrichMonorepoStack(repoPath, stack)
             return stack
         }
     }
@@ -173,29 +175,7 @@ async function detectMonorepoProfiles(repoPath: string): Promise<RepoProfile[]> 
     const workspaces = normalizeWorkspaces(pkg.workspaces)
     if (workspaces.length === 0) return []
 
-    // Resolve workspace patterns to actual directories
-    const appDirs = new Set<string>()
-    for (const ws of workspaces) {
-        if (ws.includes('*')) {
-            const baseDir = path.join(repoPath, ws.replace('/*', ''))
-            if (dirExists(baseDir)) {
-                for (const entry of fs.readdirSync(baseDir, { withFileTypes: true })) {
-                    if (entry.isDirectory()) appDirs.add(path.join(baseDir, entry.name))
-                }
-            }
-        } else {
-            const dir = path.join(repoPath, ws)
-            if (dirExists(dir)) appDirs.add(dir)
-        }
-    }
-
-    // Also scan apps/ for non-workspace sub-projects (e.g. Gradle backends alongside npm frontends)
-    const appsDir = path.join(repoPath, 'apps')
-    if (dirExists(appsDir)) {
-        for (const entry of fs.readdirSync(appsDir, { withFileTypes: true })) {
-            if (entry.isDirectory()) appDirs.add(path.join(appsDir, entry.name))
-        }
-    }
+    const appDirs = resolveMonorepoAppDirs(repoPath)
 
     const profiles = new Set<RepoProfile>()
     for (const dir of appDirs) {
@@ -207,6 +187,76 @@ async function detectMonorepoProfiles(repoPath: string): Promise<RepoProfile[]> 
     }
 
     return [...profiles]
+}
+
+async function enrichMonorepoStack(repoPath: string, stack: RepoStackInfo): Promise<void> {
+    const appDirs = resolveMonorepoAppDirs(repoPath)
+
+    for (const dir of appDirs) {
+        if (await fileExists(path.join(dir, 'build.gradle.kts'))) {
+            const sub: RepoStackInfo = { type: 'backend' }
+            await detectKotlinStack(dir, sub)
+            stack.kotlinFramework = sub.framework
+            if (sub.hasDatabase) {
+                stack.hasDatabase = true
+                stack.databaseLib = sub.databaseLib
+            }
+            if (sub.hasKafka) {
+                stack.hasKafka = true
+                stack.kafkaLib = sub.kafkaLib
+            }
+            if (!stack.hasNais && (await directoryHasNaisConfig(dir))) {
+                stack.hasNais = true
+            }
+        } else if (await fileExists(path.join(dir, 'package.json'))) {
+            const sub: RepoStackInfo = { type: 'frontend' }
+            await detectTypeScriptStack(dir, sub)
+            if (sub.framework && !stack.framework) stack.framework = sub.framework
+            if (sub.testingLib && !stack.testingLib) stack.testingLib = sub.testingLib
+            if (sub.bundler && !stack.bundler) stack.bundler = sub.bundler
+            if (!stack.hasNais && (await directoryHasNaisConfig(dir))) {
+                stack.hasNais = true
+            }
+        }
+    }
+}
+
+function resolveMonorepoAppDirs(repoPath: string): Set<string> {
+    const pkgPath = path.join(repoPath, 'package.json')
+    if (!fs.existsSync(pkgPath)) return new Set()
+
+    let pkg: Record<string, unknown>
+    try {
+        pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'))
+    } catch {
+        return new Set()
+    }
+
+    const workspaces = normalizeWorkspaces(pkg.workspaces)
+    const dirs = new Set<string>()
+
+    for (const ws of workspaces) {
+        if (ws.includes('*')) {
+            const baseDir = path.join(repoPath, ws.replace('/*', ''))
+            if (dirExists(baseDir)) {
+                for (const entry of fs.readdirSync(baseDir, { withFileTypes: true })) {
+                    if (entry.isDirectory()) dirs.add(path.join(baseDir, entry.name))
+                }
+            }
+        } else {
+            const dir = path.join(repoPath, ws)
+            if (dirExists(dir)) dirs.add(dir)
+        }
+    }
+
+    const appsDir = path.join(repoPath, 'apps')
+    if (dirExists(appsDir)) {
+        for (const entry of fs.readdirSync(appsDir, { withFileTypes: true })) {
+            if (entry.isDirectory()) dirs.add(path.join(appsDir, entry.name))
+        }
+    }
+
+    return dirs
 }
 
 async function directoryHasNaisConfig(repoPath: string): Promise<boolean> {

@@ -100,7 +100,12 @@ export async function copilotStatus(options: { repo?: string }): Promise<void> {
         }
 
         const stackParts: string[] = [effectiveProfile]
-        if (stack.framework) stackParts.push(stack.framework)
+        if (stack.subProfiles && stack.subProfiles.length > 1) {
+            const frameworks = [stack.framework, stack.kotlinFramework].filter(Boolean)
+            stackParts.push(frameworks.length > 0 ? frameworks.join(' + ') : stack.subProfiles.join(' + '))
+        } else if (stack.framework) {
+            stackParts.push(stack.framework)
+        }
 
         const totalFiles = assembly.filesWritten.length + assembly.filesUnchanged.length
 

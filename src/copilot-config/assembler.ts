@@ -125,10 +125,11 @@ export function resolveConditionalFiles(
     }
 
     // Framework-specific Kotlin instructions
-    if (stack.language === 'kotlin' && stack.framework) {
-        if (stack.framework === 'Spring Boot') {
+    const ktFramework = stack.kotlinFramework ?? (stack.language === 'kotlin' ? stack.framework : undefined)
+    if (ktFramework) {
+        if (ktFramework === 'Spring Boot') {
             files.instructions.push('kotlin-spring.instructions.md')
-        } else if (stack.framework === 'Ktor') {
+        } else if (ktFramework === 'Ktor') {
             files.instructions.push('kotlin-ktor.instructions.md')
         }
     }
