@@ -7,8 +7,12 @@ import { log } from '../common/log.ts'
 
 const PLUGIN_SOURCE = path.resolve(import.meta.dir, '../../copilot-config/user-agents')
 const HOME = Bun.env.HOME ?? Bun.env.USERPROFILE ?? '~'
-const PLUGIN_TARGET = path.join(HOME, '.copilot', 'installed-plugins', '_direct', 'esyfo-agents')
-const MCP_CONFIG_PATH = path.join(HOME, '.copilot', 'mcp-config.json')
+const COPILOT_DIR = path.join(HOME, '.copilot')
+const PLUGIN_TARGET = path.join(COPILOT_DIR, 'installed-plugins', '_direct', 'esyfo-agents')
+const COPILOT_CONFIG_PATH = path.join(COPILOT_DIR, 'config.json')
+const MCP_CONFIG_PATH = path.join(COPILOT_DIR, 'mcp-config.json')
+
+const PLUGIN_NAME = 'esyfo-agents'
 
 interface McpServer {
     command?: string
@@ -25,10 +29,25 @@ interface McpConfig {
     servers?: Record<string, McpServer>
 }
 
+interface InstalledPlugin {
+    name: string
+    marketplace: string
+    version: string
+    installed_at: string
+    enabled: boolean
+    cache_path: string
+}
+
+interface CopilotConfig {
+    installed_plugins?: InstalledPlugin[]
+    [key: string]: unknown
+}
+
 export async function copilotSetup(options: { force?: boolean }): Promise<void> {
     log(chalk.green('🔧 Setting up GitHub Copilot for team-esyfo\n'))
 
     await installPlugin(options.force ?? false)
+    await registerPlugin()
     await configureMcp()
 
     log(chalk.green('\n✅ Setup complete!'))
@@ -70,6 +89,36 @@ async function copyFileIfChanged(source: string, target: string, force: boolean)
 
     await Bun.write(target, sourceContent)
     log(chalk.green(`  ✓ ${fileName}`))
+}
+
+async function registerPlugin(): Promise<void> {
+    if (!fs.existsSync(COPILOT_CONFIG_PATH)) {
+        log(chalk.yellow('  ⚠ No ~/.copilot/config.json found — skipping plugin registration'))
+        return
+    }
+
+    const config = JSON.parse(await Bun.file(COPILOT_CONFIG_PATH).text()) as CopilotConfig
+    const plugins = config.installed_plugins ?? []
+    const existing = plugins.find((p) => p.name === PLUGIN_NAME)
+
+    if (existing) {
+        existing.cache_path = PLUGIN_TARGET
+        existing.enabled = true
+        log(chalk.dim('  - Plugin already registered'))
+    } else {
+        plugins.push({
+            name: PLUGIN_NAME,
+            marketplace: '',
+            version: '1.0.0',
+            installed_at: new Date().toISOString(),
+            enabled: true,
+            cache_path: PLUGIN_TARGET,
+        })
+        log(chalk.green('  ✓ Plugin registered in config.json'))
+    }
+
+    config.installed_plugins = plugins
+    await Bun.write(COPILOT_CONFIG_PATH, JSON.stringify(config, null, 2) + '\n')
 }
 
 async function configureMcp(): Promise<void> {
