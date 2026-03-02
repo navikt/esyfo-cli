@@ -74,12 +74,20 @@ async function detectKotlinStack(repoPath: string, stack: RepoStackInfo): Promis
 
     // Database detection
     stack.hasDatabase = content.includes('postgresql') || content.includes('flyway') || content.includes('hikari')
-    if (content.includes('spring-data-jdbc') || content.includes('spring-data-jpa')) {
+    if (
+        content.includes('spring-data-jdbc') ||
+        content.includes('spring-data-jpa') ||
+        content.includes('starter-data-jdbc') ||
+        content.includes('starter-data-jpa')
+    ) {
         stack.databaseLib = 'Spring Data JDBC'
+        stack.hasDatabase = true
     } else if (content.includes('exposed')) {
         stack.databaseLib = 'Exposed'
+        stack.hasDatabase = true
     } else if (content.includes('kotliquery')) {
         stack.databaseLib = 'Kotliquery'
+        stack.hasDatabase = true
     }
 
     // Kafka detection

@@ -3,7 +3,7 @@
 - **Language**: Kotlin
 - **Framework**: {{framework}}
 - **Build**: Gradle (Kotlin DSL)
-- **Database**: PostgreSQL{{database_details}}
+- **Database**: {{database}}
 - **Messaging**: {{messaging}}
 - **Testing**: {{testing}}
 - **Auth**: Azure AD + TokenX (check NAIS manifests for which are enabled)

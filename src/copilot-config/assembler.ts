@@ -30,8 +30,8 @@ export async function assembleForRepo(
             ? getFilesForProfiles(config, stack.subProfiles)
             : getFilesForProfile(config, profile)
 
-    // Augment with framework-specific instructions based on detected stack
-    files.instructions = resolveFrameworkInstructions(files.instructions, stack)
+    // Augment with conditional files based on detected stack
+    resolveConditionalFiles(files, stack)
 
     const result: AssemblyResult = { filesWritten: [], filesUnchanged: [], filesRemoved: [] }
 
@@ -108,28 +108,84 @@ export async function assembleForRepo(
     return result
 }
 
-export function resolveFrameworkInstructions(instructions: string[], stack: RepoStackInfo): string[] {
-    const augmented = [...instructions]
+/**
+ * Augment file lists with conditional files based on detected stack.
+ * Handles framework-specific instructions, database/kafka-conditional prompts and skills.
+ */
+export function resolveConditionalFiles(
+    files: { instructions: string[]; prompts: string[]; skills: string[] },
+    stack: RepoStackInfo,
+): void {
+    // Database-related
+    if (stack.hasDatabase) {
+        files.instructions.push('sql.instructions.md')
+        files.skills.push('flyway-migration')
+    }
 
-    // Add framework-specific Kotlin instructions
+    // Framework-specific Kotlin instructions
     if (stack.language === 'kotlin' && stack.framework) {
         if (stack.framework === 'Spring Boot') {
-            augmented.push('kotlin-spring.instructions.md')
+            files.instructions.push('kotlin-spring.instructions.md')
         } else if (stack.framework === 'Ktor') {
-            augmented.push('kotlin-ktor.instructions.md')
+            files.instructions.push('kotlin-ktor.instructions.md')
         }
     }
 
-    // Add framework-specific Kafka instructions
+    // Kafka-related
     if (stack.hasKafka) {
         if (stack.kafkaLib === 'spring-kafka') {
-            augmented.push('kafka-spring.instructions.md')
+            files.instructions.push('kafka-spring.instructions.md')
         } else {
-            augmented.push('kafka-rapids.instructions.md')
+            files.instructions.push('kafka-rapids.instructions.md')
+        }
+        files.prompts.push('kafka-topic.prompt.md')
+    }
+}
+
+/**
+ * Compare detected stack with existing copilot-instructions.md and log changes.
+ */
+export function logStackChanges(repoPath: string, stack: RepoStackInfo): void {
+    const instrPath = path.join(repoPath, '.github', 'copilot-instructions.md')
+    if (!fs.existsSync(instrPath)) return
+
+    const existing = fs.readFileSync(instrPath, 'utf8')
+    if (!existing.startsWith('<!-- Managed by esyfo-cli')) return
+
+    const oldValues = parseTechStack(existing)
+    const newValues: Record<string, string> = {}
+    newValues['Framework'] = stack.framework ?? 'N/A'
+    newValues['Database'] = stack.hasDatabase
+        ? `PostgreSQL${stack.databaseLib ? ` (via ${stack.databaseLib})` : ''}`
+        : 'N/A'
+    newValues['Messaging'] = stack.hasKafka ? 'Apache Kafka' : 'N/A'
+
+    const changes: string[] = []
+    for (const [key, newVal] of Object.entries(newValues)) {
+        const oldVal = oldValues[key]
+        if (oldVal && oldVal !== newVal) {
+            changes.push(`${key}: ${oldVal} → ${newVal}`)
         }
     }
 
-    return augmented
+    if (changes.length > 0) {
+        log(chalk.yellow(`    ⚠ Stack endret:`))
+        for (const change of changes) {
+            log(chalk.yellow(`      ${change}`))
+        }
+    }
+}
+
+function parseTechStack(content: string): Record<string, string> {
+    const values: Record<string, string> = {}
+    const match = content.match(/## Tech Stack\n([\s\S]*?)(?=\n##|$)/)
+    if (!match) return values
+
+    for (const line of match[1].split('\n')) {
+        const m = line.match(/- \*\*(.+?)\*\*: (.+)/)
+        if (m) values[m[1]] = m[2]
+    }
+    return values
 }
 
 function assembleCopilotInstructions(templates: string[], stack: RepoStackInfo): string {
@@ -149,6 +205,10 @@ function replaceTemplateVars(content: string, stack: RepoStackInfo): string {
     return content
         .replace(/\{\{repo_name\}\}/g, stack.repoName ?? 'unknown')
         .replace(/\{\{framework\}\}/g, stack.framework ?? 'unknown')
+        .replace(
+            /\{\{database\}\}/g,
+            stack.hasDatabase ? `PostgreSQL${stack.databaseLib ? ` (via ${stack.databaseLib})` : ''}` : 'N/A',
+        )
         .replace(/\{\{database_details\}\}/g, stack.databaseLib ? ` (via ${stack.databaseLib})` : '')
         .replace(/\{\{messaging\}\}/g, stack.hasKafka ? 'Apache Kafka' : 'N/A')
         .replace(/\{\{testing\}\}/g, stack.testingLib ?? 'check package.json/build.gradle.kts')

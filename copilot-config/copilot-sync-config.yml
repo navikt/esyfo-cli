@@ -28,14 +28,13 @@ profiles:
     agents: []
     instructions:
       - kotlin.instructions.md
-      - sql.instructions.md
       - testing.instructions.md
-      # kafka and framework-specific kotlin instructions are resolved
+      # sql, kafka, and framework-specific kotlin instructions are resolved
       # dynamically by the assembler based on detected stack
-    prompts:
-      - kafka-topic.prompt.md
-    skills:
-      - flyway-migration
+    prompts: []
+      # kafka-topic.prompt.md resolved dynamically when hasKafka
+    skills: []
+      # flyway-migration resolved dynamically when hasDatabase
 
   frontend:
     copilot_instructions:
