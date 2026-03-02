@@ -49,7 +49,7 @@ export class Gitter {
         const repoClient = this.createRepoGitClient(repo)
 
         if (this.type === 'cache') {
-            repoClient
+            await repoClient
                 .clean([CleanOptions.FORCE, CleanOptions.RECURSIVE])
                 .reset(ResetMode.HARD, ['origin/HEAD'])
                 .checkout(defaultBranch)
