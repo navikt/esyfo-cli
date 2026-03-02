@@ -95,7 +95,11 @@ Genereres av `ecli copilot sync` basert på detektert stack. Havner i `.github/`
 - `skills/*/SKILL.md` — Oppskrifter for vanlige oppgaver (f.eks. Flyway-migrering)
 
 **Lag 3 — MCP/plattform**
-Context7 for biblioteksdokumentasjon. Konfigureres automatisk av `ecli copilot setup`.
+[Context7](https://context7.com/) er en MCP-server som gir agentene tilgang til oppdatert API-dokumentasjon for
+biblioteker og rammeverk (React, Ktor, Spring, etc.) — rett i kontekstvinduet.
+Kjører via `npx` (Node.js må være installert — dekkes av mise-config).
+Konfigureres automatisk av `ecli copilot setup`.
+NAV-interne biblioteker (Aksel, NAIS) er _ikke_ tilgjengelige i Context7 — disse dekkes av instructions og skills.
 
 ### Kom i gang med Copilot
 
