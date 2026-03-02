@@ -69,8 +69,16 @@ async function installPlugin(force: boolean): Promise<void> {
     const pluginJsonTarget = path.join(PLUGIN_TARGET, 'plugin.json')
     await copyFileIfChanged(pluginJsonSource, pluginJsonTarget, force)
 
-    // Copy agent files
+    // Copy agent files — remove stale agents first
     const agentFiles = fs.readdirSync(agentsSourceDir).filter((f) => f.endsWith('.agent.md'))
+    const sourceNames = new Set(agentFiles)
+    const existingFiles = fs.readdirSync(agentsTargetDir).filter((f) => f.endsWith('.agent.md'))
+    for (const file of existingFiles) {
+        if (!sourceNames.has(file)) {
+            fs.unlinkSync(path.join(agentsTargetDir, file))
+            log(chalk.yellow(`  🗑 Removed stale agent: ${file}`))
+        }
+    }
     for (const file of agentFiles) {
         await copyFileIfChanged(path.join(agentsSourceDir, file), path.join(agentsTargetDir, file), force)
     }
