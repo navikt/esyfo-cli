@@ -51,11 +51,11 @@ for å få oversikt over tilgjengelige tasks.
 <!-- COMPUTER SAYS DON'T TOUCH THIS START -->
 
 * `verifiser` - Verifiserer at repo har riktig innstillinger i GitHub
-* `prs` - get all open pull requests
-* `sync-file` - sync files across specified repos
-* `repos` - get all non-archived repos for team-esyfo
-* `clone-team-repos` - git clone all repositories owned by team
-* `copilot` - GitHub Copilot-konfigurasjon for team-esyfo
+* `prs` - Vis åpne pull requests på tvers av teamets repos
+* `sync-file` - Kopier filer på tvers av repos (oppretter branch, commit og PR)
+* `repos` - List alle ikke-arkiverte repos for team-esyfo
+* `clone-team-repos` - Klon alle repos eid av teamet til en lokal mappe
+* `copilot` - Administrer GitHub Copilot-oppsett for teamets repos
 
 <!-- COMPUTER SAYS DON'T TOUCH THIS END -->
 

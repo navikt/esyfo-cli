@@ -51,7 +51,7 @@ export const getYargsParser = (argv: string[]): Argv =>
         )
         .command(
             'prs',
-            'get all open pull requests',
+            'Vis åpne pull requests på tvers av teamets repos',
             (yargs) =>
                 yargs
                     .option('skip-bots', { type: 'boolean', alias: 'b', describe: "don't include bot pull requests" })
@@ -66,7 +66,7 @@ export const getYargsParser = (argv: string[]): Argv =>
         )
         .command(
             'sync-file <query>',
-            'sync files across specified repos',
+            'Kopier filer på tvers av repos (oppretter branch, commit og PR)',
             (yargs) =>
                 yargs.positional('query', {
                     type: 'string',
@@ -77,7 +77,7 @@ export const getYargsParser = (argv: string[]): Argv =>
         )
         .command(
             'repos',
-            'get all non-archived repos for team-esyfo',
+            'List alle ikke-arkiverte repos for team-esyfo',
             (yargs) =>
                 yargs
                     .option('useMarkdown', { type: 'boolean', alias: 'b', describe: 'write output in Markdown format' })
@@ -91,7 +91,7 @@ export const getYargsParser = (argv: string[]): Argv =>
         )
         .command(
             'clone-team-repos',
-            'git clone all repositories owned by team',
+            'Klon alle repos eid av teamet til en lokal mappe',
             (yargs) =>
                 yargs
                     .option('team', {
@@ -116,12 +116,12 @@ export const getYargsParser = (argv: string[]): Argv =>
         )
         .command(
             'copilot',
-            'GitHub Copilot-konfigurasjon for team-esyfo',
+            'Administrer GitHub Copilot-oppsett for teamets repos',
             (yargs) =>
                 yargs
                     .command(
                         'sync',
-                        'Synkroniser GitHub Copilot-konfigurasjon (agenter, instruksjoner, prompts, skills) til team-repos',
+                        'Generer og distribuer Copilot-instruksjoner, prompts og skills til repos basert på detektert stack',
                         (yargs) =>
                             yargs
                                 .option('repo', {
@@ -156,7 +156,7 @@ export const getYargsParser = (argv: string[]): Argv =>
                     )
                     .command(
                         'setup',
-                        'Installer bruker-nivå Copilot rolle-agenter og konfigurer MCP-servere',
+                        'Sett opp din lokale maskin med rolle-agenter (planner, coder) og MCP-servere',
                         (yargs) =>
                             yargs.option('force', {
                                 alias: 'f',
@@ -168,7 +168,7 @@ export const getYargsParser = (argv: string[]): Argv =>
                     )
                     .command(
                         'status',
-                        'Vis sync-status for team-repos (sjekk om repos er i sync med templates)',
+                        'Sjekk hvilke repos som mangler eller har utdatert Copilot-konfigurasjon',
                         (yargs) =>
                             yargs.option('repo', {
                                 alias: 'r',
