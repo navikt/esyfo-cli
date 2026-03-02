@@ -19,6 +19,5 @@
 ## Conventions
 - Norwegian user-facing text, English code and comments
 - Use Context7 (`context7-resolve-library-id` → `context7-query-docs`) for library-specific patterns
-- Use NAV GitHub MCP for cross-repo search and reference
 - Check existing code patterns in the repository before writing new code
 - Follow the ✅ Always / ⚠️ Ask First / 🚫 Never boundaries in agent and instruction files
