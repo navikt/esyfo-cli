@@ -3,7 +3,7 @@ import { execSync } from 'node:child_process'
 
 import chalk from 'chalk'
 
-import { BaseRepoNode, ghGqlQuery, OrgTeamRepoResult, removeIgnoredAndArchived } from '../common/octokit.ts'
+import { BaseRepoNode, ghGqlQuery, OrgTeamRepoResult, removeIgnoredArchivedAndNonAdmin } from '../common/octokit.ts'
 import { log } from '../common/log.ts'
 import { Gitter } from '../common/git.ts'
 import { GIT_CACHE_DIR } from '../common/cache.ts'
@@ -71,7 +71,7 @@ export async function fetchCopilotRepos(config: CopilotSyncConfig, repoFilter?: 
         team: 'team-esyfo',
     })
 
-    let repos = removeIgnoredAndArchived(result.organization.team.repositories.nodes) as RepoNode[]
+    let repos = removeIgnoredArchivedAndNonAdmin(result.organization.team.repositories.nodes) as RepoNode[]
 
     if (repoFilter) {
         repos = repos.filter((r) => r.name === repoFilter)
