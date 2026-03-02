@@ -13,7 +13,7 @@ Configure metrics, structured logging, and tracing for a NAV application.
 3. Use Context7 to look up the metrics library API (Micrometer, prom-client, etc.)
 4. Search codebase for existing metric definitions and patterns
 
-## Backend (Kotlin/Ktor)
+## Backend (Kotlin)
 
 ### Required Endpoints
 - `/isalive` — Liveness check

@@ -19,13 +19,18 @@ applyTo: "**/*.{test,spec}.{ts,tsx,kt,kts}"
 - Use MockOAuth2Server for auth testing
 
 ```kotlin
-@Test
-fun `should process event correctly`() {
-    val input = createTestInput()
-    val result = service.process(input)
-    result shouldBe expectedResult
-    result.status shouldBe "completed"
-}
+class ResourceServiceTest : DescribeSpec({
+    val service = ResourceService(mockk())
+
+    describe("process") {
+        it("should process event correctly") {
+            val input = createTestInput()
+            val result = service.process(input)
+            result shouldBe expectedResult
+            result.status shouldBe "completed"
+        }
+    }
+})
 ```
 
 ### Testing Auth (MockOAuth2Server)
@@ -33,20 +38,16 @@ fun `should process event correctly`() {
 ```kotlin
 private val mockOAuth2Server = MockOAuth2Server()
 
-@Test
-fun `should authenticate with valid token`() {
-    val token = mockOAuth2Server.issueToken(
-        issuerId = "azuread",
-        subject = "test-user",
-        claims = mapOf("preferred_username" to "test@nav.no")
-    )
-    val response = client.get("/api/protected") { bearerAuth(token.serialize()) }
-    response.status shouldBe HttpStatusCode.OK
-}
+// Issue a test token — use with your framework's test client (MockMvc, testApplication, etc.)
+val token = mockOAuth2Server.issueToken(
+    issuerId = "azuread",
+    subject = "test-user",
+    claims = mapOf("preferred_username" to "test@nav.no")
+)
 ```
 
 ## Integration Tests
-- Use real dependencies where feasible (Testcontainers, MSW, or H2)
+- Use real dependencies where feasible (Testcontainers for databases, MSW for HTTP mocks)
 - Test the full flow, not just units in isolation
 - Clean up test data after each test
 
