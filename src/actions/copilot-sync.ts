@@ -16,7 +16,7 @@ import {
     RepoProfile,
 } from '../copilot-config/sync-config.ts'
 import { detectRepoStack, logStackInfo } from '../copilot-config/detector.ts'
-import { assembleForRepo, AssemblyResult } from '../copilot-config/assembler.ts'
+import { assembleForRepo, AssemblyResult, resolveFrameworkInstructions } from '../copilot-config/assembler.ts'
 
 const reposQuery = /* GraphQL */ `
     query ($team: String!) {
@@ -129,6 +129,7 @@ export async function copilotSync(options: { repo?: string; all?: boolean; dryRu
             const files = isMonorepo
                 ? getFilesForProfiles(config, stack.subProfiles!)
                 : getFilesForProfile(config, effectiveProfile)
+            files.instructions = resolveFrameworkInstructions(files.instructions, stack)
             const parts = ['copilot-instructions.md']
             if (files.agents.length > 0) parts.push(`${files.agents.length} agents`)
             parts.push(`${files.instructions.length} instructions`)

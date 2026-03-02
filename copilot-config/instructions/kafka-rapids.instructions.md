@@ -2,24 +2,15 @@
 applyTo: "**/*River*.kt,**/*Kafka*.kt,**/*Consumer*.kt,**/*Producer*.kt,**/*Event*.kt,**/*rapids*.kt"
 ---
 
-# Kafka & Rapids & Rivers Standards
+# Kafka — Rapids & Rivers Patterns
 
-## NAIS Kafka Setup
-
-```yaml
-kafka:
-  pool: nav-dev  # or nav-prod
-```
-
-Automatically provides: `KAFKA_BROKERS`, `KAFKA_TRUSTSTORE_PATH`, `KAFKA_KEYSTORE_PATH`
-
-## Rapids & Rivers
+## Overview
 
 - **Rapid**: The Kafka topic where all events flow
 - **River**: A consumer listening to specific event types
 - **Need/Demand/Require**: Validation predicates
 
-### River Template
+## River Template
 
 ```kotlin
 class ExampleRiver(
@@ -74,6 +65,19 @@ override fun onPacket(packet: JsonMessage, context: MessageContext) {
     }
     service.process(packet)
     eventRepository.markProcessed(eventId)
+}
+```
+
+## Testing (TestRapid)
+
+```kotlin
+private val testRapid = TestRapid()
+
+@Test
+fun `should publish event after processing`() {
+    testRapid.sendTestMessage("""{"@event_name": "test_event", "field": "value"}""")
+    testRapid.inspektør.size shouldBe 1
+    testRapid.inspektør.message(0)["@event_name"].asText() shouldBe "response_event"
 }
 ```
 

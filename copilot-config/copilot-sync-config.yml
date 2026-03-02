@@ -29,8 +29,9 @@ profiles:
     instructions:
       - kotlin.instructions.md
       - sql.instructions.md
-      - kafka.instructions.md
       - testing.instructions.md
+      # kafka and framework-specific kotlin instructions are resolved
+      # dynamically by the assembler based on detected stack
     prompts:
       - kafka-topic.prompt.md
     skills:

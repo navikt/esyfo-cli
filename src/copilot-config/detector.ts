@@ -16,6 +16,7 @@ export interface RepoStackInfo {
     hasKafka?: boolean
     hasNais?: boolean
     databaseLib?: string
+    kafkaLib?: string
     testingLib?: string
     bundler?: string
     /** For monorepos: all detected sub-profiles (e.g. ['backend', 'frontend']) */
@@ -63,16 +64,19 @@ async function detectKotlinStack(repoPath: string, stack: RepoStackInfo): Promis
 
     const content = await gradleFile.text()
 
-    // Framework detection
-    if (content.includes('ktor')) {
-        stack.framework = 'Ktor'
-    } else if (content.includes('spring-boot') || content.includes('org.springframework')) {
+    // Framework detection — check Spring Boot FIRST to avoid false positive
+    // from test deps like "kotest-assertions-ktor" matching "ktor"
+    if (content.includes('org.springframework.boot') || content.includes('spring-boot-starter')) {
         stack.framework = 'Spring Boot'
+    } else if (content.includes('io.ktor:ktor') || content.includes('io.ktor')) {
+        stack.framework = 'Ktor'
     }
 
     // Database detection
     stack.hasDatabase = content.includes('postgresql') || content.includes('flyway') || content.includes('hikari')
-    if (content.includes('exposed')) {
+    if (content.includes('spring-data-jdbc') || content.includes('spring-data-jpa')) {
+        stack.databaseLib = 'Spring Data JDBC'
+    } else if (content.includes('exposed')) {
         stack.databaseLib = 'Exposed'
     } else if (content.includes('kotliquery')) {
         stack.databaseLib = 'Kotliquery'
@@ -80,6 +84,13 @@ async function detectKotlinStack(repoPath: string, stack: RepoStackInfo): Promis
 
     // Kafka detection
     stack.hasKafka = content.includes('kafka') || content.includes('rapids-and-rivers')
+    if (stack.hasKafka) {
+        if (content.includes('rapids-and-rivers')) {
+            stack.kafkaLib = 'rapids-and-rivers'
+        } else if (content.includes('spring-kafka') || content.includes('org.springframework.kafka')) {
+            stack.kafkaLib = 'spring-kafka'
+        }
+    }
 
     // Testing
     if (content.includes('kotest')) {
@@ -191,17 +202,14 @@ async function detectMonorepoProfiles(repoPath: string): Promise<RepoProfile[]> 
 }
 
 async function directoryHasNaisConfig(repoPath: string): Promise<boolean> {
-    const naisDir = path.join(repoPath, '.nais')
+    const naisDotDir = path.join(repoPath, '.nais')
+    const naisDir = path.join(repoPath, 'nais')
     const naisYaml = path.join(repoPath, 'nais.yaml')
     const naisYml = path.join(repoPath, 'nais.yml')
 
-    const [hasDir, hasYaml, hasYml] = await Promise.all([
-        fileExists(naisDir),
-        fileExists(naisYaml),
-        fileExists(naisYml),
-    ])
+    const [hasYaml, hasYml] = await Promise.all([fileExists(naisYaml), fileExists(naisYml)])
 
-    return hasDir || hasYaml || hasYml
+    return dirExists(naisDotDir) || dirExists(naisDir) || hasYaml || hasYml
 }
 
 async function fileExists(filePath: string): Promise<boolean> {
@@ -228,6 +236,6 @@ export function logStackInfo(repoName: string, stack: RepoStackInfo): void {
     const parts = [chalk.cyan(repoName), chalk.yellow(stack.type)]
     if (stack.framework) parts.push(chalk.green(stack.framework))
     if (stack.databaseLib) parts.push(`DB: ${stack.databaseLib}`)
-    if (stack.hasKafka) parts.push('Kafka')
+    if (stack.hasKafka) parts.push(stack.kafkaLib ? `Kafka (${stack.kafkaLib})` : 'Kafka')
     log(`  ${parts.join(' · ')}`)
 }

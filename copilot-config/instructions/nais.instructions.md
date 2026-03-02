@@ -1,5 +1,5 @@
 ---
-applyTo: "**/.nais/**/*.yaml,**/.nais/**/*.yml,**/nais.yaml,**/nais.yml"
+applyTo: "**/.nais/**/*.yaml,**/.nais/**/*.yml,**/nais/**/*.yaml,**/nais/**/*.yml,**/nais.yaml,**/nais.yml"
 ---
 
 # NAIS Platform Standards

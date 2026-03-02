@@ -29,6 +29,10 @@ export async function assembleForRepo(
         stack.subProfiles && stack.subProfiles.length > 1
             ? getFilesForProfiles(config, stack.subProfiles)
             : getFilesForProfile(config, profile)
+
+    // Augment with framework-specific instructions based on detected stack
+    files.instructions = resolveFrameworkInstructions(files.instructions, stack)
+
     const result: AssemblyResult = { filesWritten: [], filesUnchanged: [], filesRemoved: [] }
 
     // Track all files we intend to write (for stale cleanup)
@@ -102,6 +106,30 @@ export async function assembleForRepo(
     await cleanStaleManagedFiles(dirsToClean, managedFiles, result)
 
     return result
+}
+
+export function resolveFrameworkInstructions(instructions: string[], stack: RepoStackInfo): string[] {
+    const augmented = [...instructions]
+
+    // Add framework-specific Kotlin instructions
+    if (stack.language === 'kotlin' && stack.framework) {
+        if (stack.framework === 'Spring Boot') {
+            augmented.push('kotlin-spring.instructions.md')
+        } else if (stack.framework === 'Ktor') {
+            augmented.push('kotlin-ktor.instructions.md')
+        }
+    }
+
+    // Add framework-specific Kafka instructions
+    if (stack.hasKafka) {
+        if (stack.kafkaLib === 'spring-kafka') {
+            augmented.push('kafka-spring.instructions.md')
+        } else {
+            augmented.push('kafka-rapids.instructions.md')
+        }
+    }
+
+    return augmented
 }
 
 function assembleCopilotInstructions(templates: string[], stack: RepoStackInfo): string {

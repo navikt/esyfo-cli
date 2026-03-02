@@ -14,7 +14,7 @@ applyTo: "**/*.{test,spec}.{ts,tsx,kt,kts}"
 - Use Context7 to check Kotest version and API
 - Use `should` matchers for assertions
 - Use MockK for mocking — prefer `coEvery` for suspend functions
-- Use Testcontainers for integration tests with real PostgreSQL/Kafka
+- Check `build.gradle.kts` for actual test dependencies (Testcontainers, H2, etc.)
 - Use MockOAuth2Server for auth testing
 
 ```kotlin
@@ -24,19 +24,6 @@ fun `should process event correctly`() {
     val result = service.process(input)
     result shouldBe expectedResult
     result.status shouldBe "completed"
-}
-```
-
-### Testing Kafka (TestRapid)
-
-```kotlin
-private val testRapid = TestRapid()
-
-@Test
-fun `should publish event after processing`() {
-    testRapid.sendTestMessage("""{"@event_name": "test_event", "field": "value"}""")
-    testRapid.inspektør.size shouldBe 1
-    testRapid.inspektør.message(0)["@event_name"].asText() shouldBe "response_event"
 }
 ```
 
@@ -57,19 +44,10 @@ fun `should authenticate with valid token`() {
 }
 ```
 
-### Testing with Testcontainers
-
-```kotlin
-@Testcontainers
-class RepositoryTest {
-    companion object {
-        @Container
-        val postgres = PostgreSQLContainer<Nothing>("postgres:15").apply {
-            withDatabaseName("testdb")
-        }
-    }
-}
-```
+## Integration Tests
+- Use real dependencies where feasible (Testcontainers, MSW, or H2)
+- Test the full flow, not just units in isolation
+- Clean up test data after each test
 
 ## TypeScript (Vitest/Jest + Testing Library)
 - Use Context7 to check the test runner and Testing Library version
@@ -97,11 +75,6 @@ it('should render title', () => {
   expect(screen.getByText('Total')).toBeInTheDocument();
 });
 ```
-
-## Integration Tests
-- Use real dependencies where feasible (Testcontainers, MSW)
-- Test the full flow, not just units in isolation
-- Clean up test data after each test
 
 ## Test Naming
 
