@@ -13,7 +13,6 @@ export interface CopilotSyncProfile {
 
 export interface CopilotSyncOverride {
     skip?: boolean
-    profile?: string
 }
 
 export interface CopilotSyncConfig {

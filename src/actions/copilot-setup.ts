@@ -104,12 +104,15 @@ async function copyFileIfChanged(source: string, target: string, force: boolean)
 }
 
 async function registerPlugin(): Promise<void> {
-    if (!fs.existsSync(COPILOT_CONFIG_PATH)) {
-        log(chalk.yellow('  ⚠ No ~/.copilot/config.json found — skipping plugin registration'))
-        return
-    }
+    let config: CopilotConfig
 
-    const config = JSON.parse(await Bun.file(COPILOT_CONFIG_PATH).text()) as CopilotConfig
+    if (fs.existsSync(COPILOT_CONFIG_PATH)) {
+        config = JSON.parse(await Bun.file(COPILOT_CONFIG_PATH).text()) as CopilotConfig
+    } else {
+        fs.mkdirSync(path.dirname(COPILOT_CONFIG_PATH), { recursive: true })
+        config = { installed_plugins: [] }
+        log(chalk.green('  ✓ Created ~/.copilot/config.json'))
+    }
     const plugins = config.installed_plugins ?? []
     const existing = plugins.find((p) => p.name === PLUGIN_NAME)
 

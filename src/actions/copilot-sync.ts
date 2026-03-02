@@ -19,12 +19,7 @@ import {
 } from '../copilot-config/sync-config.ts'
 import { COPILOT_CONFIG_BASE } from '../copilot-config/paths.ts'
 import { detectRepoStack, logStackInfo } from '../copilot-config/detector.ts'
-import {
-    assembleForRepo,
-    AssemblyResult,
-    resolveConditionalFiles,
-    logStackChanges,
-} from '../copilot-config/assembler.ts'
+import { assembleForRepo, AssemblyResult, resolveConditionalFiles } from '../copilot-config/assembler.ts'
 
 const reposQuery = /* GraphQL */ `
     query ($team: String!) {
@@ -144,14 +139,41 @@ export async function copilotSync(options: { repo?: string; all?: boolean; dryRu
     // Clone/pull all repos
     log(chalk.green('Cloning/pulling repositories...'))
     const gitter = new Gitter('cache')
-    await Promise.all(repos.map((r) => gitter.cloneOrPull(r.name, r.defaultBranchRef.name, true)))
+    const cloneResults = await Promise.allSettled(
+        repos.map((r) => gitter.cloneOrPull(r.name, r.defaultBranchRef.name, true)),
+    )
+
+    const failedClones: string[] = []
+    const succeededRepos = repos.filter((repo, i) => {
+        const result = cloneResults[i]
+        if (result.status === 'rejected') {
+            failedClones.push(repo.name)
+            log(chalk.red(`  ✗ ${repo.name}: ${(result.reason as Error).message ?? result.reason}`))
+            return false
+        }
+        if (typeof result.value === 'object' && result.value.type === 'error') {
+            failedClones.push(repo.name)
+            log(chalk.red(`  ✗ ${repo.name}: ${result.value.message}`))
+            return false
+        }
+        return true
+    })
+
+    if (failedClones.length > 0) {
+        log(chalk.red(`\n  ${failedClones.length} repo(s) feilet clone/pull: ${failedClones.join(', ')}`))
+    }
+
+    if (succeededRepos.length === 0) {
+        log(chalk.red('\nAlle repos feilet clone/pull. Avbryter.'))
+        return
+    }
     log('')
 
     // Process each repo
     const results: SyncResult[] = []
     log(chalk.green('Detecting stacks and assembling config...\n'))
 
-    for (const repo of repos) {
+    for (const repo of succeededRepos) {
         const repoPath = path.join(GIT_CACHE_DIR, repo.name)
         const topicType = extractTypeFromTopics(repo)
         const profile = repoTypeToProfile(topicType)
@@ -175,7 +197,6 @@ export async function copilotSync(options: { repo?: string; all?: boolean; dryRu
             log(chalk.magenta(`  [MONOREPO] ${repo.name} → profiles: ${stack.subProfiles!.join(', ')}`))
         }
         logStackInfo(repo.name, stack)
-        logStackChanges(repoPath, stack)
 
         if (options.dryRun) {
             const files = isMonorepo
@@ -189,11 +210,17 @@ export async function copilotSync(options: { repo?: string; all?: boolean; dryRu
             if (files.skills.length > 0) parts.push(`${files.skills.length} skills`)
             log(chalk.dim(`    Would write: ${parts.join(', ')}`))
             if (files.teamAgent) log(chalk.dim(`    + esyfo.agent.md (from ${files.teamAgent})`))
+            const wouldWrite =
+                files.agents.length +
+                files.instructions.length +
+                files.prompts.length +
+                files.skills.length +
+                (files.teamAgent ? 1 : 0)
             results.push({
                 repo: repo.name,
                 profile: effectiveProfile,
                 assembly: { filesWritten: [], filesUnchanged: [], filesRemoved: [], filesSkipped: [] },
-                hasChanges: false,
+                hasChanges: wouldWrite > 0,
             })
             continue
         }
@@ -204,7 +231,7 @@ export async function copilotSync(options: { repo?: string; all?: boolean; dryRu
         // Check for actual git changes
         let hasChanges = false
         try {
-            execSync('git diff-index --quiet HEAD', { cwd: repoPath })
+            execSync('git diff-index --quiet HEAD -- .github/', { cwd: repoPath, stdio: 'pipe' })
         } catch {
             hasChanges = true
         }
@@ -243,6 +270,9 @@ export async function copilotSync(options: { repo?: string; all?: boolean; dryRu
     log(`\n${chalk.green('Summary:')}`)
     log(`  ${chalk.yellow(changed.length)} repos with changes`)
     log(`  ${chalk.dim(`${unchanged.length} repos unchanged`)}`)
+    if (failedClones.length > 0) {
+        log(`  ${chalk.red(`${failedClones.length} repos feilet clone/pull`)}`)
+    }
 
     if (options.dryRun) {
         log(chalk.cyan('\n  Dry run — no changes made.'))

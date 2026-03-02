@@ -33,14 +33,41 @@ export async function copilotStatus(options: { repo?: string }): Promise<void> {
     // Clone/pull
     log(chalk.green('Cloning/pulling repositories...'))
     const gitter = new Gitter('cache')
-    await Promise.all(repos.map((r) => gitter.cloneOrPull(r.name, r.defaultBranchRef.name, true)))
+    const cloneResults = await Promise.allSettled(
+        repos.map((r) => gitter.cloneOrPull(r.name, r.defaultBranchRef.name, true)),
+    )
+
+    const failedClones: string[] = []
+    const succeededRepos = repos.filter((repo, i) => {
+        const result = cloneResults[i]
+        if (result.status === 'rejected') {
+            failedClones.push(repo.name)
+            log(chalk.red(`  ✗ ${repo.name}: ${(result.reason as Error).message ?? result.reason}`))
+            return false
+        }
+        if (typeof result.value === 'object' && result.value.type === 'error') {
+            failedClones.push(repo.name)
+            log(chalk.red(`  ✗ ${repo.name}: ${result.value.message}`))
+            return false
+        }
+        return true
+    })
+
+    if (failedClones.length > 0) {
+        log(chalk.red(`\n  ${failedClones.length} repo(s) feilet clone/pull: ${failedClones.join(', ')}`))
+    }
+
+    if (succeededRepos.length === 0) {
+        log(chalk.red('\nAlle repos feilet clone/pull. Avbryter.'))
+        return
+    }
     log('')
 
     log(chalk.green('Checking sync status...\n'))
 
     const statuses: RepoStatus[] = []
 
-    for (const repo of repos) {
+    for (const repo of succeededRepos) {
         const repoPath = path.join(GIT_CACHE_DIR, repo.name)
         const topicType = extractTypeFromTopics(repo)
         const profile = repoTypeToProfile(topicType)
@@ -159,6 +186,7 @@ export async function copilotStatus(options: { repo?: string }): Promise<void> {
     if (synced > 0) log(chalk.green(`  ✅ ${synced} synced`))
     if (missing > 0) log(chalk.red(`  ❌ ${missing} missing config`))
     if (outdated > 0) log(chalk.yellow(`  ⚠️  ${outdated} outdated`))
+    if (failedClones.length > 0) log(chalk.red(`  ✗ ${failedClones.length} feilet clone/pull`))
 
     if (missing > 0 || outdated > 0) {
         log(chalk.dim(`\n  Kjør ${chalk.white('ecli copilot sync --all')} for å synkronisere.`))

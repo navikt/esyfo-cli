@@ -145,52 +145,6 @@ export function resolveConditionalFiles(
     }
 }
 
-/**
- * Compare detected stack with existing copilot-instructions.md and log changes.
- */
-export function logStackChanges(repoPath: string, stack: RepoStackInfo): void {
-    const instrPath = path.join(repoPath, '.github', 'copilot-instructions.md')
-    if (!fs.existsSync(instrPath)) return
-
-    const existing = fs.readFileSync(instrPath, 'utf8')
-    if (!existing.startsWith('<!-- Managed by esyfo-cli')) return
-
-    const oldValues = parseTechStack(existing)
-    const newValues: Record<string, string> = {}
-    newValues['Framework'] = stack.framework ?? 'N/A'
-    newValues['Database'] = stack.hasDatabase
-        ? `PostgreSQL${stack.databaseLib ? ` (via ${stack.databaseLib})` : ''}`
-        : 'N/A'
-    newValues['Messaging'] = stack.hasKafka ? 'Apache Kafka' : 'N/A'
-
-    const changes: string[] = []
-    for (const [key, newVal] of Object.entries(newValues)) {
-        const oldVal = oldValues[key]
-        if (oldVal && oldVal !== newVal) {
-            changes.push(`${key}: ${oldVal} → ${newVal}`)
-        }
-    }
-
-    if (changes.length > 0) {
-        log(chalk.yellow(`    ⚠ Stack endret:`))
-        for (const change of changes) {
-            log(chalk.yellow(`      ${change}`))
-        }
-    }
-}
-
-function parseTechStack(content: string): Record<string, string> {
-    const values: Record<string, string> = {}
-    const match = content.match(/## Tech Stack\n([\s\S]*?)(?=\n##|$)/)
-    if (!match) return values
-
-    for (const line of match[1].split('\n')) {
-        const m = line.match(/- \*\*(.+?)\*\*: (.+)/)
-        if (m) values[m[1]] = m[2]
-    }
-    return values
-}
-
 function assembleCopilotInstructions(templates: string[], stack: RepoStackInfo): string {
     const parts: string[] = []
 
@@ -208,17 +162,17 @@ function replaceTemplateVars(content: string, stack: RepoStackInfo): string {
     const buildCmd = resolveBuildCommand(stack)
     // Use function-style replacements to avoid $ being interpreted as special replacement patterns
     return content
-        .replace(/\{\{repo_name\}\}/g, () => stack.repoName ?? 'unknown')
-        .replace(/\{\{description\}\}/g, () => stack.repoDescription ?? '')
-        .replace(/\{\{commands\}\}/g, () => buildCmd)
-        .replace(/\{\{framework\}\}/g, () => stack.framework ?? 'unknown')
-        .replace(/\{\{database\}\}/g, () =>
+        .replace(/\{\{repo_name}}/g, () => stack.repoName ?? 'unknown')
+        .replace(/\{\{description}}/g, () => stack.repoDescription ?? '')
+        .replace(/\{\{commands}}/g, () => buildCmd)
+        .replace(/\{\{framework}}/g, () => stack.framework ?? 'unknown')
+        .replace(/\{\{database}}/g, () =>
             stack.hasDatabase ? `PostgreSQL${stack.databaseLib ? ` (via ${stack.databaseLib})` : ''}` : 'N/A',
         )
-        .replace(/\{\{database_details\}\}/g, () => (stack.databaseLib ? ` (via ${stack.databaseLib})` : ''))
-        .replace(/\{\{messaging\}\}/g, () => (stack.hasKafka ? 'Apache Kafka' : 'N/A'))
-        .replace(/\{\{testing\}\}/g, () => stack.testingLib ?? 'check package.json/build.gradle.kts')
-        .replace(/\{\{bundler\}\}/g, () => stack.bundler ?? 'N/A')
+        .replace(/\{\{database_details}}/g, () => (stack.databaseLib ? ` (via ${stack.databaseLib})` : ''))
+        .replace(/\{\{messaging}}/g, () => (stack.hasKafka ? 'Apache Kafka' : 'N/A'))
+        .replace(/\{\{testing}}/g, () => stack.testingLib ?? 'check package.json/build.gradle.kts')
+        .replace(/\{\{bundler}}/g, () => stack.bundler ?? 'N/A')
 }
 
 function resolveBuildCommand(stack: RepoStackInfo): string {
