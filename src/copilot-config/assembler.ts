@@ -66,7 +66,7 @@ export async function assembleForRepo(
         await writeIfChanged(agentPath, MANAGED_HEADER + agentContent, result)
     }
 
-    // 3. Copy domain agents
+    // 3. Copy agents (if any configured in profile — currently agents are delivered via plugin only)
     for (const agent of files.agents) {
         const agentPath = path.join(agentsDir, agent)
         managedFiles.add(agentPath)
