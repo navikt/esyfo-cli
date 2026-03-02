@@ -177,6 +177,20 @@ export const getYargsParser = (argv: string[]): Argv =>
                             }),
                         async (args) => copilotStatus({ repo: args.repo }),
                     )
-                    .demandCommand(1, 'Vennligst spesifiser en subkommando: sync, setup eller status'),
+                    .demandCommand(1, 'Vennligst spesifiser en subkommando: sync, setup eller status')
+                    .epilog(
+                        [
+                            'Eksempler:',
+                            '  ecli copilot status              Sjekk status for alle repos',
+                            '  ecli copilot status -r mitt-repo Sjekk ett spesifikt repo',
+                            '  ecli copilot sync -r mitt-repo   Synkroniser ett repo',
+                            '  ecli copilot sync --all          Synkroniser alle repos',
+                            '  ecli copilot sync --dry-run      Forhåndsvis endringer uten å pushe',
+                            '  ecli copilot setup               Installer agenter og MCP lokalt',
+                            '  ecli copilot setup --force       Overskriv eksisterende agentfiler',
+                            '',
+                            'Tips: Bruk <kommando> --help for flere detaljer, f.eks. ecli copilot sync --help',
+                        ].join('\n'),
+                    ),
             () => {},
         )
