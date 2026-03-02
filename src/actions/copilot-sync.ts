@@ -100,6 +100,14 @@ interface SyncResult {
     hasChanges: boolean
 }
 
+function spawnOrThrow(cmd: string[], cwd: string): void {
+    const result = Bun.spawnSync(cmd, { cwd, stdio: ['pipe', 'pipe', 'pipe'] })
+    if (!result.success) {
+        const stderr = result.stderr?.toString().trim() ?? ''
+        throw new Error(`Command failed: ${cmd.join(' ')}${stderr ? ` — ${stderr}` : ''}`)
+    }
+}
+
 export async function copilotSync(options: { repo?: string; all?: boolean; dryRun?: boolean }): Promise<void> {
     // Require explicit --repo or --all
     if (!options.repo && !options.all) {
@@ -253,44 +261,44 @@ export async function copilotSync(options: { repo?: string; all?: boolean; dryRu
             const repoData = repos.find((r) => r.name === repo)
             const defaultBranch = repoData?.defaultBranchRef.name ?? 'main'
 
-            execSync(`git checkout ${defaultBranch}`, { cwd: repoPath, stdio: 'pipe' })
+            spawnOrThrow(['git', 'checkout', defaultBranch], repoPath)
 
-            // Delete existing branch if it exists
-            try {
-                execSync(`git branch -D ${branchName}`, { cwd: repoPath, stdio: 'pipe' })
-            } catch {
-                // Branch doesn't exist, that's fine
-            }
+            // Delete existing branch if it exists (optional — may not exist)
+            Bun.spawnSync(['git', 'branch', '-D', branchName], { cwd: repoPath, stdio: ['pipe', 'pipe', 'pipe'] })
 
-            execSync(`git checkout -b ${branchName}`, { cwd: repoPath, stdio: 'pipe' })
-            execSync('git add .github/', { cwd: repoPath, stdio: 'pipe' })
-            execSync(`git commit -m "${commitMessage}"`, { cwd: repoPath, stdio: 'pipe' })
-            execSync(`git push --force --set-upstream origin ${branchName}`, { cwd: repoPath, stdio: 'pipe' })
+            spawnOrThrow(['git', 'checkout', '-b', branchName], repoPath)
+            spawnOrThrow(['git', 'add', '.github/'], repoPath)
+            spawnOrThrow(['git', 'commit', '-m', commitMessage], repoPath)
+            spawnOrThrow(['git', 'push', '--force', '--set-upstream', 'origin', branchName], repoPath)
 
             log(chalk.green(`  ✓ Pushed ${repo}`))
 
-            // Create PR
-            try {
-                execSync(
-                    `gh pr create --title "${commitMessage}" --body "Automatisk sync av GitHub Copilot-konfigurasjon fra esyfo-cli.\n\nEndringer inkluderer agenter, instruksjoner, prompts og skills tilpasset dette repoets stack." --head ${branchName}`,
-                    { cwd: repoPath, stdio: 'pipe' },
-                )
+            // Create PR (optional — may already exist)
+            const prBody =
+                'Automatisk sync av GitHub Copilot-konfigurasjon fra esyfo-cli.\n\nEndringer inkluderer agenter, instruksjoner, prompts og skills tilpasset dette repoets stack.'
+            const prResult = Bun.spawnSync(
+                ['gh', 'pr', 'create', '--title', commitMessage, '--body', prBody, '--head', branchName],
+                { cwd: repoPath, stdio: ['pipe', 'pipe', 'pipe'] },
+            )
+            if (prResult.success) {
                 log(chalk.green(`  ✓ PR created for ${repo}`))
-            } catch {
-                // PR might already exist
+            } else {
                 log(chalk.yellow(`  ⚠ PR already exists or could not be created for ${repo}`))
             }
 
-            // Auto-merge
-            try {
-                execSync('gh pr merge --auto -s', { cwd: repoPath, stdio: 'pipe' })
+            // Auto-merge (optional — may not be available)
+            const mergeResult = Bun.spawnSync(['gh', 'pr', 'merge', '--auto', '-s'], {
+                cwd: repoPath,
+                stdio: ['pipe', 'pipe', 'pipe'],
+            })
+            if (mergeResult.success) {
                 log(chalk.green(`  ✓ Auto-merge enabled for ${repo}`))
-            } catch {
+            } else {
                 log(chalk.yellow(`  ⚠ Could not enable auto-merge for ${repo}`))
             }
 
             // Switch back to default branch
-            execSync(`git checkout ${defaultBranch}`, { cwd: repoPath, stdio: 'pipe' })
+            spawnOrThrow(['git', 'checkout', defaultBranch], repoPath)
         } catch (e) {
             log(chalk.red(`  ✗ Failed to process ${repo}: ${(e as Error).message}`))
         }

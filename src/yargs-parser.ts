@@ -140,7 +140,8 @@ export const getYargsParser = (argv: string[]): Argv =>
                                     description: 'Vis hva som ville endret seg (ingen faktiske endringer)',
                                     type: 'boolean',
                                     default: false,
-                                }),
+                                })
+                                .conflicts('all', 'repo'),
                         async (args) =>
                             copilotSync({
                                 repo: args.repo,

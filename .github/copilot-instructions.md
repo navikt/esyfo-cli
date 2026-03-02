@@ -55,5 +55,5 @@ There are no tests in this project.
 - **Functional utilities**: Uses `remeda` (imported as `R`) for functional data transformations
 - **ESLint**: Extends `@navikt/eslint-config-teamsykmelding` with `no-explicit-any` and `explicit-function-return-type` turned off
 - **GraphQL**: Inline queries use the `/* GraphQL */` tagged template comment for syntax highlighting
-- **Bun APIs**: Use `Bun.file()`, `Bun.write()`, `Bun.spawnSync()`, `Bun.env` — not Node.js equivalents
+- **Bun APIs**: Prefer `Bun.file()`, `Bun.write()`, `Bun.spawnSync()`, `Bun.env` over Node.js equivalents where practical
 - **CI skip**: Commit messages containing `[docs]` skip the CI build; `[skip ci]` skips entirely

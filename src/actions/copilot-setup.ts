@@ -134,7 +134,7 @@ async function configureMcp(): Promise<void> {
     if (fs.existsSync(MCP_CONFIG_PATH)) {
         const existing = JSON.parse(await Bun.file(MCP_CONFIG_PATH).text()) as McpConfig
         // Support both mcpServers (Copilot CLI) and servers (older format)
-        const serversKey = existing.mcpServers ? 'mcpServers' : 'servers'
+        const serversKey = existing.mcpServers ? 'mcpServers' : existing.servers ? 'servers' : 'mcpServers'
         const servers = existing[serversKey] ?? {}
         let changed = false
 

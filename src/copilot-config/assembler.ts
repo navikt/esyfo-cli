@@ -219,8 +219,7 @@ async function readConfigFile(subdir: string, filename: string): Promise<string>
     const filePath = path.join(CONFIG_BASE, subdir, filename)
     const file = Bun.file(filePath)
     if (!(await file.exists())) {
-        log(chalk.red(`  Config file not found: ${filePath}`))
-        return ''
+        throw new Error(`Template file not found: ${filePath}`)
     }
     return file.text()
 }

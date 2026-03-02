@@ -53,6 +53,9 @@ export async function copilotStatus(options: { repo?: string }): Promise<void> {
 
         const effectiveProfile = stack.type
 
+        // Check if copilot config exists BEFORE assembly (to detect truly missing repos)
+        const hasCopilotConfig = fs.existsSync(path.join(repoPath, '.github', 'copilot-instructions.md'))
+
         // Run assembly to compute expected state (writes to cached repo)
         const assembly = await assembleForRepo(repoPath, effectiveProfile, stack, config)
 
@@ -87,9 +90,13 @@ export async function copilotStatus(options: { repo?: string }): Promise<void> {
         // Reset cached repo back to clean state
         try {
             execSync('git checkout -- .github/', { cwd: repoPath, stdio: 'pipe' })
-            execSync('git clean -fd .github/', { cwd: repoPath, stdio: 'pipe' })
         } catch {
             // repo might not have .github/ yet
+        }
+        try {
+            execSync('git clean -fd .github/', { cwd: repoPath, stdio: 'pipe' })
+        } catch {
+            // ignore
         }
 
         const stackParts: string[] = [effectiveProfile]
@@ -99,7 +106,7 @@ export async function copilotStatus(options: { repo?: string }): Promise<void> {
 
         let state: SyncState
         let detail: string
-        if (!fs.existsSync(path.join(repoPath, '.github', 'copilot-instructions.md'))) {
+        if (!hasCopilotConfig) {
             state = 'missing'
             detail = 'no copilot config'
         } else if (hasChanges) {
