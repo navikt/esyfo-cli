@@ -41,7 +41,10 @@ export async function assembleForRepo(
     const promptsDir = path.join(githubDir, 'prompts')
     const skillsDir = path.join(githubDir, 'skills')
 
-    for (const dir of [agentsDir, instructionsDir, promptsDir, skillsDir]) {
+    const hasAgents = files.agents.length > 0 || files.teamAgent !== null
+    const dirsToCreate = [instructionsDir, promptsDir, skillsDir]
+    if (hasAgents) dirsToCreate.unshift(agentsDir)
+    for (const dir of dirsToCreate) {
         fs.mkdirSync(dir, { recursive: true })
     }
 
@@ -94,7 +97,9 @@ export async function assembleForRepo(
     }
 
     // 7. Clean up stale managed files (files we previously managed but no longer need)
-    await cleanStaleManagedFiles([agentsDir, instructionsDir, promptsDir, skillsDir], managedFiles, result)
+    const dirsToClean = [instructionsDir, promptsDir, skillsDir]
+    if (fs.existsSync(agentsDir)) dirsToClean.unshift(agentsDir)
+    await cleanStaleManagedFiles(dirsToClean, managedFiles, result)
 
     return result
 }

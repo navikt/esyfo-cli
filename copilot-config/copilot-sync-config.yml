@@ -8,9 +8,6 @@
 
 # Felles for ALLE repos
 common:
-  agents:
-    - esyfo-reviewer.agent.md
-    - research.agent.md
   instructions:
     - auth.instructions.md
     - security.instructions.md

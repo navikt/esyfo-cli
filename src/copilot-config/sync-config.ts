@@ -18,7 +18,7 @@ export interface CopilotSyncOverride {
 
 export interface CopilotSyncConfig {
     common: {
-        agents: string[]
+        agents?: string[]
         instructions?: string[]
         prompts?: string[]
         skills?: string[]
@@ -31,7 +31,7 @@ export type RepoProfile = 'backend' | 'frontend' | 'microfrontend' | 'other'
 
 interface RawConfig {
     common: {
-        agents: string[]
+        agents?: string[]
         instructions?: string[]
         prompts?: string[]
         skills?: string[]
@@ -67,7 +67,7 @@ export function getFilesForProfile(
     if (!profileConfig) {
         return {
             copilotInstructions: ['base.md'],
-            agents: [...config.common.agents],
+            agents: [...(config.common.agents ?? [])],
             instructions: [...(config.common.instructions ?? [])],
             prompts: [...(config.common.prompts ?? [])],
             skills: [...(config.common.skills ?? [])],
@@ -77,7 +77,7 @@ export function getFilesForProfile(
 
     return {
         copilotInstructions: profileConfig.copilot_instructions,
-        agents: [...config.common.agents, ...(profileConfig.agents ?? [])],
+        agents: [...(config.common.agents ?? []), ...(profileConfig.agents ?? [])],
         instructions: [...(config.common.instructions ?? []), ...(profileConfig.instructions ?? [])],
         prompts: [...(config.common.prompts ?? []), ...(profileConfig.prompts ?? [])],
         skills: [...(config.common.skills ?? []), ...(profileConfig.skills ?? [])],
@@ -101,7 +101,7 @@ export function getFilesForProfiles(
     if (profiles.length === 1) return getFilesForProfile(config, profiles[0])
 
     const instructionTemplates: string[] = ['base.md']
-    const agents = new Set<string>(config.common.agents)
+    const agents = new Set<string>(config.common.agents ?? [])
     const instructions = new Set<string>(config.common.instructions ?? [])
     const prompts = new Set<string>(config.common.prompts ?? [])
     const skills = new Set<string>(config.common.skills ?? [])

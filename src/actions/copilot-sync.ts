@@ -129,11 +129,12 @@ export async function copilotSync(options: { repo?: string; all?: boolean; dryRu
             const files = isMonorepo
                 ? getFilesForProfiles(config, stack.subProfiles!)
                 : getFilesForProfile(config, effectiveProfile)
-            log(
-                chalk.dim(
-                    `    Would write: copilot-instructions.md, ${files.agents.length} agents, ${files.instructions.length} instructions, ${files.prompts.length} prompts, ${files.skills.length} skills`,
-                ),
-            )
+            const parts = ['copilot-instructions.md']
+            if (files.agents.length > 0) parts.push(`${files.agents.length} agents`)
+            parts.push(`${files.instructions.length} instructions`)
+            if (files.prompts.length > 0) parts.push(`${files.prompts.length} prompts`)
+            if (files.skills.length > 0) parts.push(`${files.skills.length} skills`)
+            log(chalk.dim(`    Would write: ${parts.join(', ')}`))
             if (files.teamAgent) log(chalk.dim(`    + esyfo.agent.md (from ${files.teamAgent})`))
             results.push({
                 repo: repo.name,
