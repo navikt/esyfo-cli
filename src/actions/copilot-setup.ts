@@ -5,9 +5,10 @@ import chalk from 'chalk'
 
 import { log } from '../common/log.ts'
 
-const USER_AGENTS_SOURCE = path.resolve(import.meta.dir, '../../copilot-config/user-agents')
-const USER_AGENTS_TARGET = path.join(Bun.env.HOME ?? Bun.env.USERPROFILE ?? '~', '.config', 'copilot', 'agents')
-const MCP_CONFIG_PATH = path.join(Bun.env.HOME ?? Bun.env.USERPROFILE ?? '~', '.copilot', 'mcp-config.json')
+const PLUGIN_SOURCE = path.resolve(import.meta.dir, '../../copilot-config/user-agents')
+const HOME = Bun.env.HOME ?? Bun.env.USERPROFILE ?? '~'
+const PLUGIN_TARGET = path.join(HOME, '.copilot', 'installed-plugins', '_direct', 'esyfo-agents')
+const MCP_CONFIG_PATH = path.join(HOME, '.copilot', 'mcp-config.json')
 
 interface McpServer {
     command?: string
@@ -27,41 +28,48 @@ interface McpConfig {
 export async function copilotSetup(options: { force?: boolean }): Promise<void> {
     log(chalk.green('🔧 Setting up GitHub Copilot for team-esyfo\n'))
 
-    await installUserAgents(options.force ?? false)
+    await installPlugin(options.force ?? false)
     await configureMcp()
 
     log(chalk.green('\n✅ Setup complete!'))
-    log(chalk.dim('  Agents installed to: ' + USER_AGENTS_TARGET))
+    log(chalk.dim('  Plugin installed to: ' + PLUGIN_TARGET))
     log(chalk.dim('  MCP config at: ' + MCP_CONFIG_PATH))
-    log(chalk.dim('\n  Restart your editor/CLI for changes to take effect.'))
+    log(chalk.dim('\n  Restart Copilot CLI for changes to take effect.'))
 }
 
-async function installUserAgents(force: boolean): Promise<void> {
-    log(chalk.cyan('📦 Installing user-level role agents...'))
+async function installPlugin(force: boolean): Promise<void> {
+    log(chalk.cyan('📦 Installing esyfo-agents plugin...'))
 
-    fs.mkdirSync(USER_AGENTS_TARGET, { recursive: true })
+    const agentsSourceDir = path.join(PLUGIN_SOURCE, 'agents')
+    const agentsTargetDir = path.join(PLUGIN_TARGET, 'agents')
+    fs.mkdirSync(agentsTargetDir, { recursive: true })
 
-    const agentFiles = fs.readdirSync(USER_AGENTS_SOURCE).filter((f) => f.endsWith('.agent.md'))
+    // Copy plugin.json
+    const pluginJsonSource = path.join(PLUGIN_SOURCE, 'plugin.json')
+    const pluginJsonTarget = path.join(PLUGIN_TARGET, 'plugin.json')
+    await copyFileIfChanged(pluginJsonSource, pluginJsonTarget, force)
 
+    // Copy agent files
+    const agentFiles = fs.readdirSync(agentsSourceDir).filter((f) => f.endsWith('.agent.md'))
     for (const file of agentFiles) {
-        const sourcePath = path.join(USER_AGENTS_SOURCE, file)
-        const targetPath = path.join(USER_AGENTS_TARGET, file)
-
-        if (fs.existsSync(targetPath) && !force) {
-            const existing = await Bun.file(targetPath).text()
-            const source = await Bun.file(sourcePath).text()
-            if (existing === source) {
-                log(chalk.dim(`  - ${file} (unchanged)`))
-                continue
-            }
-            log(chalk.yellow(`  ⚠ ${file} exists and differs — use --force to overwrite`))
-            continue
-        }
-
-        const content = await Bun.file(sourcePath).text()
-        await Bun.write(targetPath, content)
-        log(chalk.green(`  ✓ ${file}`))
+        await copyFileIfChanged(path.join(agentsSourceDir, file), path.join(agentsTargetDir, file), force)
     }
+}
+
+async function copyFileIfChanged(source: string, target: string, force: boolean): Promise<void> {
+    const fileName = path.basename(source)
+    const sourceContent = await Bun.file(source).text()
+
+    if (fs.existsSync(target) && !force) {
+        const existing = await Bun.file(target).text()
+        if (existing === sourceContent) {
+            log(chalk.dim(`  - ${fileName} (unchanged)`))
+            return
+        }
+    }
+
+    await Bun.write(target, sourceContent)
+    log(chalk.green(`  ✓ ${fileName}`))
 }
 
 async function configureMcp(): Promise<void> {
