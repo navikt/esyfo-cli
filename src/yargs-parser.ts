@@ -10,6 +10,7 @@ import { ourRepos } from './actions/repos'
 import { cloneTeamRepos } from './actions/clone-team-repos'
 import { syncFilesAcrossRepos } from './actions/sync-file.ts'
 import { copilotSync } from './actions/copilot-sync.ts'
+import { copilotSetup } from './actions/copilot-setup.ts'
 
 export const getYargsParser = (argv: string[]): Argv =>
     yargs(hideBin(argv))
@@ -140,4 +141,16 @@ export const getYargsParser = (argv: string[]): Argv =>
                     all: args.all,
                     dryRun: args.dryRun,
                 }),
+        )
+        .command(
+            'copilot setup',
+            'Installer bruker-nivå Copilot rolle-agenter og konfigurer MCP-servere',
+            (yargs) =>
+                yargs.option('force', {
+                    alias: 'f',
+                    description: 'Overskriv eksisterende agentfiler',
+                    type: 'boolean',
+                    default: false,
+                }),
+            async (args) => copilotSetup({ force: args.force }),
         )

@@ -138,7 +138,7 @@ export async function copilotSync(options: { repo?: string; all?: boolean; dryRu
             results.push({
                 repo: repo.name,
                 profile: effectiveProfile,
-                assembly: { filesWritten: [], filesUnchanged: [] },
+                assembly: { filesWritten: [], filesUnchanged: [], filesRemoved: [] },
                 hasChanges: false,
             })
             continue
@@ -168,6 +168,9 @@ export async function copilotSync(options: { repo?: string; all?: boolean; dryRu
 
         if (assembly.filesWritten.length > 0) {
             log(chalk.green(`    ✓ ${assembly.filesWritten.length} files written`))
+        }
+        if (assembly.filesRemoved.length > 0) {
+            log(chalk.red(`    🗑 ${assembly.filesRemoved.length} stale files removed`))
         }
         if (assembly.filesUnchanged.length > 0) {
             log(chalk.dim(`    - ${assembly.filesUnchanged.length} files unchanged`))

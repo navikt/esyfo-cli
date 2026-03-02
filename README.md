@@ -56,6 +56,7 @@ for å få oversikt over tilgjengelige tasks.
 * `repos` - get all non-archived repos for team-esyfo
 * `clone-team-repos` - git clone all repositories owned by team
 * `copilot` - Synkroniser GitHub Copilot-konfigurasjon (agenter, instruksjoner, prompts, skills) til team-repos
+* `copilot` - Installer bruker-nivå Copilot rolle-agenter og konfigurer MCP-servere
 
 <!-- COMPUTER SAYS DON'T TOUCH THIS END -->
 

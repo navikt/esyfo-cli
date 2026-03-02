@@ -19,6 +19,7 @@ export interface CopilotSyncOverride {
 export interface CopilotSyncConfig {
     common: {
         agents: string[]
+        instructions?: string[]
         prompts?: string[]
         skills?: string[]
     }
@@ -31,6 +32,7 @@ export type RepoProfile = 'backend' | 'frontend' | 'microfrontend' | 'other'
 interface RawConfig {
     common: {
         agents: string[]
+        instructions?: string[]
         prompts?: string[]
         skills?: string[]
     }
@@ -66,7 +68,7 @@ export function getFilesForProfile(
         return {
             copilotInstructions: ['base.md'],
             agents: [...config.common.agents],
-            instructions: [],
+            instructions: [...(config.common.instructions ?? [])],
             prompts: [...(config.common.prompts ?? [])],
             skills: [...(config.common.skills ?? [])],
             teamAgent: null,
@@ -76,7 +78,7 @@ export function getFilesForProfile(
     return {
         copilotInstructions: profileConfig.copilot_instructions,
         agents: [...config.common.agents, ...(profileConfig.agents ?? [])],
-        instructions: profileConfig.instructions ?? [],
+        instructions: [...(config.common.instructions ?? []), ...(profileConfig.instructions ?? [])],
         prompts: [...(config.common.prompts ?? []), ...(profileConfig.prompts ?? [])],
         skills: [...(config.common.skills ?? []), ...(profileConfig.skills ?? [])],
         teamAgent: profileConfig.team_agent,
@@ -100,7 +102,7 @@ export function getFilesForProfiles(
 
     const instructionTemplates: string[] = ['base.md']
     const agents = new Set<string>(config.common.agents)
-    const instructions = new Set<string>()
+    const instructions = new Set<string>(config.common.instructions ?? [])
     const prompts = new Set<string>(config.common.prompts ?? [])
     const skills = new Set<string>(config.common.skills ?? [])
     let teamAgent: string | null = null
