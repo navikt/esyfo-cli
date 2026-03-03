@@ -60,7 +60,8 @@ export async function auditRepo(
     return { repo: repoName, profile, stack, findings, stats }
 }
 
-export function formatAuditReport(report: AuditReport): string {
+export function formatAuditReport(report: AuditReport, options?: { verbose?: boolean }): string {
+    const verbose = options?.verbose ?? false
     const lines: string[] = []
 
     lines.push(chalk.bold.underline(`\n🔍 Copilot Audit Report`))
@@ -83,12 +84,44 @@ export function formatAuditReport(report: AuditReport): string {
         if (result.findings.length === 0) {
             lines.push(chalk.green('   No issues found'))
         } else {
-            for (const finding of result.findings) {
+            for (let fi = 0; fi < result.findings.length; fi++) {
+                const finding = result.findings[fi]
                 const icon = severityIcon(finding.severity)
                 const fileStr = finding.file ? chalk.dim(` [${finding.file}]`) : ''
                 lines.push(`   ${icon} ${finding.message}${fileStr}`)
                 if (finding.detail) {
                     lines.push(chalk.dim(`      ${finding.detail}`))
+                }
+
+                if (verbose) {
+                    if (finding.templateSnippet) {
+                        lines.push(chalk.dim(`      📄 Template:`))
+                        const snippetLines = finding.templateSnippet.split('\n')
+                        const truncated = snippetLines.length > 10
+                        for (const line of snippetLines.slice(0, 10)) {
+                            lines.push(chalk.dim(`      ${line}`))
+                        }
+                        if (truncated) {
+                            lines.push(chalk.dim(`      ...`))
+                        }
+                    }
+
+                    if (finding.repoSnippets && finding.repoSnippets.length > 0) {
+                        lines.push(chalk.dim(`      📂 Repo:`))
+                        for (const snippet of finding.repoSnippets) {
+                            const range = `${snippet.lineRange[0]}-${snippet.lineRange[1]}`
+                            lines.push(chalk.dim(`      [${snippet.file}:${range}]`))
+                            if (snippet.lines) {
+                                for (const line of snippet.lines.split('\n')) {
+                                    lines.push(chalk.dim(`        ${line}`))
+                                }
+                            }
+                        }
+                    }
+
+                    if (fi < result.findings.length - 1) {
+                        lines.push(chalk.dim(`      ───`))
+                    }
                 }
             }
         }

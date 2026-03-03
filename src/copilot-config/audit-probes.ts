@@ -2,7 +2,7 @@ import path from 'node:path'
 
 import { Glob } from 'bun'
 
-import { AssemblyPlan, PlannedFile } from './assembler.ts'
+import { AssemblyPlan, FRONTMATTER_RE, PlannedFile, readConfigFile } from './assembler.ts'
 import { RepoStackInfo } from './detector.ts'
 
 export type AuditSeverity = 'error' | 'warning' | 'info'
@@ -13,6 +13,13 @@ export interface AuditFinding {
     file?: string
     message: string
     detail?: string
+    templateSnippet?: string
+    templateSource?: string
+    repoSnippets?: Array<{
+        file: string
+        lines: string
+        lineRange: [number, number]
+    }>
 }
 
 export interface ProbeContext {
@@ -39,6 +46,37 @@ export async function buildRepoFileSet(repoPath: string): Promise<Set<string>> {
     return files
 }
 
+// --- Helper functions ---
+
+export function extractTemplateExcerpt(content: string, maxLines = 8): string {
+    const stripped = content.replace(FRONTMATTER_RE, '')
+    return stripped.split('\n').slice(0, maxLines).join('\n')
+}
+
+export function extractRepoSnippet(
+    fileContent: string,
+    pattern: RegExp,
+    contextLines = 3,
+): Array<{ lines: string; lineRange: [number, number] }> {
+    const allLines = fileContent.split('\n')
+    const results: Array<{ lines: string; lineRange: [number, number] }> = []
+
+    for (let i = 0; i < allLines.length && results.length < 3; i++) {
+        if (pattern.test(allLines[i])) {
+            const start = Math.max(0, i - contextLines)
+            const end = Math.min(allLines.length - 1, i + contextLines)
+            const snippet = allLines
+                .slice(start, end + 1)
+                .map((line, idx) => `${start + idx + 1}. ${line}`)
+                .join('\n')
+            results.push({ lines: snippet, lineRange: [start + 1, end + 1] })
+            i = end
+        }
+    }
+
+    return results
+}
+
 // --- Probe 1: Relevance ---
 
 const PROFILE_FILE_MARKERS: Record<string, { language?: string; framework?: string; keywords: string[] }> = {
@@ -52,7 +90,7 @@ const PROFILE_FILE_MARKERS: Record<string, { language?: string; framework?: stri
     'kafka-spring.instructions.md': { keywords: ['kafka', 'spring'] },
 }
 
-export function probeRelevance(ctx: ProbeContext): AuditFinding[] {
+export async function probeRelevance(ctx: ProbeContext): Promise<AuditFinding[]> {
     const findings: AuditFinding[] = []
     const { stack, plan } = ctx
 
@@ -70,6 +108,8 @@ export function probeRelevance(ctx: ProbeContext): AuditFinding[] {
                 file: file.relativePath,
                 message: `Instruction for ${markers.language} delivered to ${stack.language} repo`,
                 detail: `Source: ${file.sourceTemplate}`,
+                templateSnippet: extractTemplateExcerpt(file.content),
+                templateSource: file.sourceTemplate,
             })
         }
 
@@ -81,6 +121,8 @@ export function probeRelevance(ctx: ProbeContext): AuditFinding[] {
                 file: file.relativePath,
                 message: `Instruction for ${markers.framework} delivered to ${stack.framework} repo`,
                 detail: `Source: ${file.sourceTemplate}`,
+                templateSnippet: extractTemplateExcerpt(file.content),
+                templateSource: file.sourceTemplate,
             })
         }
     }
@@ -97,11 +139,20 @@ export function probeRelevance(ctx: ProbeContext): AuditFinding[] {
         // kafka-spring is a valid substitute for kafka
         if (expected === 'kafka.instructions.md' && deliveredTemplates.has('kafka-spring.instructions.md')) continue
         if (!deliveredTemplates.has(expected)) {
+            let snippet: string | undefined
+            try {
+                const content = await readConfigFile('instructions', expected)
+                snippet = extractTemplateExcerpt(content)
+            } catch {
+                // template not available
+            }
             findings.push({
                 probe: 'relevance',
                 severity: 'warning',
                 file: expected,
                 message: `Expected instruction ${expected} not in plan (stack has ${stack.language ?? 'unknown'})`,
+                templateSnippet: snippet,
+                templateSource: expected,
             })
         }
     }
@@ -128,12 +179,29 @@ export function probeApplyToCoverage(ctx: ProbeContext): AuditFinding[] {
         const hasMatch = file.applyTo.some((pattern) => [...repoFiles].some((repoFile) => matchGlob(pattern, repoFile)))
 
         if (!hasMatch) {
+            const targetExts = [
+                ...new Set(
+                    file.applyTo.flatMap((g) => {
+                        const m = g.match(/\*(\.\w+)$/)
+                        return m ? [m[1]] : []
+                    }),
+                ),
+            ]
+            const extInfo =
+                targetExts.length > 0
+                    ? targetExts
+                          .map((ext) => `${[...repoFiles].filter((f) => f.endsWith(ext)).length} ${ext} files`)
+                          .join(', ')
+                    : null
+
             findings.push({
                 probe: 'applyTo-coverage',
                 severity: 'warning',
                 file: file.relativePath,
                 message: `applyTo globs match 0 files in repo`,
-                detail: `Globs: ${file.applyTo.join(', ')}`,
+                detail: `Globs: ${file.applyTo.join(', ')}${extInfo ? `. Repo has ${extInfo}` : ''}`,
+                templateSnippet: extractTemplateExcerpt(file.content),
+                templateSource: file.sourceTemplate,
             })
         }
     }
@@ -160,12 +228,17 @@ export async function probeConventionAlignment(ctx: ProbeContext): Promise<Audit
             try {
                 const content = await Bun.file(path.join(repoPath, sqlFile)).text()
                 if (/\bTIMESTAMP\b(?!TZ)/i.test(content)) {
+                    const snippets = extractRepoSnippet(content, /\bTIMESTAMP\b(?!TZ)/i)
+                    const sqlPlan = plan.files.find((f) => f.sourceTemplate === 'sql.instructions.md')
                     findings.push({
                         probe: 'convention-alignment',
                         severity: 'info',
                         file: sqlFile,
                         message: 'Uses TIMESTAMP instead of TIMESTAMPTZ',
                         detail: 'sql.instructions.md recommends TIMESTAMPTZ for timezone safety',
+                        repoSnippets: snippets.length > 0 ? snippets.map((s) => ({ file: sqlFile, ...s })) : undefined,
+                        templateSnippet: sqlPlan ? extractTemplateExcerpt(sqlPlan.content) : undefined,
+                        templateSource: 'sql.instructions.md',
                     })
                 }
             } catch {
@@ -178,11 +251,21 @@ export async function probeConventionAlignment(ctx: ProbeContext): Promise<Audit
     if (deliveredTemplates.has('kotlin.instructions.md')) {
         const ktFiles = [...repoFiles].filter((f) => f.endsWith('.kt') && !f.includes('test/'))
         let bangBangCount = 0
+        const bangOccurrences: Array<{ file: string; lines: string; lineRange: [number, number] }> = []
         for (const ktFile of ktFiles.slice(0, 20)) {
             try {
                 const content = await Bun.file(path.join(repoPath, ktFile)).text()
                 const matches = content.match(/!!/g)
-                if (matches) bangBangCount += matches.length
+                if (matches) {
+                    bangBangCount += matches.length
+                    if (bangOccurrences.length < 3) {
+                        const snippets = extractRepoSnippet(content, /!!/)
+                        for (const s of snippets) {
+                            if (bangOccurrences.length >= 3) break
+                            bangOccurrences.push({ file: ktFile, ...s })
+                        }
+                    }
+                }
             } catch {
                 // skip
             }
@@ -193,6 +276,7 @@ export async function probeConventionAlignment(ctx: ProbeContext): Promise<Audit
                 severity: 'info',
                 message: `Found ${bangBangCount} uses of !! operator in source Kotlin files`,
                 detail: 'Consider null-safe alternatives as recommended in kotlin.instructions.md',
+                repoSnippets: bangOccurrences.length > 0 ? bangOccurrences : undefined,
             })
         }
     }
@@ -227,23 +311,31 @@ export function probeOverlapDetection(ctx: ProbeContext): AuditFinding[] {
         }
     }
 
-    // Group overlapping instructions
-    const overlapPairs = new Set<string>()
-    for (const [, instructions] of fileToInstructions) {
+    // Group overlapping instructions with example files
+    const pairOverlaps = new Map<string, { instrA: PlannedFile; instrB: PlannedFile; files: string[] }>()
+    for (const [repoFile, instructions] of fileToInstructions) {
         for (let i = 0; i < instructions.length; i++) {
             for (let j = i + 1; j < instructions.length; j++) {
                 const key = [instructions[i].relativePath, instructions[j].relativePath].sort().join(' ↔ ')
-                overlapPairs.add(key)
+                const existing = pairOverlaps.get(key)
+                if (existing) {
+                    if (existing.files.length < 5) existing.files.push(repoFile)
+                } else {
+                    pairOverlaps.set(key, { instrA: instructions[i], instrB: instructions[j], files: [repoFile] })
+                }
             }
         }
     }
 
-    for (const pair of overlapPairs) {
+    for (const [pair, { instrA, instrB, files }] of pairOverlaps) {
+        const snippetA = `${instrA.sourceTemplate} [applyTo: ${instrA.applyTo.join(', ')}]`
+        const snippetB = `${instrB.sourceTemplate} [applyTo: ${instrB.applyTo.join(', ')}]`
         findings.push({
             probe: 'overlap-detection',
             severity: 'info',
             message: `Overlapping applyTo coverage: ${pair}`,
-            detail: 'Multiple instruction files target the same source files',
+            detail: `Overlapping files: ${files.join(', ')}`,
+            templateSnippet: `${snippetA}\n${snippetB}`,
         })
     }
 

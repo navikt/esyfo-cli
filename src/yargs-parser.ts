@@ -182,12 +182,25 @@ export const getYargsParser = (argv: string[]): Argv =>
                         'audit',
                         'Kjør heuristisk sjekk av Copilot-instruksjoner mot repoenes faktiske kode',
                         (yargs) =>
-                            yargs.option('repo', {
-                                alias: 'r',
-                                description: 'Auditer et spesifikt repo',
-                                type: 'string',
-                            }),
-                        async (args) => copilotAudit({ repo: args.repo }),
+                            yargs
+                                .option('repo', {
+                                    alias: 'r',
+                                    description: 'Auditer et spesifikt repo',
+                                    type: 'string',
+                                })
+                                .option('verbose', {
+                                    alias: 'v',
+                                    description: 'Vis template- og kode-snippets i rapporten',
+                                    type: 'boolean',
+                                    default: false,
+                                })
+                                .option('json', {
+                                    alias: 'j',
+                                    description: 'Skriv full rapport som JSON (inkluderer alltid snippets)',
+                                    type: 'boolean',
+                                    default: false,
+                                }),
+                        async (args) => copilotAudit({ repo: args.repo, verbose: args.verbose, json: args.json }),
                     )
                     .demandCommand(1, 'Vennligst spesifiser en subkommando: sync, setup, status eller audit')
                     .epilog(
