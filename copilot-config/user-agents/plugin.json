@@ -1,6 +1,6 @@
 {
     "name": "esyfo-agents",
-    "description": "Kjøkken-agenter for team-esyfo. Hovmester, kokken, mattilsynet (+ souschef og konditor internt).",
+    "description": "Kjøkken-agenter for team-esyfo. Hovmester, kokk, mattilsynet (+ souschef og konditor internt).",
     "version": "1.0.0",
     "author": {
         "name": "team-esyfo",
