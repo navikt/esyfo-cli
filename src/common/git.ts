@@ -49,13 +49,20 @@ export class Gitter {
         const repoClient = this.createRepoGitClient(repo)
 
         if (this.type === 'cache') {
-            repoClient
-                .clean([CleanOptions.FORCE, CleanOptions.RECURSIVE])
-                .reset(ResetMode.HARD, ['origin/HEAD'])
-                .checkout(defaultBranch)
-                .pull({
-                    '--rebase': null,
-                })
+            try {
+                await repoClient
+                    .clean([CleanOptions.FORCE, CleanOptions.RECURSIVE])
+                    .reset(ResetMode.HARD, ['origin/HEAD'])
+                    .checkout(defaultBranch)
+                    .pull({
+                        '--rebase': null,
+                    })
+            } catch (e) {
+                return {
+                    type: 'error',
+                    message: (e as Error).message,
+                }
+            }
         } else {
             try {
                 const currentBranch = await repoClient.revparse(['--abbrev-ref', 'HEAD'])
@@ -85,7 +92,7 @@ export class Gitter {
         silent: boolean,
         shallow: boolean,
         localPath?: string,
-    ): Promise<'cloned' | 'skipped'> {
+    ): Promise<'cloned' | 'skipped' | { type: 'error'; message: string }> {
         const dest = localPath ?? repo
         if (this.exists(dest)) {
             if (!silent) {
@@ -94,9 +101,16 @@ export class Gitter {
             return 'skipped'
         }
 
-        const remote = `git@github.com:navikt/${repo}.git`
+        const remote = `https://github.com/navikt/${repo}.git`
         const t1 = performance.now()
-        await this.git.clone(remote, dest, shallow ? { '--depth': 1 } : undefined)
+        try {
+            await this.git.clone(remote, dest, shallow ? { '--depth': 1 } : undefined)
+        } catch (e) {
+            return {
+                type: 'error',
+                message: (e as Error).message,
+            }
+        }
 
         if (!silent) {
             log(`Cloned ${repo}${shallow ? ' (shallow)' : ''} OK (${Math.round(performance.now() - t1)}ms))`)
