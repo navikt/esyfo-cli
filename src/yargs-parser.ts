@@ -156,7 +156,7 @@ export const getYargsParser = (argv: string[]): Argv =>
                     )
                     .command(
                         'setup',
-                        'Sett opp din lokale maskin med rolle-agenter (hovmester, kokken, mattilsynet) og MCP-servere',
+                        'Sett opp din lokale maskin med rolle-agenter (hovmester, kokk, mattilsynet) og MCP-servere',
                         (yargs) =>
                             yargs.option('force', {
                                 alias: 'f',

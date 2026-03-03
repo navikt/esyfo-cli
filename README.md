@@ -79,12 +79,12 @@ Installeres i `~/.copilot/` via `ecli copilot setup`. Disse er felles uavhengig 
 | Agent | Rolle | Modell |
 |-------|-------|--------|
 | **@hovmester** 🍽️ | Tar imot bestillingen og delegerer til kjøkkenet | Opus |
-| **@kokken** 🔪 | Smeller sammen koden — rask, brutal og effektiv | Codex |
+| **@kokk** 🔪 | Smeller sammen koden — rask, brutal og effektiv | Codex |
 | **@mattilsynet** 🔍 | Uanmeldt inspeksjon — code review og kvalitetssikring | Sonnet |
 | *@souschef* 📋 | *(internt)* Planlegger menyen — brukes via hovmester | Opus |
 | *@konditor* 🎂 | *(internt)* Pynt og finish — UI/UX med Aksel | Gemini |
 
-> **Tips**: Start med `@hovmester` for større oppgaver — den planlegger via souschef og delegerer til kokken. Bruk `@kokken` direkte for raske fixes, og `@mattilsynet` for code review.
+> **Tips**: Start med `@hovmester` for større oppgaver — den planlegger via souschef og delegerer til kokk. Bruk `@kokk` direkte for raske fixes, og `@mattilsynet` for code review.
 
 **Lag 2 — Repo-kontekst (per repo)**
 Genereres av `ecli copilot sync` basert på detektert stack. Havner i `.github/` i hvert repo:
