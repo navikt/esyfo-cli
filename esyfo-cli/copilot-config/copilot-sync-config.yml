@@ -1,0 +1,89 @@
+# Mapping av repo-type → Copilot-konfigurasjonsfiler
+# Brukes av `ecli copilot sync` for å distribuere riktige filer til hvert repo.
+#
+# Arkitektur (3-lags modell):
+#   Lag 1: Rolle-agenter (user-level, installert via `ecli copilot setup`)
+#   Lag 2: Repo-kontekst (dette — generert av `ecli copilot sync`)
+#   Lag 3: MCP/plattform-verktøy (om tilgjengelig)
+
+# Felles for ALLE repos
+common:
+  instructions:
+    - auth.instructions.md
+    - security.instructions.md
+    - observability.instructions.md
+    - nais.instructions.md
+  prompts:
+    - nais-manifest.prompt.md
+  skills:
+    - observability-setup
+
+# Profiler per repo-type (additivt til common)
+profiles:
+  backend:
+    copilot_instructions:
+      - base.md
+      - backend.md
+    team_agent: null
+    agents: []
+    instructions:
+      - kotlin.instructions.md
+      - testing-kotlin.instructions.md
+      # sql, kafka, and framework-specific kotlin instructions are resolved
+      # dynamically by the assembler based on detected stack
+    prompts: []
+      # kafka-topic.prompt.md resolved dynamically when hasKafka
+    skills: []
+      # flyway-migration resolved dynamically when hasDatabase
+
+  frontend:
+    copilot_instructions:
+      - base.md
+      - frontend.md
+    team_agent: null
+    agents: []
+    instructions:
+      - typescript.instructions.md
+      - frontend.instructions.md
+      - testing-typescript.instructions.md
+
+  microfrontend:
+    copilot_instructions:
+      - base.md
+      - microfrontend.md
+    team_agent: null
+    agents: []
+    instructions:
+      - typescript.instructions.md
+      - frontend.instructions.md
+      - testing-typescript.instructions.md
+
+  other:
+    copilot_instructions:
+      - base.md
+    team_agent: null
+
+# Override per spesifikt repo
+overrides:
+  esyfo-cli:
+    skip: true
+  teamesyfo-github-actions-workflows:
+    skip: true
+  nav-ekstern-api-dok:
+    skip: true
+  oppfolgingsplan-frontend:
+    skip: true
+  oppfolgingsplan-backend:
+    skip: true
+  flexjar-widget:
+    skip: true
+  esyfo-kafka-manager:
+    skip: true
+  esyfovarsel_analyse:
+    skip: true
+  esyfo-microfrontends:
+    skip: true
+  syfooppfolgingsplanservice:
+    skip: true
+  team-esyfo:
+    skip: true
