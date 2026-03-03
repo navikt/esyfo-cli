@@ -203,9 +203,9 @@ function resolveBuildCommand(stack: RepoStackInfo): string {
     if (stack.language === 'typescript') {
         return [
             '```bash',
-            'npm run build     # Build',
-            'npm run test      # Tests',
-            'npm run lint      # Lint',
+            'pnpm run build     # Build',
+            'pnpm run test      # Tests',
+            'pnpm run lint      # Lint',
             '```',
         ].join('\n')
     }

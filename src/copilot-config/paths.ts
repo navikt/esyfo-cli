@@ -6,7 +6,7 @@ import path from 'node:path'
  */
 function resolveCopilotConfigBase(): string {
     if (process.env.COMPILED_BINARY === 'true') {
-        // Installed via npm: binary is at esyfo-cli/bin/ecli, templates at esyfo-cli/copilot-config/
+        // Installed via pnpm: binary is at esyfo-cli/bin/ecli, templates at esyfo-cli/copilot-config/
         return path.resolve(import.meta.dir, '../copilot-config')
     }
     // Development: source files are in src/, templates at project root copilot-config/

@@ -24,7 +24,7 @@
 ## Boundaries
 
 ### ✅ Always
-- Run `npm run build` after changes to verify the build
+- Run `pnpm run build` after changes to verify the build
 - Use Aksel components and spacing tokens
 - Handle loading, error, and empty states explicitly
 - Test keyboard navigation for interactive components

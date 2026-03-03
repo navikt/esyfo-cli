@@ -47,7 +47,7 @@ For other libraries: context7-resolve-library-id → context7-query-docs
 - Follow existing patterns in the codebase
 
 ### ⚠️ Ask First
-- Adding new npm dependencies
+- Adding new dependencies
 - Changing routing patterns
 - Introducing new state management solutions
 

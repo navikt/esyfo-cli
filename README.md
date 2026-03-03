@@ -32,7 +32,7 @@ export NPM_AUTH_TOKEN=<din token>
 ### Installer CLI
 
 ```bash
-npm i -g @navikt/esyfo-cli
+pnpm add -g @navikt/esyfo-cli
 ```
 
 Nå er du klar til å bruke `ecli`!
