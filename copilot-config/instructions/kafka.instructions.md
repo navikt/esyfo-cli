@@ -17,8 +17,9 @@ class ExampleKafkaConsumer(
     private val kafkaConsumer: KafkaConsumer<String, String>,
     private val service: ExampleService
 ) {
-    suspend fun listen() {
-        while (true) {
+    // Call from a CoroutineScope that is cancelled on application shutdown
+    suspend fun listen() = coroutineScope {
+        while (isActive) {
             val records = kafkaConsumer.poll(Duration.ofMillis(1000))
             records.forEach { record ->
                 try {

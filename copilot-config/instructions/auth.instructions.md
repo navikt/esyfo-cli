@@ -47,7 +47,7 @@ maskinporten:
 
 ## Approach
 1. Read NAIS manifest to identify which auth mechanisms are configured
-2. Use Context7 to look up current JWT validation patterns for the framework in use
+2. Search codebase for existing JWT validation setup and follow the same pattern
 3. Search codebase for existing auth implementations and follow them
 
 ## Testing

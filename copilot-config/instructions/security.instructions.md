@@ -26,7 +26,7 @@ applyTo: "**/*"
 - Chainguard/Distroless base images
 - Validate all input
 - No sensitive data in logs (FNR, JWT tokens)
-- Use OAuth for M2M (not service users)
+- Prefer OAuth/Maskinporten for new M2M integrations (service users are legacy — avoid in new code)
 
 ## Network Policies
 ```yaml

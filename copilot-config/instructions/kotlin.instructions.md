@@ -2,6 +2,8 @@
 applyTo: "**/*.kt"
 ---
 
+> Base Kotlin standards. If a framework-specific file (Ktor/Spring Boot) is also present, its guidance takes precedence for framework-specific concerns.
+
 # Kotlin Development Standards
 
 ## General
@@ -23,7 +25,6 @@ Follow the existing configuration approach in the codebase. Common patterns:
 
 ## Database Access
 
-- Use Context7 to look up the project's ORM library before writing database code
 - Check `build.gradle.kts` for actual dependencies — do not assume any specific ORM
 - Parameterized queries always — never string interpolation in SQL
 - Use Flyway for all schema migrations
@@ -32,12 +33,15 @@ Follow the existing configuration approach in the codebase. Common patterns:
 ## Observability
 
 ```kotlin
-// Structured logging — follow existing pattern in the codebase (logger(), KotlinLogging, or SLF4J)
+// Structured logging — check existing log statements in the codebase to match the repo's pattern
 private val logger = LoggerFactory.getLogger(MyClass::class.java)
 
-// Check which structured logging pattern this repo uses (kv(), MDC, etc.)
-logger.info("Processing event", kv("event_id", eventId))
-logger.error("Failed to process event", exception)
+// SLF4J placeholder format (always available)
+logger.info("Processing event: eventId={}", eventId)
+logger.error("Failed to process event: eventId={}", eventId, exception)
+
+// If logstash-logback-encoder is on the classpath, structured fields via kv()/keyValue():
+// logger.info("Processing event {}", kv("event_id", eventId))
 
 // Prometheus metrics with Micrometer
 val requestCounter = Counter.builder("http_requests_total")

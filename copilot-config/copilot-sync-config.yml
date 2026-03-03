@@ -4,7 +4,7 @@
 # Arkitektur (3-lags modell):
 #   Lag 1: Rolle-agenter (user-level, installert via `ecli copilot setup`)
 #   Lag 2: Repo-kontekst (dette — generert av `ecli copilot sync`)
-#   Lag 3: MCP/plattform (NAV org-level, Context7)
+#   Lag 3: MCP/plattform-verktøy (om tilgjengelig)
 
 # Felles for ALLE repos
 common:

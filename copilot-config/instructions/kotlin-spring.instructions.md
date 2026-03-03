@@ -2,6 +2,8 @@
 applyTo: "**/*.kt"
 ---
 
+> Framework-specific patterns for Spring Boot. These extend (and where overlapping, take precedence over) the base kotlin.instructions.md.
+
 # Spring Boot Framework Patterns
 
 ## Controller Layer
@@ -100,11 +102,15 @@ spring:
 ## Structured Logging
 
 ```kotlin
-// Structured fields — check which pattern this repo uses
-logger.info("Processing event", kv("event_id", eventId))
-// or with MDC for request-scoped context
-MDC.put("x_request_id", requestId)
+// Check existing log statements in the repo to match the established pattern
+// SLF4J placeholder format (always available)
 logger.info("Processing event: eventId={}", eventId)
+
+// If logstash-logback-encoder is on the classpath:
+// logger.info("Processing event {}", kv("event_id", eventId))
+
+// Spring request-scoped MDC via filter
+MDC.put("x_request_id", request.getHeader("X-Request-ID"))
 ```
 
 ## Testing

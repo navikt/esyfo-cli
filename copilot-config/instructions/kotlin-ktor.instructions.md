@@ -2,6 +2,8 @@
 applyTo: "**/*.kt"
 ---
 
+> Framework-specific patterns for Ktor. These extend (and where overlapping, take precedence over) the base kotlin.instructions.md.
+
 # Ktor Framework Patterns
 
 ## Routing
@@ -59,11 +61,17 @@ authenticate("azureAd") {
 ## Structured Logging
 
 ```kotlin
-// Check which pattern this repo uses
-logger.info("Processing event", kv("event_id", eventId))
-// or with MDC for request-scoped context
-MDC.put("x_request_id", requestId)
+// Check existing log statements in the repo to match the established pattern
+// SLF4J placeholder format (always available)
 logger.info("Processing event: eventId={}", eventId)
+
+// If logstash-logback-encoder is on the classpath:
+// logger.info("Processing event {}", kv("event_id", eventId))
+
+// Ktor CallLogging plugin for request-scoped MDC
+install(CallLogging) {
+    mdc("x_request_id") { call.request.header("X-Request-ID") }
+}
 ```
 
 ## Testing
