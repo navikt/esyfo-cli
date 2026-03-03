@@ -59,6 +59,86 @@ for å få oversikt over tilgjengelige tasks.
 
 <!-- COMPUTER SAYS DON'T TOUCH THIS END -->
 
+## GitHub Copilot for teamet 🍽️
+
+Vi har et automatisert oppsett som gir GitHub Copilot riktig kontekst for alle våre repos. CLI-et detekterer stack (Ktor/Spring Boot, Next.js, TanStack, etc.) og genererer skreddersydde instruksjoner, prompts og skills.
+
+### Slik fungerer det
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  ecli copilot setup     → Installerer agenter lokalt    │
+│  ecli copilot status    → Sjekker hva som mangler       │
+│  ecli copilot sync      → Distribuerer config til repos  │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Lag 1 — Rolle-agenter (lokalt)**
+Installeres i `~/.copilot/` via `ecli copilot setup`. Disse er felles uavhengig av repo:
+
+| Agent | Rolle | Modell |
+|-------|-------|--------|
+| **@hovmester** 🍽️ | Tar imot bestillingen og delegerer til kjøkkenet | Opus |
+| **@kokken** 🔪 | Smeller sammen koden — rask, brutal og effektiv | Codex |
+| **@mattilsynet** 🔍 | Uanmeldt inspeksjon — code review og kvalitetssikring | Sonnet |
+| *@souschef* 📋 | *(internt)* Planlegger menyen — brukes via hovmester | Opus |
+| *@konditor* 🎂 | *(internt)* Pynt og finish — UI/UX med Aksel | Gemini |
+
+> **Tips**: Start med `@hovmester` for større oppgaver — den planlegger via souschef og delegerer til kokken. Bruk `@kokken` direkte for raske fixes, og `@mattilsynet` for code review.
+
+**Lag 2 — Repo-kontekst (per repo)**
+Genereres av `ecli copilot sync` basert på detektert stack. Havner i `.github/` i hvert repo:
+
+- `copilot-instructions.md` — Repo-spesifikke regler (scaffold — opprettes én gang, du eier den selv)
+- `instructions/*.instructions.md` — Delte team-standarder (Kotlin, TypeScript, sikkerhet, NAIS, etc.)
+- `prompts/*.prompt.md` — Gjenbrukbare prompts (f.eks. NAIS-manifest)
+- `skills/*/SKILL.md` — Oppskrifter for vanlige oppgaver (f.eks. Flyway-migrering)
+
+**Lag 3 — MCP/plattform**
+[Context7](https://context7.com/) er en MCP-server som gir agentene tilgang til oppdatert API-dokumentasjon for
+biblioteker og rammeverk (React, Ktor, Spring, etc.) — rett i kontekstvinduet.
+Kjører via `npx` (Node.js må være installert — dekkes av mise-config).
+Konfigureres automatisk av `ecli copilot setup`.
+NAV-interne biblioteker (Aksel, NAIS) er _ikke_ tilgjengelige i Context7 — disse dekkes av instructions og skills.
+
+### Kom i gang med Copilot
+
+```bash
+# 1. Installer agenter og MCP lokalt
+ecli copilot setup
+# ↑ Restart Copilot CLI / VS Code etter dette steget
+
+# 2. Sjekk hvilke repos som mangler konfig
+ecli copilot status
+
+# 3. Synkroniser ett spesifikt repo
+ecli copilot sync -r mitt-repo
+
+# 4. Forhåndsvis endringer uten å pushe
+ecli copilot sync --dry-run -r mitt-repo
+
+# 5. Synkroniser alle repos (krever bekreftelse)
+ecli copilot sync --all
+```
+
+### Hva skjer under sync?
+
+1. CLI-et kloner/puller alle team-repos
+2. Inspiserer `build.gradle.kts`, `package.json`, `nais.yaml` etc. for å detektere stack
+3. Setter sammen riktige templates basert på profil (backend/frontend/microfrontend)
+4. Oppretter branch, committer endringer og pusher
+5. Oppretter PR med auto-merge for hvert repo med endringer
+
+### Tilpasse repo-instruksjoner
+
+`copilot-instructions.md` er **din fil** — CLI-et oppretter den kun første gang. Legg til repo-spesifikk kontekst som:
+
+- Hva appen gjør og hvem den er for
+- Lokale konvensjoner som avviker fra teamstandard
+- Lenker til relevant dokumentasjon
+
+Filene i `instructions/`, `prompts/` og `skills/` er CLI-managed og oppdateres ved neste sync. Ikke rediger disse manuelt.
+
 ### Utvikling
 
 Dette kommandolinje-verktøyet er skrevet i TypeScript og bruker bun.sh. For å kjøre det må du først bygge det:

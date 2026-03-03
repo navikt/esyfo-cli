@@ -25,3 +25,26 @@ arg "<file>" help="The file to output the repoisitories to in markdown represent
 '''
 run = 'bun run src/index.ts repos --output=${usage_file} --useMarkdown=true' 
 
+[tasks.copilot-sync]
+description = "Synkroniser copilot-konfig til repos"
+usage = '''
+flag "--repo <name>" help="Synk ett spesifikt repo"
+flag "--all" help="Synk alle repos"
+flag "--dry-run" help="Vis hva som ville endret seg"
+'''
+run = 'bun run src/index.ts copilot sync ${usage_repo:+--repo $usage_repo} ${usage_all:+--all} ${usage_dry_run:+--dry-run}'
+
+[tasks.copilot-setup]
+description = "Sett opp lokal maskin med agenter og MCP-servere"
+usage = '''
+flag "--force" help="Overskriv eksisterende filer"
+'''
+run = 'bun run src/index.ts copilot setup ${usage_force:+--force}'
+
+[tasks.copilot-status]
+description = "Sjekk sync-status på repos"
+usage = '''
+flag "--repo <name>" help="Sjekk ett spesifikt repo"
+'''
+run = 'bun run src/index.ts copilot status ${usage_repo:+--repo $usage_repo}'
+
