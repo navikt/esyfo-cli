@@ -39,8 +39,14 @@
 
 ## Keeping Copilot Config in Sync
 
-When making changes that affect patterns described in `.github/` config files (instructions, prompts, skills), **suggest** updating the relevant files — but do not update them automatically.
+When making changes that affect patterns described in `.github/` config files (instructions, prompts, skills), **suggest** updating — but do not update automatically.
 
 Examples: upgrading frameworks, changing test patterns, adding auth mechanisms, changing DB access patterns, adding Kafka topics, modifying build tooling.
 
-Format: *"This change affects patterns in `.github/instructions/<file>` — want me to update it?"*
+**Check the file header first** to determine where changes belong:
+
+- **Managed files** (header: `<!-- Managed by esyfo-cli …-->`) — Do NOT edit locally. Changes will be overwritten by the next sync.
+  Format: *"This change affects patterns in `.github/instructions/<file>`, which is managed by esyfo-cli. The source should be updated in the esyfo-cli repo under `copilot-config/`."*
+
+- **Locally owned files** (no managed header) — Suggest updating the file directly in this repo.
+  Format: *"This change affects patterns in `.github/instructions/<file>` — want me to update it?"*
