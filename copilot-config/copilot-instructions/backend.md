@@ -6,7 +6,7 @@
 - **Database**: {{database}}
 - **Messaging**: {{messaging}}
 - **Testing**: {{testing}}
-- **Auth**: Azure AD + TokenX (check NAIS manifests for which are enabled)
+- **Auth**: Les NAIS-manifestene i prosjektet for å finne hvilke auth-mekanismer som er konfigurert (mulige: Azure AD, TokenX, ID-porten, Maskinporten)
 
 ## Backend Patterns
 - Check `build.gradle.kts` for actual dependencies before suggesting libraries

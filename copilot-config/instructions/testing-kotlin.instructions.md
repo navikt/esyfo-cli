@@ -14,13 +14,14 @@ applyTo: "**/*.test.kt,**/*.spec.kt,**/*Test.kt,**/*Spec.kt,**/*Spek.kt"
 - Check build.gradle.kts for the Kotest version and available test dependencies (verify with Context7 if available)
 - Use `should` matchers for assertions (Kotest or Kluent `shouldBeEqualTo`)
 - **Check existing tests first** — follow the repo's established test style for consistency
-- For new test suites without existing patterns, prefer Kotest DescribeSpec
+- If the file you're editing already uses a different Kotest style (FunSpec, StringSpec, etc.), keep that style — don't mix specs in the same file
+- **DescribeSpec is team standard** for new test classes. When creating a new test file without existing precedent nearby, use DescribeSpec
 - Use MockK for mocking — prefer `coEvery` for suspend functions
 - Use Testcontainers for integration tests with real databases
 - Use MockOAuth2Server for auth testing
 
 ```kotlin
-// Option A: DescribeSpec (preferred for new test suites)
+// Option A: DescribeSpec (team standard for new test classes)
 class ResourceServiceTest : DescribeSpec({
     val service = ResourceService(mockk())
 

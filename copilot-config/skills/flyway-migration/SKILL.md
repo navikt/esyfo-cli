@@ -8,7 +8,7 @@ Create a new Flyway migration file following team-esyfo conventions.
 
 ## Steps
 
-1. List existing migrations in `src/main/resources/db/migration/` to determine next version number
+1. Find the migration directory by searching for existing `V*__*.sql` files under `src/main/resources/db/` (or checking `flyway.locations` in application config), then list existing migrations to determine next version number
 2. Read the most recent migration to understand naming and style conventions
 3. Create the new migration file with proper naming: `V{next}__{description}.sql`
 

@@ -91,6 +91,9 @@ async function detectKotlinStack(repoPath: string, stack: RepoStackInfo): Promis
     } else if (content.includes('kotliquery')) {
         stack.databaseLib = 'Kotliquery'
         stack.hasDatabase = true
+    } else if (content.includes('hikari')) {
+        stack.databaseLib = 'JDBC (HikariCP)'
+        stack.hasDatabase = true
     }
 
     // Kafka detection

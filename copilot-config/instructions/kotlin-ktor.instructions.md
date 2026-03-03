@@ -74,6 +74,30 @@ install(CallLogging) {
 }
 ```
 
+## Dependency Injection (Koin)
+
+> Guard: Only if `io.insert-koin` is listed in `build.gradle.kts`.
+
+Koin is the standard DI framework for Ktor repos in team-esyfo. Install the Koin plugin once in `Application.module()` and define dependencies in separate module files:
+
+```kotlin
+install(Koin) {
+    slf4jLogger()
+    modules(appModule)
+}
+
+val appModule = module {
+    single { Database() }
+    single { UserRepository(get()) }
+    single { UserService(get()) }
+}
+```
+
+- Use `by inject<T>()` (lazy) in `Application` extension functions for route-level dependencies
+- Use `get<T>()` for eager resolution inside Koin module definitions
+- Organize modules by domain (e.g., `databaseModule`, `serviceModule`) and compose them in `modules(…)`
+- **Always use Context7 to verify the Koin–Ktor API for the version in `build.gradle.kts`**
+
 ## Testing
 
 - Use Kotest for structure and assertions
@@ -83,12 +107,17 @@ install(CallLogging) {
 - Use `testApplication { }` for route testing
 
 ```kotlin
-@Test
-fun `should return 200 for authenticated request`() = testApplication {
-    application { api() }
-    val response = client.get("/api/resource") {
-        bearerAuth(validToken)
+class ResourceApiTest : DescribeSpec({
+    describe("/api/resource") {
+        it("should return 200 for authenticated request") {
+            testApplication {
+                application { api() }
+                val response = client.get("/api/resource") {
+                    bearerAuth(validToken)
+                }
+                response.status shouldBe HttpStatusCode.OK
+            }
+        }
     }
-    response.status shouldBe HttpStatusCode.OK
-}
+})
 ```
