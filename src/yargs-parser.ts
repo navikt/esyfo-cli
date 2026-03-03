@@ -12,6 +12,7 @@ import { syncFilesAcrossRepos } from './actions/sync-file.ts'
 import { copilotSync } from './actions/copilot-sync.ts'
 import { copilotSetup } from './actions/copilot-setup.ts'
 import { copilotStatus } from './actions/copilot-status.ts'
+import { copilotAudit } from './actions/copilot-audit.ts'
 
 export const getYargsParser = (argv: string[]): Argv =>
     yargs(hideBin(argv))
@@ -177,12 +178,25 @@ export const getYargsParser = (argv: string[]): Argv =>
                             }),
                         async (args) => copilotStatus({ repo: args.repo }),
                     )
-                    .demandCommand(1, 'Vennligst spesifiser en subkommando: sync, setup eller status')
+                    .command(
+                        'audit',
+                        'Kjør heuristisk sjekk av Copilot-instruksjoner mot repoenes faktiske kode',
+                        (yargs) =>
+                            yargs.option('repo', {
+                                alias: 'r',
+                                description: 'Auditer et spesifikt repo',
+                                type: 'string',
+                            }),
+                        async (args) => copilotAudit({ repo: args.repo }),
+                    )
+                    .demandCommand(1, 'Vennligst spesifiser en subkommando: sync, setup, status eller audit')
                     .epilog(
                         [
                             'Eksempler:',
                             '  ecli copilot status              Sjekk status for alle repos',
                             '  ecli copilot status -r mitt-repo Sjekk ett spesifikt repo',
+                            '  ecli copilot audit               Auditer alle repos',
+                            '  ecli copilot audit -r mitt-repo  Auditer ett spesifikt repo',
                             '  ecli copilot sync -r mitt-repo   Synkroniser ett repo',
                             '  ecli copilot sync --all          Synkroniser alle repos',
                             '  ecli copilot sync --dry-run      Forhåndsvis endringer uten å pushe',

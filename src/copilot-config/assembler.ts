@@ -2,6 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import chalk from 'chalk'
+import YAML from 'yaml'
 
 import { log } from '../common/log.ts'
 
@@ -14,7 +15,7 @@ const MANAGED_HEADER =
     '     For repo-specific customizations, create your own files without this header. -->\n'
 const CONFIG_BASE = COPILOT_CONFIG_BASE
 
-const FRONTMATTER_RE = /^(---\n[\s\S]*?\n---\n)/
+export const FRONTMATTER_RE = /^(---\n[\s\S]*?\n---\n)/
 const MANAGED_MARKER = '<!-- Managed by esyfo-cli'
 
 /** Prepend managed header after YAML frontmatter so Copilot still parses applyTo/description. */
@@ -212,7 +213,7 @@ function resolveBuildCommand(stack: RepoStackInfo): string {
     return 'Check `package.json` or `build.gradle.kts` for available commands.'
 }
 
-async function readConfigFile(subdir: string, filename: string): Promise<string> {
+export async function readConfigFile(subdir: string, filename: string): Promise<string> {
     const filePath = path.join(CONFIG_BASE, subdir, filename)
     const file = Bun.file(filePath)
     if (!(await file.exists())) {
@@ -257,6 +258,141 @@ async function scaffoldIfMissing(targetPath: string, content: string, result: As
 
     await Bun.write(targetPath, content)
     result.filesWritten.push(relativePath)
+}
+
+// --- In-memory assembly for audit ---
+
+export type PlannedFileCategory = 'copilot-instructions' | 'agent' | 'instruction' | 'prompt' | 'skill'
+
+export interface PlannedFile {
+    relativePath: string
+    category: PlannedFileCategory
+    content: string
+    applyTo: string[]
+    sourceTemplate: string
+    /** True for copilot-instructions.md — scaffolded, not CLI-managed */
+    scaffoldOnly?: boolean
+}
+
+export interface AssemblyPlan {
+    files: PlannedFile[]
+    profile: RepoProfile
+}
+
+/** Parse applyTo globs from YAML frontmatter. Returns a default catch-all if none found. */
+export function parseApplyTo(content: string): string[] {
+    const match = content.match(FRONTMATTER_RE)
+    if (!match) return ['**/*']
+
+    try {
+        const frontmatter = match[1].replace(/^---\n/, '').replace(/\n---\n$/, '')
+        const parsed = YAML.parse(frontmatter) as Record<string, unknown>
+        const applyTo = parsed?.applyTo
+        if (typeof applyTo === 'string') {
+            return applyTo
+                .split(',')
+                .map((g) => g.trim())
+                .filter(Boolean)
+        }
+        if (Array.isArray(applyTo)) {
+            return applyTo.map(String)
+        }
+    } catch {
+        // malformed frontmatter
+    }
+    return ['**/*']
+}
+
+/**
+ * Build an in-memory assembly plan (same logic as assembleForRepo but no disk I/O).
+ * Used by audit to inspect what *would* be written without side-effects.
+ */
+export async function planAssembly(
+    profile: RepoProfile,
+    stack: RepoStackInfo,
+    config: CopilotSyncConfig,
+): Promise<AssemblyPlan> {
+    const files =
+        stack.subProfiles && stack.subProfiles.length > 1
+            ? getFilesForProfiles(config, stack.subProfiles)
+            : getFilesForProfile(config, profile)
+
+    resolveConditionalFiles(files, stack)
+
+    const plan: PlannedFile[] = []
+
+    // copilot-instructions.md (scaffold-only)
+    const ciContent = assembleCopilotInstructions(files.copilotInstructions, stack)
+    plan.push({
+        relativePath: 'copilot-instructions.md',
+        category: 'copilot-instructions',
+        content: ciContent,
+        applyTo: ['**/*'],
+        sourceTemplate: files.copilotInstructions.join(', '),
+        scaffoldOnly: true,
+    })
+
+    // Team agent
+    if (files.teamAgent) {
+        const content = await readConfigFile('user-agents/agents', files.teamAgent)
+        plan.push({
+            relativePath: `agents/esyfo.agent.md`,
+            category: 'agent',
+            content,
+            applyTo: parseApplyTo(content),
+            sourceTemplate: files.teamAgent,
+        })
+    }
+
+    // Agents
+    for (const agent of files.agents) {
+        const content = await readConfigFile('user-agents/agents', agent)
+        plan.push({
+            relativePath: `agents/${agent}`,
+            category: 'agent',
+            content,
+            applyTo: parseApplyTo(content),
+            sourceTemplate: agent,
+        })
+    }
+
+    // Instructions
+    for (const instruction of files.instructions) {
+        const content = await readConfigFile('instructions', instruction)
+        plan.push({
+            relativePath: `instructions/${instruction}`,
+            category: 'instruction',
+            content,
+            applyTo: parseApplyTo(content),
+            sourceTemplate: instruction,
+        })
+    }
+
+    // Prompts
+    for (const prompt of files.prompts) {
+        const content = await readConfigFile('prompts', prompt)
+        plan.push({
+            relativePath: `prompts/${prompt}`,
+            category: 'prompt',
+            content,
+            applyTo: parseApplyTo(content),
+            sourceTemplate: prompt,
+        })
+    }
+
+    // Skills
+    for (const skill of files.skills) {
+        const content = await readConfigFile(`skills/${skill}`, 'SKILL.md')
+        plan.push({
+            relativePath: `skills/${skill}/SKILL.md`,
+            category: 'skill',
+            content,
+            applyTo: parseApplyTo(content),
+            sourceTemplate: `${skill}/SKILL.md`,
+        })
+    }
+
+    return { files: plan, profile }
 }
 
 async function cleanStaleManagedFiles(
