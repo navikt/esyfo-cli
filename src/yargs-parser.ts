@@ -9,6 +9,9 @@ import { openPrs } from './actions/prs'
 import { ourRepos } from './actions/repos'
 import { cloneTeamRepos } from './actions/clone-team-repos'
 import { syncFilesAcrossRepos } from './actions/sync-file.ts'
+import { copilotSync } from './actions/copilot-sync.ts'
+import { copilotSetup } from './actions/copilot-setup.ts'
+import { copilotStatus } from './actions/copilot-status.ts'
 
 export const getYargsParser = (argv: string[]): Argv =>
     yargs(hideBin(argv))
@@ -48,7 +51,7 @@ export const getYargsParser = (argv: string[]): Argv =>
         )
         .command(
             'prs',
-            'get all open pull requests',
+            'Vis åpne pull requests på tvers av teamets repos',
             (yargs) =>
                 yargs
                     .option('skip-bots', { type: 'boolean', alias: 'b', describe: "don't include bot pull requests" })
@@ -63,7 +66,7 @@ export const getYargsParser = (argv: string[]): Argv =>
         )
         .command(
             'sync-file <query>',
-            'sync files across specified repos',
+            'Kopier filer på tvers av repos (oppretter branch, commit og PR)',
             (yargs) =>
                 yargs.positional('query', {
                     type: 'string',
@@ -74,7 +77,7 @@ export const getYargsParser = (argv: string[]): Argv =>
         )
         .command(
             'repos',
-            'get all non-archived repos for team-esyfo',
+            'List alle ikke-arkiverte repos for team-esyfo',
             (yargs) =>
                 yargs
                     .option('useMarkdown', { type: 'boolean', alias: 'b', describe: 'write output in Markdown format' })
@@ -88,7 +91,7 @@ export const getYargsParser = (argv: string[]): Argv =>
         )
         .command(
             'clone-team-repos',
-            'git clone all repositories owned by team',
+            'Klon alle repos eid av teamet til en lokal mappe',
             (yargs) =>
                 yargs
                     .option('team', {
@@ -110,4 +113,84 @@ export const getYargsParser = (argv: string[]): Argv =>
                         default: false,
                     }),
             async (args) => cloneTeamRepos(args.team, args.destination, args.useSubFolders),
+        )
+        .command(
+            'copilot',
+            'Administrer GitHub Copilot-oppsett for teamets repos',
+            (yargs) =>
+                yargs
+                    .command(
+                        'sync',
+                        'Generer og distribuer Copilot-instruksjoner, prompts og skills til repos basert på detektert stack',
+                        (yargs) =>
+                            yargs
+                                .option('repo', {
+                                    alias: 'r',
+                                    description: 'Spesifikt repo å synkronisere',
+                                    type: 'string',
+                                })
+                                .option('all', {
+                                    alias: 'a',
+                                    description: 'Synkroniser alle konfigurerte repos',
+                                    type: 'boolean',
+                                    default: false,
+                                })
+                                .option('dry-run', {
+                                    alias: 'd',
+                                    description: 'Vis hva som ville endret seg (ingen faktiske endringer)',
+                                    type: 'boolean',
+                                    default: false,
+                                })
+                                .check((argv) => {
+                                    if (argv.all && argv.repo) {
+                                        throw new Error('Bruk enten --all eller --repo, ikke begge.')
+                                    }
+                                    return true
+                                }),
+                        async (args) =>
+                            copilotSync({
+                                repo: args.repo,
+                                all: args.all,
+                                dryRun: args.dryRun,
+                            }),
+                    )
+                    .command(
+                        'setup',
+                        'Sett opp din lokale maskin med rolle-agenter (hovmester, kokk, mattilsynet) og MCP-servere',
+                        (yargs) =>
+                            yargs.option('force', {
+                                alias: 'f',
+                                description: 'Overskriv eksisterende agentfiler',
+                                type: 'boolean',
+                                default: false,
+                            }),
+                        async (args) => copilotSetup({ force: args.force }),
+                    )
+                    .command(
+                        'status',
+                        'Sjekk hvilke repos som mangler eller har utdatert Copilot-konfigurasjon',
+                        (yargs) =>
+                            yargs.option('repo', {
+                                alias: 'r',
+                                description: 'Sjekk et spesifikt repo',
+                                type: 'string',
+                            }),
+                        async (args) => copilotStatus({ repo: args.repo }),
+                    )
+                    .demandCommand(1, 'Vennligst spesifiser en subkommando: sync, setup eller status')
+                    .epilog(
+                        [
+                            'Eksempler:',
+                            '  ecli copilot status              Sjekk status for alle repos',
+                            '  ecli copilot status -r mitt-repo Sjekk ett spesifikt repo',
+                            '  ecli copilot sync -r mitt-repo   Synkroniser ett repo',
+                            '  ecli copilot sync --all          Synkroniser alle repos',
+                            '  ecli copilot sync --dry-run      Forhåndsvis endringer uten å pushe',
+                            '  ecli copilot setup               Installer agenter og MCP lokalt',
+                            '  ecli copilot setup --force       Overskriv eksisterende agentfiler',
+                            '',
+                            'Tips: Bruk <kommando> --help for flere detaljer, f.eks. ecli copilot sync --help',
+                        ].join('\n'),
+                    ),
+            () => {},
         )
