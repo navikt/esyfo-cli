@@ -11,7 +11,7 @@ applyTo: "**/db/migration/**/*.sql"
 - Each migration should be focused on a single change
 
 ## PostgreSQL
-- Use `TIMESTAMP WITH TIME ZONE` for all timestamps
+- Use `TIMESTAMPTZ` for all timestamps
 - Use `UUID` for primary keys where appropriate (with `gen_random_uuid()`)
 - Use `TEXT` instead of `VARCHAR` (unless max length constraint is needed)
 - Use `IF NOT EXISTS` / `IF EXISTS` selectively where idempotency is intentional — prefer fail-fast in versioned migrations
