@@ -46,15 +46,34 @@ async function getAllRepos(): Promise<BaseRepoNode<unknown>[]> {
 async function cloneAllRepos(): Promise<BaseRepoNode<unknown>[]> {
     const gitter = new Gitter('cache')
     const repos = await getAllRepos()
-    const results = await Promise.all(repos.map((it) => gitter.cloneOrPull(it.name, it.defaultBranchRef.name, true)))
-
-    log(
-        `\nUpdated ${chalk.yellow(results.filter((it) => it === 'updated').length)} and cloned ${chalk.yellow(
-            results.filter((it) => it === 'cloned').length,
-        )} repos\n`,
+    const results = await Promise.allSettled(
+        repos.map((it) => gitter.cloneOrPull(it.name, it.defaultBranchRef.name, true)),
     )
 
-    return repos
+    const failedRepos: string[] = []
+    const succeededRepos = repos.filter((repo, i) => {
+        const result = results[i]
+        if (result.status === 'rejected') {
+            failedRepos.push(repo.name)
+            return false
+        }
+        if (typeof result.value === 'object' && result.value.type === 'error') {
+            failedRepos.push(repo.name)
+            return false
+        }
+        return true
+    })
+
+    if (failedRepos.length > 0) {
+        log(chalk.red(`\n  ${failedRepos.length} repo(s) feilet clone/pull: ${failedRepos.join(', ')}`))
+    }
+
+    const updated = results.filter((r) => r.status === 'fulfilled' && r.value === 'updated').length
+    const cloned = results.filter((r) => r.status === 'fulfilled' && r.value === 'cloned').length
+
+    log(`\nUpdated ${chalk.yellow(updated)} and cloned ${chalk.yellow(cloned)} repos\n`)
+
+    return succeededRepos
 }
 
 function queryRepo(query: string, repo: string): boolean {

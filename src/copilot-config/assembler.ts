@@ -283,9 +283,9 @@ async function cleanStaleManagedFiles(
                         } catch {
                             /* not empty, that's fine */
                         }
-                        const relativePath = fullPath.split('.github/').pop() ?? fullPath
-                        result.filesRemoved.push(relativePath)
-                        log(chalk.red(`  🗑 Removed stale: ${relativePath}`))
+                        const skillRelativePath = skillMd.split('.github/').pop() ?? skillMd
+                        result.filesRemoved.push(skillRelativePath)
+                        log(chalk.red(`  🗑 Removed stale: ${skillRelativePath}`))
                     }
                 }
                 continue
