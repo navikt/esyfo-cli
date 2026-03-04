@@ -2,7 +2,7 @@ name: Build and publish library
 
 permissions:
   actions: read
-  contents: write
+  contents: read
   packages: write
   id-token: write
 
@@ -31,22 +31,11 @@ jobs:
           node-version: 24
           registry-url: "https://npm.pkg.github.com"
           scope: "@navikt"
+      - name: Set publish version
+        run: jq --arg version "1.0.$(date +%F-%H%M%S)" '.version = $version' package.json > updated.json && mv updated.json package.json
+        working-directory: ./esyfo-cli
       - run: npm publish --tag latest
         if: github.ref == 'refs/heads/main'
         working-directory: ./esyfo-cli
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  increment-version:
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    needs: [build]
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # https://github.com/actions/checkout/releases/tag/v6.0.2
-      - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # https://github.com/actions/setup-node/releases/tag/v6.2.0
-      - name: Setup github connection for auth
-        run: |
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git config --global user.name "github-actions[bot]"
-      - run: jq --arg version "1.0.$(date +%F-%H%M)" '.version = $version' package.json > updated.json && mv updated.json package.json
-        working-directory: ./esyfo-cli
-      - run: git add . && git commit -m "[skip ci] bump version to $(jq -r .version esyfo-cli/package.json)" && git push
