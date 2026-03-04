@@ -1,6 +1,6 @@
 {
     "name": "@navikt/esyfo-cli",
-    "version": "1.0.2024-06-28-1043",
+    "version": "1.0.2026-03-04-1435",
     "description": "CLI for diverse verktøy for team-esyfo",
     "bin": {
         "ecli": "./bin/ecli"
