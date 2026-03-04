@@ -25,7 +25,7 @@ Kall **Souschef** med brukerens forespørsel. Souschef returnerer implementering
 
 ### Steg 2: Parser til faser
 
-Soussjefens respons inkluderer **filtildelinger** for hvert steg. Bruk disse til parallelisering:
+Souschefens respons inkluderer **filtildelinger** for hvert steg. Bruk disse til parallelisering:
 
 1. Hent fillisten fra hvert steg
 2. Steg med **ingen overlappende filer** kan kjøre parallelt (samme fase)

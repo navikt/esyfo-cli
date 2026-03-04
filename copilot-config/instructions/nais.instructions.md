@@ -122,11 +122,9 @@ spec:
 - Changing production resource limits or replicas
 - Adding new GCP resources (cost implications)
 - Modifying network policies
+- Changing CPU limits (can cause throttling — follow existing manifests)
 
 ### 🚫 Never
 - Store secrets in Git
 - Deploy without CI/CD pipeline
 - Skip health endpoints
-
-### ⚠️ Ask First (cont.)
-- Changing CPU limits (can cause throttling — follow existing manifests)
