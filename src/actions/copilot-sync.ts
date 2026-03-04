@@ -9,17 +9,10 @@ import { Gitter } from '../common/git.ts'
 import { GIT_CACHE_DIR } from '../common/cache.ts'
 import { extractTypeFromTopics, RepoWithBranchAndTopics, RepoType } from '../common/get-all-repos.ts'
 import inquirer from '../common/inquirer.ts'
-import {
-    loadCopilotSyncConfig,
-    CopilotSyncConfig,
-    isRepoSkipped,
-    getFilesForProfile,
-    getFilesForProfiles,
-    RepoProfile,
-} from '../copilot-config/sync-config.ts'
+import { loadCopilotSyncConfig, CopilotSyncConfig, isRepoSkipped, RepoProfile } from '../copilot-config/sync-config.ts'
 import { COPILOT_CONFIG_BASE } from '../copilot-config/paths.ts'
 import { detectRepoStack, logStackInfo } from '../copilot-config/detector.ts'
-import { assembleForRepo, AssemblyResult, resolveConditionalFiles } from '../copilot-config/assembler.ts'
+import { assembleForRepo, AssemblyResult } from '../copilot-config/assembler.ts'
 
 const reposQuery = /* GraphQL */ `
     query ($team: String!) {
@@ -200,28 +193,49 @@ export async function copilotSync(options: { repo?: string; all?: boolean; dryRu
             logStackInfo(repo.name, stack)
 
             if (options.dryRun) {
-                const files = isMonorepo
-                    ? getFilesForProfiles(config, stack.subProfiles!)
-                    : getFilesForProfile(config, effectiveProfile)
-                resolveConditionalFiles(files, stack)
-                const parts = ['copilot-instructions.md (scaffold if missing)']
-                if (files.agents.length > 0) parts.push(`${files.agents.length} agents`)
-                parts.push(`${files.instructions.length} instructions`)
-                if (files.prompts.length > 0) parts.push(`${files.prompts.length} prompts`)
-                if (files.skills.length > 0) parts.push(`${files.skills.length} skills`)
-                log(chalk.dim(`    Would write: ${parts.join(', ')}`))
-                if (files.teamAgent) log(chalk.dim(`    + esyfo.agent.md (from ${files.teamAgent})`))
-                const wouldWrite =
-                    files.agents.length +
-                    files.instructions.length +
-                    files.prompts.length +
-                    files.skills.length +
-                    (files.teamAgent ? 1 : 0)
+                // Assemble into cached repo, then diff to detect real changes
+                const assembly = await assembleForRepo(repoPath, effectiveProfile, stack, config)
+
+                let hasChanges = false
+                try {
+                    execSync('git diff-index --quiet HEAD -- .github/', { cwd: repoPath, stdio: 'pipe' })
+                } catch {
+                    hasChanges = true
+                }
+                try {
+                    const untracked = execSync('git ls-files --others --exclude-standard .github/', {
+                        cwd: repoPath,
+                        encoding: 'utf8',
+                    }).trim()
+                    if (untracked.length > 0) hasChanges = true
+                } catch {
+                    // ignore
+                }
+
+                // Reset cached repo back to clean state
+                try {
+                    execSync('git checkout -- .github/', { cwd: repoPath, stdio: 'pipe' })
+                } catch {
+                    // repo might not have .github/ yet
+                }
+                try {
+                    execSync('git clean -fd .github/', { cwd: repoPath, stdio: 'pipe' })
+                } catch {
+                    // ignore
+                }
+
+                const totalFiles = assembly.filesWritten.length + assembly.filesUnchanged.length
+                if (hasChanges) {
+                    log(chalk.yellow(`    Would change: ${assembly.filesWritten.length} files`))
+                } else {
+                    log(chalk.dim(`    Already in sync (${totalFiles} files)`))
+                }
+
                 results.push({
                     repo: repo.name,
                     profile: effectiveProfile,
-                    assembly: { filesWritten: [], filesUnchanged: [], filesRemoved: [], filesSkipped: [] },
-                    hasChanges: wouldWrite > 0,
+                    assembly,
+                    hasChanges,
                 })
                 continue
             }
