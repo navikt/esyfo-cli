@@ -222,7 +222,7 @@ function stateLabel(state: SyncState): string {
         case 'synced':
             return chalk.green('synced')
         case 'outdated':
-            return chalk.yellow('stale')
+            return chalk.yellow('outdated')
         case 'missing':
             return chalk.red('missing')
     }

@@ -44,6 +44,13 @@ export async function detectRepoStack(repoPath: string): Promise<RepoStackInfo> 
             stack.subProfiles = monorepoProfiles
             stack.type = monorepoProfiles[0]
             stack.language = 'typescript'
+            const hasBackend = monorepoProfiles.includes('backend')
+            const hasFrontend = monorepoProfiles.includes('frontend')
+            if (hasBackend && !hasFrontend) {
+                stack.language = 'kotlin'
+            } else if (hasFrontend && !hasBackend) {
+                stack.language = 'typescript'
+            }
             // Deep-scan sub-apps for framework/DB/Kafka details
             await enrichMonorepoStack(repoPath, stack)
             return stack
