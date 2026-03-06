@@ -59,7 +59,7 @@ Skriv tester sammen med implementasjonen. Følg eksisterende testmønstre.
 
 ## Boundaries
 
-- **Aldri** gjett på API uten å verifisere (web-søk eller eksisterende kode)
+- **Aldri** gjett på API uten å verifisere
 - **Aldri** ignorer repo-instruksjoner eller etablerte mønstre
 - **Aldri** hopp over feilhåndtering
 
