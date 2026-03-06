@@ -28,11 +28,11 @@ applyTo: "**/*.tsx,**/*.ts,**/*.css"
 ## Documentation Lookup
 ```
 For Aksel (@navikt/ds-react): Check aksel.nav.no for component API and usage examples
-For other libraries: context7-resolve-library-id → context7-query-docs
+For other libraries: Use web search to find and verify API documentation
 ```
 
 ## Testing
-- Use Context7 to look up the project's testing framework (Vitest, Jest, Testing Library)
+- Look up the project's testing framework documentation via web search (Vitest, Jest, Testing Library)
 - Test user interactions, not implementation details
 - Use `screen.getByRole()` over `getByTestId()`
 - Test keyboard navigation for interactive components

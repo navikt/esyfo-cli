@@ -77,12 +77,12 @@ import { useState } from "react";
 ```
 
 ## Data Fetching
-- Use Context7 to look up the project's data fetching patterns (SWR, TanStack Query, server components, etc.)
+- Use web search to look up the project's data fetching patterns (SWR, TanStack Query, server components, etc.)
 - Check `package.json` for actual dependencies before suggesting libraries
 - Handle loading, error, and empty states explicitly
 
 ## Testing
-- Use Context7 for the project's test runner (Vitest, Jest, etc.)
+- Use web search for the project's test runner documentation (Vitest, Jest, etc.)
 - Use Testing Library — test user behavior, not implementation
 - Prefer `screen.getByRole()` over `getByTestId()`
 - Test keyboard navigation for interactive components

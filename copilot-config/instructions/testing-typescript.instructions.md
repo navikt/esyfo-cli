@@ -11,7 +11,7 @@ applyTo: "**/*.{test,spec}.{ts,tsx}"
 - Arrange → Act → Assert pattern
 
 ## Vitest/Jest + Testing Library
-- Use Context7 to check the test runner and Testing Library version
+- Use web search to check the test runner and Testing Library version
 - Use `screen.getByRole()` over `getByTestId()`
 - Test user interactions, not component internals
 - Use `userEvent` over `fireEvent` for realistic interactions

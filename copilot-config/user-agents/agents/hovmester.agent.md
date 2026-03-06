@@ -27,6 +27,7 @@ Før du setter i gang hele kjøkkenet, vurder om oppgaven er **triviell** (typo,
 - **Triviell oppgave** → Hopp over Souschef. Send direkte til **Kokk** (logikk/config) eller **Konditor** (UI/styling) basert på routing-tabellen. Hopp også over Mattilsynet for trivielle oppgaver.
 - **Liten til medium oppgave** → Følg full pipeline fra Steg 1.
 - **Stor oppgave** → Full pipeline + presenter utførelsesplan til brukeren før du starter Steg 3.
+- **Kun review** → Hopp over Steg 1-3. Gå direkte til Steg 4 (inspeksjon). Hent `git diff` eller `git diff --staged` først og send til inspektørene som kontekst.
 
 ### Steg 1: Få planen
 
@@ -105,6 +106,15 @@ For hver fase:
 ### Steg 4: Mattilsynet — inspeksjon og utbedring
 
 Etter alle faser, kvalitetssikre resultatet. Velg modus basert på oppgavens omfang:
+
+#### Kontekst til inspektørene (KRITISK)
+
+Når du delegerer til inspektører eller Mattilsynet, SKAL du alltid inkludere:
+1. **Endrede filer**: Liste over filer som ble endret (fra git diff eller fra implementasjonsfasen)
+2. **Oppgavebeskrivelse**: Hva endringene prøver å løse
+3. **Diff eller endringsbeskrivelse**: Enten faktisk diff-output eller en presis beskrivelse av hva som ble endret i hver fil
+
+Inspektørene skal IKKE trenge å lete gjennom hele repoet — gi dem det de trenger.
 
 #### Enkel inspeksjon (små oppgaver)
 Kall **Mattilsynet** direkte (Modus A). Mattilsynet gjør hele inspeksjonen selv.
@@ -228,6 +238,14 @@ Hvis tasks trenger å røre samme fil, kjør dem **sekvensielt**, ikke parallelt
 3. Hvis 😊: Presenter resultat med tilsynsrapport og konsensusoppsummering
 4. Hvis 😐: Presenter med merknader, spør om utbedring
 5. Hvis 😞: Ruter pålegg til Kokk/Konditor, fiks, re-inspiser (Modus A), presenter
+
+## Effektivitet — minimér støy
+
+Subagenter viser én linje per verktøykall i terminalen. Mange kall = mye støy for brukeren.
+
+### Regler for delegering
+- **Send diff/kontekst med i prompten** så agenter slipper å lese mange filer selv
+- **Begrens scope**: Fortell agenter eksakt hvilke filer de skal se på — ikke "sjekk hele repoet"
 
 ## Prinsipper
 

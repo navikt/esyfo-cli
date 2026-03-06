@@ -60,7 +60,6 @@ export async function copilotSetup(options: { force?: boolean }): Promise<void> 
         log(chalk.yellow('\n⚠ Setup partially complete — se feilene over'))
     }
     log(chalk.dim('  Plugin installed to: ' + PLUGIN_TARGET))
-    log(chalk.dim('  MCP config at: ' + MCP_CONFIG_PATH))
     log(chalk.dim('\n  Restart Copilot CLI for changes to take effect.'))
 }
 
@@ -149,14 +148,21 @@ async function registerPlugin(): Promise<boolean> {
 }
 
 async function configureMcp(): Promise<boolean> {
-    log(chalk.cyan('\n🔌 Configuring MCP servers...'))
-
     const desiredServers: Record<string, McpServer> = {
-        context7: {
-            command: 'npx',
-            args: ['-y', '@upstash/context7-mcp@latest'],
-        },
+        // Context7 disabled — requires databehandleravtale (DPA) before use in NAV
+        // Uncomment when approved:
+        // context7: {
+        //     command: 'npx',
+        //     args: ['-y', '@upstash/context7-mcp@latest'],
+        // },
     }
+
+    if (Object.keys(desiredServers).length === 0) {
+        log(chalk.dim('\n🔌 MCP servers: ingen konfigurert (Context7 avventer DPA)'))
+        return true
+    }
+
+    log(chalk.cyan('\n🔌 Configuring MCP servers...'))
 
     if (fs.existsSync(MCP_CONFIG_PATH)) {
         let existing: McpConfig

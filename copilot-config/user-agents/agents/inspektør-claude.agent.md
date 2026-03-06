@@ -1,7 +1,7 @@
 ---
 name: inspektør-claude
 description: "(internt) Code review-inspektør — Claude-perspektiv"
-model: "Claude Opus 4.6"
+model: "Claude Sonnet 4.6"
 tools: ["search", "read", "web"]
 user-invocable: false
 ---
@@ -16,6 +16,13 @@ Bestem modus ut fra hva du mottar:
 
 - **Kode-review** (standard): Du mottar en oppgavebeskrivelse og kodeendringer → følg kode-arbeidsflyt
 - **Plan-review**: Du mottar en implementasjonsplan fra souschef → følg plan-arbeidsflyt
+
+## Effektivitet
+
+- **Hovmesteren sender deg kontekst**: Du mottar endrede filer, diff og oppgavebeskrivelse. Start der.
+- **Les kun endrede filer + direkte avhengigheter**. Ikke scan hele repoet.
+- **Repo-instruksjoner**: Les kun instruction-filer som matcher filtypen i endringene (f.eks. `typescript.instructions.md` for .ts-filer). Ikke les alle 14.
+- **Mål**: Fullfør med maks 10-15 verktøykall.
 
 ---
 

@@ -2,7 +2,7 @@
 name: konditor
 description: "(internt) Pynt og finish — Aksel designsystem, tilgjengelighet og brukeropplevelse"
 model: "Gemini 3 Pro (Preview)"
-tools: ["vscode", "edit", "search", "read", "web", "execute", "context7/*", "memory", "todo"]
+tools: ["vscode", "edit", "search", "read", "web", "execute", "memory", "todo"]
 user-invocable: false
 ---
 
@@ -31,7 +31,7 @@ Verifiser tastaturnavigasjon, WCAG-krav, og at alle states (loading, error, tom,
 
 ## Aksel designsystem
 
-Sjekk ALLTID [aksel.nav.no](https://aksel.nav.no) for NAV Aksel-komponenter (`@navikt/ds-react`) før du designer. Aksel er IKKE tilgjengelig i Context7 — bruk aksel.nav.no direkte.
+Sjekk ALLTID [aksel.nav.no](https://aksel.nav.no) for NAV Aksel-komponenter (`@navikt/ds-react`) før du designer. Bruk web-søk mot aksel.nav.no for å verifisere komponent-API.
 
 ### Spacing (KRITISK)
 - **Alltid** bruk Aksel spacing tokens: `space-4`, `space-8`, `space-12`, `space-16`, `space-20`, `space-24`, `space-32`
@@ -55,6 +55,12 @@ Sjekk ALLTID [aksel.nav.no](https://aksel.nav.no) for NAV Aksel-komponenter (`@n
 ### Responsivt design
 - Mobile-first med breakpoints: `xs`, `sm`, `md`, `lg`, `xl`
 - Bruk Aksel responsive props der tilgjengelig
+
+## Effektivitet
+
+- **Minimér verktøykall**: Hvert kall vises i brukerens terminal. Les kun filer du trenger.
+- **Repo-instruksjoner**: Les `.github/copilot-instructions.md` + `frontend.instructions.md`. Ikke les alle instructions-filer.
+- **Aksel**: Sjekk aksel.nav.no via web-søk for komponent-dokumentasjon.
 
 ## Boundaries
 
