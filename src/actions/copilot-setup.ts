@@ -159,6 +159,43 @@ async function configureMcp(): Promise<boolean> {
 
     if (Object.keys(desiredServers).length === 0) {
         log(chalk.dim('\n🔌 MCP servers: ingen konfigurert (Context7 avventer DPA)'))
+
+        if (fs.existsSync(MCP_CONFIG_PATH)) {
+            let existing: McpConfig
+            const raw = await Bun.file(MCP_CONFIG_PATH).text()
+            try {
+                existing = JSON.parse(raw) as McpConfig
+            } catch {
+                log(chalk.yellow(`  ! Fant eksisterende MCP-konfig som ikke kunne leses: ${MCP_CONFIG_PATH}`))
+                log(
+                    chalk.yellow(
+                        '    Fjern eventuelle "context7"-oppføringer manuelt fra filen, eller slett filen og kjør oppsett på nytt.',
+                    ),
+                )
+                return true
+            }
+
+            const serversKey = existing.mcpServers ? 'mcpServers' : existing.servers ? 'servers' : null
+            if (serversKey) {
+                const servers = existing[serversKey] ?? {}
+                if (servers.context7) {
+                    delete servers.context7
+                    existing[serversKey] = servers
+                    await Bun.write(MCP_CONFIG_PATH, JSON.stringify(existing, null, 2) + '\n')
+                    log(
+                        chalk.yellow(
+                            `  ! Fjernet eksisterende MCP-server "context7" fra konfigurasjon: ${MCP_CONFIG_PATH}`,
+                        ),
+                    )
+                    log(
+                        chalk.yellow(
+                            '    Context7 er deaktivert inntil databehandleravtale (DPA) er på plass. MCP vil ikke lenger bruke denne serveren.',
+                        ),
+                    )
+                }
+            }
+        }
+
         return true
     }
 
