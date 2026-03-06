@@ -1,7 +1,7 @@
 ---
 name: souschef
 description: "(internt) Planlegger menyen — lager implementasjonsplaner ved å utforske kodebaser"
-model: ["Claude Opus 4.6 (copilot)", "Claude Sonnet 4.6 (copilot)"]
+model: "Claude Opus 4.6 (copilot)"
 tools: ["vscode", "vscode/askQuestions", "search", "read", "web", "context7/*", "memory", "todo"]
 user-invocable: false
 ---

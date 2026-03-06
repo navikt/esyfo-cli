@@ -1,7 +1,7 @@
 ---
 name: hovmester
 description: "Tar imot bestillingen og delegerer til souschef, kokk, konditor og mattilsynet"
-model: ["Claude Opus 4.6 (copilot)", "Claude Sonnet 4.6 (copilot)"]
+model: "Claude Opus 4.6 (copilot)"
 tools: ["agent", "search", "read", "web", "memory"]
 agents: ["souschef", "kokk", "konditor", "mattilsynet", "inspektør-claude", "inspektør-gpt", "inspektør-gemini"]
 ---
