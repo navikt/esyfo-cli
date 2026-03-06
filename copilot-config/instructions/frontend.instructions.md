@@ -28,11 +28,11 @@ applyTo: "**/*.tsx,**/*.ts,**/*.css"
 ## Documentation Lookup
 ```
 For Aksel (@navikt/ds-react): Check aksel.nav.no for component API and usage examples
-For other libraries: Use web search to find and verify API documentation
+For other libraries: Check existing code for usage patterns first. Use web search to verify API details only when uncertain.
 ```
 
 ## Testing
-- Look up the project's testing framework documentation via web search (Vitest, Jest, Testing Library)
+- Follow existing test patterns in the project (Vitest, Jest, Testing Library). Use web search only if you need specific API details.
 - Test user interactions, not implementation details
 - Use `screen.getByRole()` over `getByTestId()`
 - Test keyboard navigation for interactive components

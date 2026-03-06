@@ -10,7 +10,7 @@ Configure metrics, structured logging, and tracing for a NAV application.
 
 1. Read NAIS manifest to check current observability config and endpoint paths
 2. Check `build.gradle.kts` or `package.json` for existing observability dependencies
-3. Use web search to look up the metrics library API (Micrometer, prom-client, etc.)
+3. Check existing code for metrics library patterns (Micrometer, prom-client, etc.). Use web search only if you need specific API details not evident from existing code.
 4. Search codebase for existing metric definitions, logging patterns, and health endpoints
 
 ## Backend (Kotlin)

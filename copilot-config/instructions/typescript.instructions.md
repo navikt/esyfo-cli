@@ -77,12 +77,12 @@ import { useState } from "react";
 ```
 
 ## Data Fetching
-- Use web search to look up the project's data fetching patterns (SWR, TanStack Query, server components, etc.)
+- Check existing code for data fetching patterns (SWR, TanStack Query, server components, etc.) before making assumptions. Use web search if the pattern is unclear or you need API details.
 - Check `package.json` for actual dependencies before suggesting libraries
 - Handle loading, error, and empty states explicitly
 
 ## Testing
-- Use web search for the project's test runner documentation (Vitest, Jest, etc.)
+- Check existing test files for the project's test runner patterns (Vitest, Jest, etc.). Use web search only if you need specific API details not evident from existing tests.
 - Use Testing Library — test user behavior, not implementation
 - Prefer `screen.getByRole()` over `getByTestId()`
 - Test keyboard navigation for interactive components

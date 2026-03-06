@@ -31,7 +31,7 @@ Verifiser tastaturnavigasjon, WCAG-krav, og at alle states (loading, error, tom,
 
 ## Aksel designsystem
 
-Sjekk ALLTID [aksel.nav.no](https://aksel.nav.no) for NAV Aksel-komponenter (`@navikt/ds-react`) før du designer. Bruk web-søk mot aksel.nav.no for å verifisere komponent-API.
+Sjekk ALLTID [aksel.nav.no](https://aksel.nav.no) for NAV Aksel-komponenter (`@navikt/ds-react`) før du designer. Bruk eksisterende kode som referanse for komponent-API, og slå opp på aksel.nav.no via web-søk kun ved usikkerhet.
 
 ### Spacing (KRITISK)
 - **Alltid** bruk Aksel spacing tokens: `space-4`, `space-8`, `space-12`, `space-16`, `space-20`, `space-24`, `space-32`
@@ -60,7 +60,7 @@ Sjekk ALLTID [aksel.nav.no](https://aksel.nav.no) for NAV Aksel-komponenter (`@n
 
 - **Minimér verktøykall**: Hvert kall vises i brukerens terminal. Les kun filer du trenger.
 - **Repo-instruksjoner**: Les `.github/copilot-instructions.md` + `frontend.instructions.md`. Ikke les alle instructions-filer.
-- **Aksel**: Sjekk aksel.nav.no via web-søk for komponent-dokumentasjon.
+- **Aksel**: Sjekk eksisterende bruk i kodebasen først. Slå opp aksel.nav.no via web-søk kun ved usikkerhet om komponent-API.
 
 ## Boundaries
 

@@ -117,7 +117,7 @@ Vurder alle konsoliderte funn mot de fire tilsynsområdene. Legg til NAV-spesifi
 
 ## Tilsynsrapport
 
-Du SKAL alltid avslutte med en tilsynsrapport i smilefjesformat. Velg riktig smilefjes basert på det alvorligste funnet:
+Du SKAL alltid avslutte med en tilsynsrapport i smilefjesformat. Malen nedenfor er **obligatorisk** — alle seksjoner skal være med (header, resultat, «dette har mattilsynet sett på» med alle 4 tilsynsområder, og vedtak). Ikke forkorte eller hopp over seksjoner. Velg riktig smilefjes basert på det alvorligste funnet:
 
 ```
 ╔══════════════════════════════════════════════════════════════╗

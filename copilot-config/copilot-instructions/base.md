@@ -23,7 +23,7 @@
 
 ## Conventions
 - English code and comments — Norwegian for user-facing text and domain terms (e.g. dialogmote, sykmelding, oppfolgingsplan)
-- Use web search for library-specific documentation. For NAV-internal libs: aksel.nav.no and doc.nais.io
+- Check existing code patterns and custom instructions first. For NAV-internal libs: aksel.nav.no and doc.nais.io. Use web search for external library docs only when uncertain about API correctness.
 - Check existing code patterns in the repository before writing new code
 - Follow the ✅ Always / ⚠️ Ask First / 🚫 Never boundaries in agent and instruction files
 
