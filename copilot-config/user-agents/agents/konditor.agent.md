@@ -61,3 +61,14 @@ Sjekk ALLTID [aksel.nav.no](https://aksel.nav.no) for NAV Aksel-komponenter (`@n
 - **Aldri** hardkod farger, spacing eller typografi
 - **Aldri** hopp over tilgjengelighet
 - **Aldri** ignorer eksisterende UI-mønstre i kodebasen
+
+## Output-kontrakt
+
+Avslutt alltid med en kort rapport som inkluderer:
+
+1. **Designvalg**: Hvilke Aksel-komponenter ble valgt og hvorfor
+2. **Endringer**: Hvilke filer ble endret
+3. **Tilgjengelighet**: Hva ble sjekket (tastatur, kontrast, semantisk HTML) — eller gjenstående bekymringer
+4. **Antagelser**: Eventuelle antagelser om design eller UX — skjul dem ikke
+
+Hvis du ikke kan fullføre oppgaven, avslutt med: `UFULLSTENDIG: <kort grunn>`

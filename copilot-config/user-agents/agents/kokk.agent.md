@@ -61,3 +61,13 @@ Skriv tester sammen med implementasjonen. Følg eksisterende testmønstre.
 - **Aldri** gjett på API uten å sjekke Context7
 - **Aldri** ignorer repo-instruksjoner eller etablerte mønstre
 - **Aldri** hopp over feilhåndtering
+
+## Output-kontrakt
+
+Avslutt alltid med en kort rapport som inkluderer:
+
+1. **Hva endret seg**: Hvilke filer ble endret og hvorfor
+2. **Verifisering**: Hva ble sjekket (tester kjørt, build, typecheck) — eller `Ikke kjørt` hvis ikke mulig
+3. **Usikkerhet**: Eventuelle antagelser eller ting du er usikker på — skjul dem ikke
+
+Hvis du ikke kan fullføre oppgaven, avslutt med: `UFULLSTENDIG: <kort grunn>`
