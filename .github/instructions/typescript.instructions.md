@@ -1,106 +1,54 @@
 ---
-applyTo: "**/*.{ts,tsx}"
+applyTo: "**/*.ts"
 ---
 
-# TypeScript with Aksel Design System
+# TypeScript for Bun CLI
 
 ## General
 - Use strict TypeScript — avoid `any` and type assertions where possible
 - Prefer `interface` over `type` for object shapes
 - Use `const` over `let`, never `var`
-- Follow framework conventions for exports (e.g. `export default` for Next.js pages/components, named exports elsewhere)
+- Use named exports (no default exports)
+- Use `.ts` extensions in all import paths (e.g., `'./common/log.ts'`)
 
-## Aksel Spacing (CRITICAL)
+## Bun APIs
+- Prefer `Bun.file()` and `Bun.write()` over Node.js `fs` equivalents
+- Use `Bun.spawnSync()` for shell commands instead of `child_process`
+- Use `Bun.env` instead of `process.env`
+- Use `Bun.build()` for bundling (see `src/build.ts`)
 
-**Prefer** Aksel spacing tokens over Tailwind padding/margin:
+## CLI Patterns
+- Use `yargs` for command parsing — all commands are defined in `src/yargs-parser.ts`
+- Each command maps to an action function in `src/actions/`
+- Console output: use `log` from `src/common/log.ts` and `chalk` for colors
+- Use `remeda` (imported as `R`) for functional data transformations
 
-```tsx
-// ✅ Preferred
-<Box paddingBlock={{ xs: "space-16", md: "space-24" }} paddingInline="space-16">
-  {children}
-</Box>
+## GitHub API
+- Octokit for REST, raw GraphQL for complex queries
+- Auth via `gh auth status --show-token` (interactive) or `NPM_AUTH_TOKEN` (CI)
+- GraphQL queries use `/* GraphQL */` tagged template comment
+- Standardize response shapes with types like `OrgTeamRepoResult`, `BaseRepoNode`
 
-// ⚠️ Avoid when Aksel spacing tokens are available
-<div className="p-4 md:p-6">
-```
-
-Available tokens: `space-4`, `space-8`, `space-12`, `space-16`, `space-20`, `space-24`, `space-32`, `space-40`
-
-Note: `gap` on layout components (`VStack`, `HStack`, `HGrid`) uses Aksel's numeric scale (e.g. `gap="4"`), which maps to the same tokens internally. Only `padding`/`margin` on `Box` need the `space-` prefix.
-
-## Layout Components
-
-```tsx
-import { Box, VStack, HStack, HGrid } from "@navikt/ds-react";
-
-<VStack gap="4">          {/* Vertical stack */}
-<HStack gap="4" align="center">  {/* Horizontal stack */}
-<HGrid columns={{ xs: 1, md: 2, lg: 3 }} gap="4">  {/* Responsive grid */}
-```
-
-## Typography
-
-```tsx
-import { Heading, BodyShort, Label } from "@navikt/ds-react";
-
-<Heading size="large" level="2">Title</Heading>
-<BodyShort size="medium">Regular text</BodyShort>
-<BodyShort weight="semibold">Bold text</BodyShort>
-```
-
-## Responsive Design
-- Mobile-first with breakpoints: `xs` (0px), `sm` (480px), `md` (768px), `lg` (1024px), `xl` (1280px)
-- Use responsive props: `padding={{ xs: "space-16", md: "space-24" }}`
-
-## Number Formatting
-- Always use Norwegian locale (space as thousand separator)
-- Never use `toLocaleString()` without explicit locale
-
-## React
-- Use functional components with hooks
-- Use Aksel components from `@navikt/ds-react` — check [aksel.nav.no](https://aksel.nav.no) for component API
-- Follow existing component patterns in the codebase
-- Co-locate related files (component, test, styles)
-
-## Server vs Client Components (Next.js only — skip if not using Next.js)
-
-```tsx
-// Server Component (default) — can use async/await
-export default async function Page() {
-  const data = await fetchData();
-  return <Box padding="space-24"><Heading size="large" level="1">{data.title}</Heading></Box>;
-}
-
-// Client Component — needs "use client" directive
-"use client";
-import { useState } from "react";
-```
-
-## Data Fetching
-- Use Context7 to look up the project's data fetching patterns (SWR, TanStack Query, server components, etc.)
-- Check `package.json` for actual dependencies before suggesting libraries
-- Handle loading, error, and empty states explicitly
-
-## Testing
-- Use Context7 for the project's test runner (Vitest, Jest, etc.)
-- Use Testing Library — test user behavior, not implementation
-- Prefer `screen.getByRole()` over `getByTestId()`
-- Test keyboard navigation for interactive components
+## Error Handling
+- Handle GitHub API errors explicitly (rate limits, 404s, auth failures)
+- Use `chalk.red()` for user-facing errors
+- Exit with non-zero code on failure
 
 ## Boundaries
 
 ### ✅ Always
-- Prefer Aksel components and spacing tokens with `space-` prefix
-- Mobile-first responsive design
-- Norwegian number formatting
-- Explicit error handling
+- Use `.ts` extensions in imports
+- Use Bun APIs over Node.js equivalents
+- Follow existing patterns in `src/actions/` for new commands
+- Explicit error handling with colored output
 
 ### ⚠️ Ask First
-- Adding custom Tailwind utilities
-- Deviating from Aksel patterns
-- Changing data fetching strategy
+- Adding new dependencies
+- Changing the build pipeline (`src/build.ts`)
+- Modifying the yargs parser structure
 
 ### 🚫 Never
-- Use numeric padding/margin values without `space-` prefix (note: `gap` on layout components like VStack/HStack/HGrid accepts numeric values e.g. `gap="4"`)
-- Skip responsive props
-- Ignore accessibility requirements
+- Use `process.env` (use `Bun.env`)
+- Use Node.js `fs` when `Bun.file()`/`Bun.write()` works
+- Use `var`
+- Add tests (there are no tests in this project — if that changes, update this)
