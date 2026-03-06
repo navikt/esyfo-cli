@@ -15,7 +15,7 @@ Utviklere har sjelden den beste intuisjonen for design — ta eierskap over desi
 ## Arbeidsflyt
 
 ### 1. Les kontekst
-Les repoets `.github/copilot-instructions.md` og relevante `.github/instructions/` (spesielt `typescript.instructions.md`) for å forstå standarder og eksisterende mønstre.
+Les repoets `.github/copilot-instructions.md` og relevante `.github/instructions/` (spesielt `frontend.instructions.md`) for å forstå standarder og eksisterende mønstre.
 
 ### 2. Sjekk Aksel
 Sjekk [aksel.nav.no](https://aksel.nav.no) for tilgjengelige komponenter og mønstre. Aldri gjett — verifiser.
@@ -59,7 +59,7 @@ Sjekk ALLTID [aksel.nav.no](https://aksel.nav.no) for NAV Aksel-komponenter (`@n
 ## Effektivitet
 
 - **Minimér verktøykall**: Hvert kall vises i brukerens terminal. Les kun filer du trenger.
-- **Repo-instruksjoner**: Les `.github/copilot-instructions.md` + `typescript.instructions.md`. Ikke les alle instructions-filer.
+- **Repo-instruksjoner**: Les `.github/copilot-instructions.md` + `frontend.instructions.md`. Ikke les alle instructions-filer.
 - **Aksel**: Sjekk eksisterende bruk i kodebasen først. Slå opp aksel.nav.no via web-søk kun ved usikkerhet om komponent-API.
 
 ## Boundaries

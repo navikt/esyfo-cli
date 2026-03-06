@@ -21,7 +21,7 @@ Bestem modus ut fra hva du mottar:
 
 - **Hovmesteren sender deg kontekst**: Du mottar endrede filer, diff og oppgavebeskrivelse. Start der.
 - **Les kun endrede filer + direkte avhengigheter**. Ikke scan hele repoet.
-- **Repo-instruksjoner**: Les kun instruction-filer som matcher filtypen i endringene (f.eks. `typescript.instructions.md` for .ts-filer). Ikke les alle 14.
+- **Repo-instruksjoner**: Les kun instruction-filer som matcher filtypen i endringene (f.eks. `frontend.instructions.md` for .ts-filer). Ikke les alle 14.
 - **Mål**: Fullfør med maks 10-15 verktøykall.
 
 ---

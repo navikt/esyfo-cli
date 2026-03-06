@@ -43,7 +43,7 @@ profiles:
     team_agent: null
     agents: []
     instructions:
-      - typescript.instructions.md
+      - frontend.instructions.md
       - testing-typescript.instructions.md
 
   microfrontend:
@@ -53,7 +53,7 @@ profiles:
     team_agent: null
     agents: []
     instructions:
-      - typescript.instructions.md
+      - frontend.instructions.md
       - testing-typescript.instructions.md
 
   other:

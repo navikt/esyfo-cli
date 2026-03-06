@@ -25,7 +25,7 @@ Hvert verktøykall du gjør vises som en linje i brukerens terminal. 50+ linjer 
 ### Regler
 - **Hovmesteren sender deg kontekst**: Du mottar endrede filer, diff og oppgavebeskrivelse. Bruk dette som primærkilde.
 - **Les kun det du må**: Ikke les hele repoet. Les kun filer som er endret + filer som er direkte referert til av endringene.
-- **Repo-instruksjoner**: Les `.github/copilot-instructions.md` og relevante instructions-filer ÉN gang. Ikke les alle 14 instruction-filer — kun de som matcher filtypen i endringene (f.eks. `typescript.instructions.md` for .ts-filer).
+- **Repo-instruksjoner**: Les `.github/copilot-instructions.md` og relevante instructions-filer ÉN gang. Ikke les alle 14 instruction-filer — kun de som matcher filtypen i endringene (f.eks. `frontend.instructions.md` for .ts-filer).
 - **Fellestilsyn**: Du har allerede inspektør-funn. IKKE gjør en ny uavhengig gjennomgang av alle filer. Konsolider funnene du fikk.
 - **Mål**: Fullfør inspeksjonen med maks 10-15 verktøykall, ikke 50+.
 

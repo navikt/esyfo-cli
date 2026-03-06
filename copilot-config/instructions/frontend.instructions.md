@@ -1,8 +1,8 @@
 ---
-applyTo: "**/*.{ts,tsx}"
+applyTo: "**/*.{ts,tsx,css}"
 ---
 
-# TypeScript & Frontend — Aksel Design System
+# Frontend — Aksel Design System
 
 ## General
 - Use strict TypeScript — avoid `any` and type assertions where possible
