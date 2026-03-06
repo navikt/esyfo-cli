@@ -11,7 +11,7 @@ applyTo: "**/*.test.kt,**/*.spec.kt,**/*Test.kt,**/*Spec.kt,**/*Spek.kt"
 - Arrange → Act → Assert pattern
 
 ## Kotest + MockK
-- Check build.gradle.kts for the Kotest version and available test dependencies (verify with web search or existing code if needed)
+- Check build.gradle.kts for the Kotest version and available test dependencies
 - Use `should` matchers for assertions (Kotest or Kluent `shouldBeEqualTo`)
 - **Check existing tests first** — follow the repo's established test style for consistency
 - If the file you're editing already uses a different Kotest style (FunSpec, StringSpec, etc.), keep that style — don't mix specs in the same file

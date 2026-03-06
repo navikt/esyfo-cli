@@ -2,7 +2,7 @@
 applyTo: "**/*.{ts,tsx}"
 ---
 
-# TypeScript with Aksel Design System
+# TypeScript & Frontend — Aksel Design System
 
 ## General
 - Use strict TypeScript — avoid `any` and type assertions where possible
@@ -10,7 +10,19 @@ applyTo: "**/*.{ts,tsx}"
 - Use `const` over `let`, never `var`
 - Follow framework conventions for exports (e.g. `export default` for Next.js pages/components, named exports elsewhere)
 
-## Aksel Spacing (CRITICAL)
+## NAV Aksel Design System
+- Components: `@navikt/ds-react`
+- Icons: `@navikt/aksel-icons`
+- Tokens: `@navikt/ds-tokens` (spacing, colors, typography)
+- Documentation: [aksel.nav.no](https://aksel.nav.no)
+
+### Key Principles
+- Use Aksel components for all standard UI elements
+- Use design tokens for spacing (`--a-spacing-*`), colors, typography
+- Follow Aksel's composition patterns (e.g., `<Table>`, `<Table.Header>`, `<Table.Row>`)
+- Check aksel.nav.no for component API before implementing
+
+### Spacing (CRITICAL)
 
 **Prefer** Aksel spacing tokens over Tailwind padding/margin:
 
@@ -28,7 +40,7 @@ Available tokens: `space-4`, `space-8`, `space-12`, `space-16`, `space-20`, `spa
 
 Note: `gap` on layout components (`VStack`, `HStack`, `HGrid`) uses Aksel's numeric scale (e.g. `gap="4"`), which maps to the same tokens internally. Only `padding`/`margin` on `Box` need the `space-` prefix.
 
-## Layout Components
+### Layout Components
 
 ```tsx
 import { Box, VStack, HStack, HGrid } from "@navikt/ds-react";
@@ -38,7 +50,7 @@ import { Box, VStack, HStack, HGrid } from "@navikt/ds-react";
 <HGrid columns={{ xs: 1, md: 2, lg: 3 }} gap="4">  {/* Responsive grid */}
 ```
 
-## Typography
+### Typography
 
 ```tsx
 import { Heading, BodyShort, Label } from "@navikt/ds-react";
@@ -48,13 +60,22 @@ import { Heading, BodyShort, Label } from "@navikt/ds-react";
 <BodyShort weight="semibold">Bold text</BodyShort>
 ```
 
-## Responsive Design
+### Responsive Design
 - Mobile-first with breakpoints: `xs` (0px), `sm` (480px), `md` (768px), `lg` (1024px), `xl` (1280px)
 - Use responsive props: `padding={{ xs: "space-16", md: "space-24" }}`
 
-## Number Formatting
+### Number Formatting
 - Always use Norwegian locale (space as thousand separator)
 - Never use `toLocaleString()` without explicit locale
+
+## Accessibility (UU) — WCAG 2.1 AA
+- All interactive elements must be keyboard accessible
+- Use semantic HTML (`<nav>`, `<main>`, `<section>`, `<article>`)
+- All images need `alt` text (decorative: `alt=""`)
+- Color contrast minimum 4.5:1 for text
+- Form inputs must have associated `<label>` elements
+- Error messages must be programmatically associated with inputs
+- Use `aria-live` for dynamic content updates
 
 ## React
 - Use functional components with hooks
@@ -77,30 +98,41 @@ import { useState } from "react";
 ```
 
 ## Data Fetching
-- Check existing code for data fetching patterns (SWR, TanStack Query, server components, etc.) before making assumptions. Use web search if the pattern is unclear or you need API details.
+- Check existing code for data fetching patterns (SWR, TanStack Query, server components, etc.) before making assumptions.
 - Check `package.json` for actual dependencies before suggesting libraries
 - Handle loading, error, and empty states explicitly
 
 ## Testing
-- Check existing test files for the project's test runner patterns (Vitest, Jest, etc.). Use web search only if you need specific API details not evident from existing tests.
-- Use Testing Library — test user behavior, not implementation
+- Check existing test files for the project's test runner patterns (Vitest, Jest, etc.).
+- Use Testing Library — test user interactions, not implementation details
 - Prefer `screen.getByRole()` over `getByTestId()`
 - Test keyboard navigation for interactive components
 
 ## Boundaries
 
 ### ✅ Always
-- Prefer Aksel components and spacing tokens with `space-` prefix
+- Use Aksel components from `@navikt/ds-react`
+- Prefer Aksel spacing tokens with `space-` prefix
+- Use design tokens for styling
+- Follow WCAG 2.1 AA accessibility standards
 - Mobile-first responsive design
 - Norwegian number formatting
 - Explicit error handling
+- Check [aksel.nav.no](https://aksel.nav.no) for Aksel component API before using
+- Follow existing patterns in the codebase
 
 ### ⚠️ Ask First
+- Adding new dependencies
 - Adding custom Tailwind utilities
 - Deviating from Aksel patterns
+- Changing routing patterns
 - Changing data fetching strategy
+- Introducing new state management solutions
 
 ### 🚫 Never
+- Use raw HTML for elements Aksel provides
+- Hardcode colors, spacing, or typography values
 - Use numeric padding/margin values without `space-` prefix (note: `gap` on layout components like VStack/HStack/HGrid accepts numeric values e.g. `gap="4"`)
+- Skip accessibility requirements
 - Skip responsive props
-- Ignore accessibility requirements
+- Import from `@navikt/ds-react` internals

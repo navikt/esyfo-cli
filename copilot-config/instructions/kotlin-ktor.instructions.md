@@ -96,7 +96,7 @@ val appModule = module {
 - Use `by inject<T>()` (lazy) in `Application` extension functions for route-level dependencies
 - Use `get<T>()` for eager resolution inside Koin module definitions
 - Organize modules by domain (e.g., `databaseModule`, `serviceModule`) and compose them in `modules(…)`
-- **Verify Koin–Ktor API usage** against existing code patterns first, then check `build.gradle.kts` for version. Use web search only if uncertain about correctness.
+
 
 ## Testing
 

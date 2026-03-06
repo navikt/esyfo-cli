@@ -25,7 +25,7 @@ Follow the existing configuration approach in the codebase. Common patterns:
 
 ## Database Access
 
-- Check `build.gradle.kts` for actual dependencies — do not assume any specific ORM (verify with web search or existing code if needed)
+- Check `build.gradle.kts` for actual dependencies — do not assume any specific ORM
 - Parameterized queries always — never string interpolation in SQL
 - Use Flyway for all schema migrations
 - **Follow the repo's existing data access pattern** (Repository interfaces, extension functions, etc.)
