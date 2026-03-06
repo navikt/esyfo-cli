@@ -1,7 +1,7 @@
 ---
 name: konditor
 description: "(internt) Pynt og finish — Aksel designsystem, tilgjengelighet og brukeropplevelse"
-model: "Gemini 3.1 Pro (Preview) (copilot)"
+model: "Gemini 3 Pro (Preview)"
 tools: ["vscode", "edit", "search", "read", "web", "execute", "context7/*", "memory", "todo"]
 ---
 

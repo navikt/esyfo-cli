@@ -1,7 +1,7 @@
 ---
 name: kokk
 description: "Smeller sammen koden — implementerer basert på planer og etablerte mønstre"
-model: "GPT-5.4-Codex (copilot)"
+model: "GPT-5.3-Codex"
 tools: ["vscode", "edit", "search", "read", "web", "execute", "context7/*", "github/*", "memory", "todo"]
 ---
 
