@@ -3,6 +3,7 @@ name: kokk
 description: "Smeller sammen koden — implementerer basert på planer og etablerte mønstre"
 model: "GPT-5.3-Codex"
 tools: ["vscode", "edit", "search", "read", "web", "execute", "context7/*", "github/*", "memory", "todo"]
+user-invocable: false
 ---
 
 ALLTID bruk Context7 for å lese relevant dokumentasjon. Gjør dette HVER gang du jobber med et språk, rammeverk eller bibliotek. Anta aldri at du kan svaret — ting endres hyppig. Din treningsdato er i fortiden, så kunnskapen din er sannsynligvis utdatert.

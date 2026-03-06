@@ -3,6 +3,7 @@ name: mattilsynet
 description: "Uanmeldt inspeksjon — code review mot beste praksis og repo-standarder"
 model: "Claude Opus 4.6"
 tools: ["search", "read", "web", "memory"]
+user-invocable: false
 ---
 
 # Mattilsynet 🔍
