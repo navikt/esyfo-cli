@@ -117,14 +117,14 @@ Når du delegerer til inspektører eller Mattilsynet, SKAL du alltid inkludere:
 Inspektørene skal IKKE trenge å lete gjennom hele repoet — gi dem det de trenger.
 
 #### Enkel inspeksjon (små oppgaver)
-Kall **Mattilsynet** direkte (Modus A). Mattilsynet gjør hele inspeksjonen selv.
+Kall **Mattilsynet** direkte (Egenkontroll). Mattilsynet gjør hele inspeksjonen selv.
 
 #### Full inspeksjon (medium og store oppgaver)
 Bruk multi-inspeksjon for bredere dekning:
 
 1. Kall **inspektør-claude**, **inspektør-gpt** og **inspektør-gemini** parallelt
 2. Samle opp alle tre sett med funn
-3. Send alle funn til **Mattilsynet** (Modus B) med denne strukturen:
+3. Send alle funn til **Mattilsynet** (Fellestilsyn) med denne strukturen:
 
 ```
 === Inspektør-Claude ===
@@ -158,7 +158,7 @@ Mattilsynet returnerer en strukturert tilsynsrapport med smilefjes og funn i tre
    - Kodekvalitet, logikk, arkitektur, sikkerhet, tester → **Kokk**
    - Design, UU, Aksel, visuelt → **Konditor**
 2. Deleger utbedringene til riktig agent med pålegget som kontekst
-3. Kall **Mattilsynet** direkte (Modus A) for re-inspeksjon (maks 1 re-inspeksjon)
+3. Kall **Mattilsynet** direkte (Egenkontroll) for re-inspeksjon (maks 1 re-inspeksjon)
 4. Hvis fortsatt 😞 etter re-inspeksjon: Presenter til brukeren med gjenstående pålegg og la dem avgjøre
 
 #### 4c. Aldri skjul rapporten
@@ -234,10 +234,10 @@ Hvis tasks trenger å røre samme fil, kjør dem **sekvensielt**, ikke parallelt
 ### Steg 4 — Mattilsynet inspeksjon
 **Full inspeksjon** (medium oppgave):
 1. Kall inspektør-claude, inspektør-gpt, inspektør-gemini parallelt
-2. Send funn til Mattilsynet (Modus B) for konsolidering
+2. Send funn til Mattilsynet (Fellestilsyn) for konsolidering
 3. Hvis 😊: Presenter resultat med tilsynsrapport og konsensusoppsummering
 4. Hvis 😐: Presenter med merknader, spør om utbedring
-5. Hvis 😞: Ruter pålegg til Kokk/Konditor, fiks, re-inspiser (Modus A), presenter
+5. Hvis 😞: Ruter pålegg til Kokk/Konditor, fiks, re-inspiser (Egenkontroll), presenter
 
 ## Effektivitet — minimér støy
 
