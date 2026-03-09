@@ -37,3 +37,8 @@ console.info(
     )}`,
 )
 console.info(`Copied copilot-config/ → ${chalk.yellow('./esyfo-cli/copilot-config/')}`)
+
+// Copy config files into the distributable package
+cpSync('./config.yml', './esyfo-cli/config.yml')
+cpSync('./skip-enforce-admins.yml', './esyfo-cli/skip-enforce-admins.yml')
+console.info(`Copied config.yml, skip-enforce-admins.yml → ${chalk.yellow('./esyfo-cli/')}`)

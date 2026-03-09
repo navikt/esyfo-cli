@@ -1,11 +1,27 @@
-import * as fs from 'fs'
+import path from 'node:path'
 
 import * as YAML from 'yaml'
 
-import { Config, RepoConfig } from './types'
+import { Config, RepoConfig } from './types.ts'
 
-const file = fs.readFileSync('./config.yml', 'utf8')
-export const config = multirepoTilConfig(YAML.parse(file) as BaseConfig)
+function resolveConfigPath(filename: string): string {
+    if (process.env.COMPILED_BINARY === 'true') {
+        // Installed via npm: binary is at esyfo-cli/bin/ecli, config files at esyfo-cli/
+        return path.resolve(import.meta.dir, '..', filename)
+    }
+    // Development: config.ts is in src/config/, config files are in project root
+    return path.resolve(import.meta.dir, '../..', filename)
+}
+
+async function loadConfig(): Promise<Config> {
+    const file = await Bun.file(resolveConfigPath('config.yml')).text()
+    return multirepoTilConfig(YAML.parse(file) as BaseConfig)
+}
+
+async function loadSkipEnforceAdmin(): Promise<string[]> {
+    const file = await Bun.file(resolveConfigPath('skip-enforce-admins.yml')).text()
+    return (YAML.parse(file) as { repo: string[] }).repo
+}
 
 function multirepoTilConfig(baseConfig: BaseConfig): Config {
     const repos: RepoConfig[] = []
@@ -31,8 +47,5 @@ interface MultiRepoConfig {
     checks: string[]
 }
 
-export const skipEnforceAdmin = (
-    YAML.parse(fs.readFileSync('./skip-enforce-admins.yml', 'utf8')) as {
-        repo: string[]
-    }
-).repo
+export const config = await loadConfig()
+export const skipEnforceAdmin = await loadSkipEnforceAdmin()
