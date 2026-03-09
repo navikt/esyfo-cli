@@ -30,6 +30,7 @@
 - Test keyboard navigation for interactive components
 
 ### ⚠️ Ask First
+- Adding new npm packages or dependencies — check `package.json` for existing alternatives first
 - Adding custom Tailwind utilities or deviating from Aksel patterns
 - Changing authentication flow or data fetching strategy
 

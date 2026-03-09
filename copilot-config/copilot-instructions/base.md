@@ -23,7 +23,10 @@
 
 ## Conventions
 - English code and comments — Norwegian for user-facing text and domain terms (e.g. dialogmote, sykmelding, oppfolgingsplan)
-- Use Context7 (`context7-resolve-library-id` → `context7-query-docs`) for library-specific patterns (not available for NAV-internal libs like Aksel/NAIS — use aksel.nav.no and doc.nais.io instead)
+- **Documentation lookup strategy** (prioritert rekkefølge):
+  1. **Repo first**: Sjekk eksisterende kode og custom instructions (`.github/instructions/`)
+  2. **NAV-docs ved behov**: Slå opp aksel.nav.no (UI-komponenter, design tokens) og doc.nais.io (plattform, deploy, observability) når du lager eller endrer noe i disse domenene
+  3. **Ekstern docs ved usikkerhet**: Bruk web search for eksterne biblioteker kun når du er usikker på API-korrekthet — ikke rutinemessig
 - Check existing code patterns in the repository before writing new code
 - Follow the ✅ Always / ⚠️ Ask First / 🚫 Never boundaries in agent and instruction files
 

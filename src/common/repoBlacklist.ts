@@ -8,6 +8,7 @@ const blacklist: string[] = [
     'isdialogmote',
     'isnarmesteleder',
     'isyfomock',
+    'syfomodiaperson',
 ]
 
 export function blacklisted<Repo extends { name: string }>(repo: Repo): boolean {
