@@ -79,8 +79,6 @@ overrides:
     skip: true
   esyfovarsel_analyse:
     skip: true
-  esyfo-microfrontends:
-    skip: true
   syfooppfolgingsplanservice:
     skip: true
   team-esyfo:
