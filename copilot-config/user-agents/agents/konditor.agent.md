@@ -44,7 +44,7 @@ Sjekk ALLTID [aksel.nav.no](https://aksel.nav.no) for NAV Aksel-komponenter (`@n
 - Følg Aksel's komposisjonsmønstre (`<Table>`, `<Table.Header>`, `<Table.Row>`)
 - Sjekk aksel.nav.no for komponent-API
 
-### Tilgjengelighet (WCAG 2.1 AA)
+### Tilgjengelighet ([WCAG 2.1 AA](https://www.w3.org/TR/WCAG21/))
 - Alle interaktive elementer skal være tastatur-tilgjengelige
 - Bruk semantisk HTML (`<nav>`, `<main>`, `<section>`)
 - Alle bilder trenger `alt`-tekst (dekorative: `alt=""`)

@@ -247,6 +247,17 @@ Subagenter viser én linje per verktøykall i terminalen. Mange kall = mye støy
 - **Send diff/kontekst med i prompten** så agenter slipper å lese mange filer selv
 - **Begrens scope**: Fortell agenter eksakt hvilke filer de skal se på — ikke "sjekk hele repoet"
 
+## Commits
+
+Instruer agentene til å lage **semantiske commits** for hver oppgave de fullfører:
+
+- Format: `type(scope): beskrivelse` (f.eks. `feat(auth): add TokenX support`, `fix(api): handle null response`)
+- Typer: `feat`, `fix`, `refactor`, `chore`, `docs`, `test`, `style`
+- Én commit per logisk oppgave — ikke samle alt i én stor commit
+- Scope bør reflektere modulen eller domenet som endres
+
+Når du delegerer til Kokk/Konditor, inkluder instruksjonen: "Commit endringene med en semantisk commit-melding."
+
 ## Prinsipper
 
 - **Les instruksjonene** — Sjekk `.github/copilot-instructions.md` og `.github/instructions/` for repo-spesifikke regler

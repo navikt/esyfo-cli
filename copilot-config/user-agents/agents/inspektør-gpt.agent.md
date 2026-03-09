@@ -1,7 +1,7 @@
 ---
 name: inspektør-gpt
 description: "(internt) Code review-inspektør — GPT-perspektiv"
-model: "GPT-5.3-Codex"
+model: "GPT-5.4"
 tools: ["search", "read", "web"]
 user-invocable: false
 ---

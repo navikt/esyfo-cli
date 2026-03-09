@@ -47,6 +47,7 @@ Inspiser alle fire tilsynsområder. Under hvert område, sjekk de spesifikke pun
 - **Logikk**: Er forretningslogikken korrekt? Off-by-one, nullhåndtering, feilaktig typebruk?
 - **Edge cases**: Er kanttilfeller identifisert og håndtert?
 - **Oppførsel**: Introduserer endringen uventet oppførsel eller sideeffekter?
+- **API-kontrakter**: Endrer koden API-endepunkter, request/response-DTOer, eller Kafka-meldingsformater? Flagg som ⚠️ — dette kan påvirke konsumenter
 
 #### 2. Mathåndtering — Kodekvalitet og arkitektur
 *Er maten laget riktig, eller slengt sammen?*
