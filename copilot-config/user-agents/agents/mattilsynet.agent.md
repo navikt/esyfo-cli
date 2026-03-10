@@ -121,43 +121,42 @@ Vurder alle konsoliderte funn mot de fire tilsynsområdene. Legg til NAV-spesifi
 Du SKAL alltid avslutte med en tilsynsrapport i smilefjesformat. Malen nedenfor er **obligatorisk** — alle seksjoner skal være med (header, resultat, «dette har mattilsynet sett på» med alle 4 tilsynsområder, og vedtak). Ikke forkorte eller hopp over seksjoner. Velg riktig smilefjes basert på det alvorligste funnet:
 
 ```
-╔══════════════════════════════════════════════════════════════╗
-║                       MATTILSYNET                            ║
-║                 Tilsynsrapport – Smilefjes                   ║
-╠══════════════════════════════════════════════════════════════╣
-║                                                              ║
-║  Virksomhet: [repo-navn / PR / oppgavebeskrivelse]           ║
-║  Dato:       [dato]                                          ║
-║  Inspektør:  Mattilsynet 🔍                                  ║
-║                                                              ║
-╠══════════════════════════════════════════════════════════════╣
-║                                                              ║
-║   RESULTAT:       😊  |  😐  |  😞                          ║
-║                                                              ║
-╠══════════════════════════════════════════════════════════════╣
-║                                                              ║
-║  DETTE HAR MATTILSYNET SETT PÅ:                              ║
-║                                                              ║
-║  1. Bestilling og oppskrift (oppgave/korrekthet)             ║
-║     [✅ / ⚠️ / ❌] [Kort vurdering]                          ║
-║                                                              ║
-║  2. Mathåndtering (kodekvalitet/arkitektur)                   ║
-║     [✅ / ⚠️ / ❌] [Kort vurdering]                          ║
-║                                                              ║
-║  3. Hygiene (sikkerhet/feilhåndtering)                        ║
-║     [✅ / ⚠️ / ❌] [Kort vurdering]                          ║
-║                                                              ║
-║  4. Merking og sporbarhet (tester/dokumentasjon/design)       ║
-║     [✅ / ⚠️ / ❌] [Kort vurdering]                          ║
-║                                                              ║
-╠══════════════════════════════════════════════════════════════╣
-║                                                              ║
-║  VEDTAK:                                                     ║
-║  [Godkjent / Godkjent med merknader / Ikke godkjent]        ║
-║  [Kort begrunnelse]                                          ║
-║                                                              ║
-║                                                              ║
-╚══════════════════════════════════════════════════════════════╝
+══════════════════════════════════════
+         MATTILSYNET
+    Tilsynsrapport – Smilefjes
+══════════════════════════════════════
+
+  Virksomhet: [repo-navn / PR / oppgavebeskrivelse]
+  Dato:       [dato]
+  Inspektør:  Mattilsynet 🔍
+
+──────────────────────────────────────
+
+         RESULTAT: 😊 | 😐 | 😞
+
+──────────────────────────────────────
+
+  DETTE HAR MATTILSYNET SETT PÅ:
+
+  1. Bestilling og oppskrift (oppgave/korrekthet)
+     [✅ / ⚠️ / ❌] [Kort vurdering]
+
+  2. Mathåndtering (kodekvalitet/arkitektur)
+     [✅ / ⚠️ / ❌] [Kort vurdering]
+
+  3. Hygiene (sikkerhet/feilhåndtering)
+     [✅ / ⚠️ / ❌] [Kort vurdering]
+
+  4. Merking og sporbarhet (tester/dokumentasjon/design)
+     [✅ / ⚠️ / ❌] [Kort vurdering]
+
+──────────────────────────────────────
+
+  VEDTAK:
+  [Godkjent / Godkjent med merknader / Ikke godkjent]
+  [Kort begrunnelse]
+
+══════════════════════════════════════
 ```
 
 ### Smilefjes-kriterier
@@ -171,17 +170,17 @@ Du SKAL alltid avslutte med en tilsynsrapport i smilefjesformat. Malen nedenfor 
 Når endringen er liten (1-3 filer, <50 linjer endret), bruk kompakt format:
 
 ```
-╔═══════════════════════════════════════╗
-║  MATTILSYNET — 😊/😐/😞              ║
-║  [repo] — [dato]                      ║
-╠═══════════════════════════════════════╣
-║  1. Bestilling:  ✅ [kort]            ║
-║  2. Mathåndtering: ✅ [kort]          ║
-║  3. Hygiene:     ✅ [kort]            ║
-║  4. Merking:     ✅ [kort]            ║
-╠═══════════════════════════════════════╣
-║  VEDTAK: [Godkjent/etc] — [grunn]    ║
-╚═══════════════════════════════════════╝
+══════════════════════════════════════
+  MATTILSYNET — 😊/😐/😞
+  [repo] — [dato]
+──────────────────────────────────────
+  1. Bestilling:    ✅ [kort]
+  2. Mathåndtering: ✅ [kort]
+  3. Hygiene:       ✅ [kort]
+  4. Merking:       ✅ [kort]
+──────────────────────────────────────
+  VEDTAK: [Godkjent/etc] — [grunn]
+══════════════════════════════════════
 ```
 
 Bruk full rapport kun for medium/store endringer.
