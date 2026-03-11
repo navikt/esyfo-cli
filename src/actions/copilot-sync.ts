@@ -12,7 +12,7 @@ import { loadCopilotSyncConfig, CopilotSyncConfig, RepoProfile } from '../copilo
 import { COPILOT_CONFIG_BASE } from '../copilot-config/paths.ts'
 import { detectRepoStack, logStackInfo } from '../copilot-config/detector.ts'
 import { assembleForRepo, AssemblyResult } from '../copilot-config/assembler.ts'
-import { fetchReposByTopic, COPILOT_TOPIC } from '../copilot-config/topic-repos.ts'
+import { fetchCopilotRepos } from '../copilot-config/topic-repos.ts'
 
 export function repoTypeToProfile(type: RepoType): RepoProfile {
     if (type === 'monorepo') return 'other'
@@ -52,13 +52,13 @@ export async function copilotSync(options: { repo?: string; all?: boolean; dryRu
 
     const config = loadSyncConfig()
 
-    log(chalk.green(`Søker etter repos med topic ${chalk.cyan(COPILOT_TOPIC)}...`))
-    const repos = await fetchReposByTopic(options.repo)
+    log(chalk.green('Henter copilot-repos...'))
+    const repos = await fetchCopilotRepos(options.repo)
     if (repos.length === 0) {
         if (options.repo) {
-            log(chalk.red(`Repo '${options.repo}' ikke funnet med topic ${COPILOT_TOPIC}`))
+            log(chalk.red(`Repo '${options.repo}' ikke funnet blant teamets repos.`))
         } else {
-            log(chalk.yellow(`Ingen repos funnet. Legg til topic med: ecli copilot manage add <repo>`))
+            log(chalk.yellow('Ingen repos funnet.'))
         }
         return
     }

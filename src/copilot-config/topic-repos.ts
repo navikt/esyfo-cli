@@ -2,10 +2,7 @@ import { BaseRepoNode, ghGqlQuery, removeIgnoredArchivedAndNonAdmin } from '../c
 
 import { blacklisted as copilotBlacklisted } from './copilot-blacklist.ts'
 
-export const ORG = 'navikt'
 export const TEAM = 'team-esyfo'
-// TODO: remove after copilot-manage.ts is deleted
-export const COPILOT_TOPIC = 'team-esyfo-copilot'
 
 export interface RepoNode {
     name: string
@@ -102,19 +99,4 @@ export async function fetchCopilotRepos(repoFilter?: string): Promise<RepoNode[]
     }
 
     return repos
-}
-
-// TODO: remove after copilot-manage.ts is deleted
-export async function fetchReposByTopic(repoFilter?: string): Promise<RepoNode[]> {
-    return fetchCopilotRepos(repoFilter)
-}
-
-// TODO: remove after copilot-manage.ts is deleted
-export async function fetchAllTeamRepos(): Promise<Array<{ name: string; topics: string[] }>> {
-    const repos = removeIgnoredArchivedAndNonAdmin(await fetchAllTeamRepoNodes()).map((repo) => ({
-        name: repo.name,
-        topics: repo.repositoryTopics.nodes.map((it) => it.topic.name),
-    }))
-
-    return repos.sort((a, b) => a.name.localeCompare(b.name))
 }

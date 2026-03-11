@@ -12,7 +12,6 @@ import { syncFilesAcrossRepos } from './actions/sync-file.ts'
 import { copilotSync } from './actions/copilot-sync.ts'
 import { copilotSetup } from './actions/copilot-setup.ts'
 import { copilotStatus } from './actions/copilot-status.ts'
-import { copilotManage } from './actions/copilot-manage.ts'
 
 export const getYargsParser = (argv: string[]): Argv =>
     yargs(hideBin(argv))
@@ -173,38 +172,7 @@ export const getYargsParser = (argv: string[]): Argv =>
                             }),
                         async (args) => copilotStatus({ repo: args.repo }),
                     )
-                    .command(
-                        'manage',
-                        'Administrer hvilke repos som får copilot-konfigurasjon (topic-basert)',
-                        (yargs) =>
-                            yargs
-                                .command(
-                                    'add <repos..>',
-                                    'Legg til repos for copilot-synkronisering',
-                                    (yargs) =>
-                                        yargs.positional('repos', {
-                                            type: 'string',
-                                            array: true,
-                                            demandOption: true,
-                                            describe: 'Repos som skal legges til',
-                                        }),
-                                    async (args) => copilotManage({ add: args.repos as string[] }),
-                                )
-                                .command(
-                                    'remove <repos..>',
-                                    'Fjern repos fra copilot-synkronisering',
-                                    (yargs) =>
-                                        yargs.positional('repos', {
-                                            type: 'string',
-                                            array: true,
-                                            demandOption: true,
-                                            describe: 'Repos som skal fjernes',
-                                        }),
-                                    async (args) => copilotManage({ remove: args.repos as string[] }),
-                                ),
-                        async () => copilotManage({}),
-                    )
-                    .demandCommand(1, 'Vennligst spesifiser en subkommando: sync, status eller manage')
+                    .demandCommand(1, 'Vennligst spesifiser en subkommando: sync eller status')
                     .epilog(
                         [
                             'Eksempler:',
@@ -213,9 +181,6 @@ export const getYargsParser = (argv: string[]): Argv =>
                             '  ecli copilot sync -r mitt-repo   Synkroniser ett repo',
                             '  ecli copilot sync --all          Synkroniser alle repos',
                             '  ecli copilot sync --dry-run      Forhåndsvis endringer uten å pushe',
-                            '  ecli copilot manage              Vis managed/unmanaged repos',
-                            '  ecli copilot manage add <repo>   Legg til repo for synkronisering',
-                            '  ecli copilot manage remove <repo> Fjern repo fra synkronisering',
                             '',
                             'Tips: Bruk <kommando> --help for flere detaljer, f.eks. ecli copilot sync --help',
                         ].join('\n'),
