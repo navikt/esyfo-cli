@@ -5,11 +5,11 @@ import { execSync } from 'node:child_process'
 import chalk from 'chalk'
 
 import { log } from '../common/log.ts'
-import { Gitter } from '../common/git.ts'
 import { GIT_CACHE_DIR } from '../common/cache.ts'
 import { detectRepoStack } from '../copilot-config/detector.ts'
 import { assembleForRepo } from '../copilot-config/assembler.ts'
 import { fetchCopilotRepos } from '../copilot-config/copilot-repos.ts'
+import { cloneRepos } from '../copilot-config/clone-repos.ts'
 
 import { loadSyncConfig } from './copilot-sync.ts'
 
@@ -39,30 +39,7 @@ export async function copilotStatus(options: { repo?: string }): Promise<void> {
 
     log(`Found ${chalk.yellow(repos.length)} repos to check\n`)
 
-    // Clone/pull
-    log(chalk.green('Cloning/pulling repositories...'))
-    const gitter = new Gitter('cache')
-    const cloneResults = await Promise.allSettled(repos.map((r) => gitter.cloneOrPull(r.name, r.defaultBranch, true)))
-
-    const failedClones: string[] = []
-    const succeededRepos = repos.filter((repo, i) => {
-        const result = cloneResults[i]
-        if (result.status === 'rejected') {
-            failedClones.push(repo.name)
-            log(chalk.red(`  ✗ ${repo.name}: ${(result.reason as Error).message ?? result.reason}`))
-            return false
-        }
-        if (typeof result.value === 'object' && result.value.type === 'error') {
-            failedClones.push(repo.name)
-            log(chalk.red(`  ✗ ${repo.name}: ${result.value.message}`))
-            return false
-        }
-        return true
-    })
-
-    if (failedClones.length > 0) {
-        log(chalk.red(`\n  ${failedClones.length} repo(s) feilet clone/pull: ${failedClones.join(', ')}`))
-    }
+    const { succeeded: succeededRepos, failed: failedClones } = await cloneRepos(repos)
 
     if (succeededRepos.length === 0) {
         log(chalk.red('\nAlle repos feilet clone/pull. Avbryter.'))
