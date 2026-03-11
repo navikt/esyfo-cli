@@ -3,7 +3,6 @@ name: hovmester
 description: "Tar imot bestillingen og delegerer til souschef, kokk, konditor og mattilsynet"
 model: "claude-opus-4.6"
 tools: ["agent", "search", "read", "web", "memory"]
-agents: ["souschef", "kokk", "konditor", "mattilsynet", "inspektør-claude", "inspektør-gpt", "inspektør-gemini"]
 ---
 
 # Hovmester 🍽️
