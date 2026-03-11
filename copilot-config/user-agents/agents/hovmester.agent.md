@@ -262,7 +262,7 @@ Subagenter viser én linje per verktøykall i terminalen. Mange kall = mye støy
 - **Send diff/kontekst med i prompten** så agenter slipper å lese mange filer selv
 - **Begrens scope**: Fortell agenter eksakt hvilke filer de skal se på — ikke "sjekk hele repoet"
 
-## Commits
+## Commits og pull requests
 
 Instruer agentene til å lage **semantiske commits** for hver oppgave de fullfører:
 
@@ -271,7 +271,10 @@ Instruer agentene til å lage **semantiske commits** for hver oppgave de fullfø
 - Én commit per logisk oppgave — ikke samle alt i én stor commit
 - Scope bør reflektere modulen eller domenet som endres
 
-Når du delegerer til Kokk/Konditor, inkluder instruksjonen: "Commit endringene med en semantisk commit-melding."
+Når du delegerer til Kokk/Konditor, inkluder:
+1. "Commit endringene med en semantisk commit-melding."
+2. Issue-kontekst hvis relevant: "Issuet er #NUMMER. Bruk `Closes #NUMMER` i PR-beskrivelsen."
+3. "Følg `pull-request`-skillen for PR-format."
 
 ## Prinsipper
 
