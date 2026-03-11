@@ -4,7 +4,6 @@ import * as YAML from 'yaml'
 
 export interface CopilotSyncProfile {
     copilot_instructions: string[]
-    team_agent: string | null
     agents?: string[]
     instructions?: string[]
     prompts?: string[]
@@ -59,7 +58,6 @@ export function getFilesForProfile(
     instructions: string[]
     prompts: string[]
     skills: string[]
-    teamAgent: string | null
 } {
     const profileConfig = config.profiles[profile]
 
@@ -70,7 +68,6 @@ export function getFilesForProfile(
             instructions: [...(config.common.instructions ?? [])],
             prompts: [...(config.common.prompts ?? [])],
             skills: [...(config.common.skills ?? [])],
-            teamAgent: null,
         }
     }
 
@@ -80,7 +77,6 @@ export function getFilesForProfile(
         instructions: [...(config.common.instructions ?? []), ...(profileConfig.instructions ?? [])],
         prompts: [...(config.common.prompts ?? []), ...(profileConfig.prompts ?? [])],
         skills: [...(config.common.skills ?? []), ...(profileConfig.skills ?? [])],
-        teamAgent: profileConfig.team_agent,
     }
 }
 
@@ -104,7 +100,6 @@ export function getFilesForProfiles(
     const instructions = new Set<string>(config.common.instructions ?? [])
     const prompts = new Set<string>(config.common.prompts ?? [])
     const skills = new Set<string>(config.common.skills ?? [])
-    let teamAgent: string | null = null
 
     for (const profile of profiles) {
         const profileConfig = config.profiles[profile]
@@ -121,7 +116,6 @@ export function getFilesForProfiles(
         for (const i of profileConfig.instructions ?? []) instructions.add(i)
         for (const p of profileConfig.prompts ?? []) prompts.add(p)
         for (const s of profileConfig.skills ?? []) skills.add(s)
-        if (!teamAgent && profileConfig.team_agent) teamAgent = profileConfig.team_agent
     }
 
     return {
@@ -130,6 +124,5 @@ export function getFilesForProfiles(
         instructions: [...instructions],
         prompts: [...prompts],
         skills: [...skills],
-        teamAgent,
     }
 }

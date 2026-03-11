@@ -74,7 +74,7 @@ export async function assembleForRepo(
     const promptsDir = path.join(githubDir, 'prompts')
     const skillsDir = path.join(githubDir, 'skills')
 
-    const hasAgents = files.agents.length > 0 || files.teamAgent !== null
+    const hasAgents = files.agents.length > 0
     const dirsToCreate = [instructionsDir, promptsDir, skillsDir]
     if (hasAgents) dirsToCreate.unshift(agentsDir)
     for (const dir of dirsToCreate) {
@@ -87,23 +87,15 @@ export async function assembleForRepo(
     const instructionsContent = assembleCopilotInstructions(files.copilotInstructions, stack)
     await scaffoldIfMissing(copilotInstructionsPath, instructionsContent, result)
 
-    // 2. Copy team agent (renamed to esyfo.agent.md in target)
-    if (files.teamAgent) {
-        const agentPath = path.join(agentsDir, 'esyfo.agent.md')
-        managedFiles.add(agentPath)
-        const agentContent = await readConfigFile('user-agents/agents', files.teamAgent)
-        await writeIfChanged(agentPath, withManagedHeader(agentContent), result)
-    }
-
-    // 3. Copy agents (if any configured in profile — currently agents are delivered via plugin only)
+    // 2. Copy agents
     for (const agent of files.agents) {
         const agentPath = path.join(agentsDir, agent)
         managedFiles.add(agentPath)
-        const agentContent = await readConfigFile('user-agents/agents', agent)
+        const agentContent = await readConfigFile('agents', agent)
         await writeIfChanged(agentPath, withManagedHeader(agentContent), result)
     }
 
-    // 4. Copy instructions
+    // 3. Copy instructions
     for (const instruction of files.instructions) {
         const instructionPath = path.join(instructionsDir, instruction)
         managedFiles.add(instructionPath)
@@ -111,7 +103,7 @@ export async function assembleForRepo(
         await writeIfChanged(instructionPath, withManagedHeader(content), result)
     }
 
-    // 5. Copy prompts
+    // 4. Copy prompts
     for (const prompt of files.prompts) {
         const promptPath = path.join(promptsDir, prompt)
         managedFiles.add(promptPath)
@@ -119,7 +111,7 @@ export async function assembleForRepo(
         await writeIfChanged(promptPath, withManagedHeader(content), result)
     }
 
-    // 6. Copy skills
+    // 5. Copy skills
     for (const skill of files.skills) {
         const skillDir = path.join(skillsDir, skill)
         fs.mkdirSync(skillDir, { recursive: true })
@@ -129,7 +121,7 @@ export async function assembleForRepo(
         await writeIfChanged(skillPath, withManagedHeader(content), result)
     }
 
-    // 7. Sync workflow for auto-approving copilot-config-sync PRs (always, regardless of profile)
+    // 6. Sync workflow for auto-approving copilot-config-sync PRs (always, regardless of profile)
     const workflowsDir = path.join(githubDir, 'workflows')
     fs.mkdirSync(workflowsDir, { recursive: true })
     const workflowFilename = 'copilot-config-auto-approve.yml'
@@ -138,7 +130,7 @@ export async function assembleForRepo(
     const workflowContent = await readConfigFile('workflows', workflowFilename)
     await writeIfChanged(workflowTargetPath, withManagedYamlHeader(workflowContent), result)
 
-    // 8. Clean up stale managed files (files we previously managed but no longer need)
+    // 7. Clean up stale managed files (files we previously managed but no longer need)
     // NOTE: workflowsDir is intentionally NOT included — it contains repo-specific workflows we must not touch.
     const dirsToClean = [instructionsDir, promptsDir, skillsDir]
     if (fs.existsSync(agentsDir)) dirsToClean.unshift(agentsDir)
