@@ -13,6 +13,7 @@ const blacklist: string[] = [
     'syfo-oppfolgingsplan-frontend',
     'syfojanitor-backend',
     'syfojanitor-frontend',
+    'syfooppdfgen',
     'syfooppfolgingsplanservice',
     'teamesyfo-github-actions-workflows',
     'team-esyfo',
