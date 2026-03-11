@@ -10,7 +10,7 @@ import { GIT_CACHE_DIR } from '../common/cache.ts'
 import { resolveTypeFromTopics } from '../common/get-all-repos.ts'
 import { detectRepoStack } from '../copilot-config/detector.ts'
 import { assembleForRepo } from '../copilot-config/assembler.ts'
-import { fetchCopilotRepos } from '../copilot-config/topic-repos.ts'
+import { fetchCopilotRepos } from '../copilot-config/copilot-repos.ts'
 
 import { loadSyncConfig, repoTypeToProfile } from './copilot-sync.ts'
 

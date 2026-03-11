@@ -11,6 +11,7 @@ export interface RepoNode {
     topics: string[]
 }
 
+// Topics are used for stack-type detection (backend/frontend/etc.), not for repo selection
 interface RepoWithTopics {
     repositoryTopics: {
         nodes: {
@@ -87,6 +88,7 @@ async function fetchAllTeamRepoNodes(): Promise<BaseRepoNode<RepoWithTopics>[]> 
 export async function fetchCopilotRepos(repoFilter?: string): Promise<RepoNode[]> {
     const repos = removeIgnoredArchivedAndNonAdmin(await fetchAllTeamRepoNodes())
         .filter(copilotBlacklisted)
+        .filter((repo) => repo.defaultBranchRef != null)
         .map((repo) => ({
             name: repo.name,
             description: repo.description,

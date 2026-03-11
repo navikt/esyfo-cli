@@ -12,7 +12,7 @@ import { loadCopilotSyncConfig, CopilotSyncConfig, RepoProfile } from '../copilo
 import { COPILOT_CONFIG_BASE } from '../copilot-config/paths.ts'
 import { detectRepoStack, logStackInfo } from '../copilot-config/detector.ts'
 import { assembleForRepo, AssemblyResult } from '../copilot-config/assembler.ts'
-import { fetchCopilotRepos } from '../copilot-config/topic-repos.ts'
+import { fetchCopilotRepos } from '../copilot-config/copilot-repos.ts'
 
 export function repoTypeToProfile(type: RepoType): RepoProfile {
     if (type === 'monorepo') return 'other'
@@ -128,7 +128,7 @@ export async function copilotSync(options: { repo?: string; all?: boolean; dryRu
             const stack = await detectRepoStack(repoPath)
             stack.repoName = repo.name
             stack.repoDescription = repo.description ?? undefined
-            // Use topic-based type if detector didn't find specific type
+            // Fall back to topic-based stack hint (backend/frontend/etc.) if detector found 'other'
             if (stack.type === 'other' && profile !== 'other') {
                 stack.type = profile
             }
