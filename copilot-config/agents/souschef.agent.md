@@ -1,7 +1,7 @@
 ---
 name: souschef
 description: "(internt) Planlegger menyen — lager implementasjonsplaner ved å utforske kodebaser"
-model: "Claude Opus 4.6"
+model: "claude-opus-4.6"
 tools: ["vscode", "vscode/askQuestions", "search", "read", "web", "memory", "todo"]
 user-invocable: false
 ---

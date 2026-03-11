@@ -1,7 +1,7 @@
 ---
 name: inspektør-claude
 description: "(internt) Code review-inspektør — Claude-perspektiv"
-model: "Claude Sonnet 4.6"
+model: "claude-sonnet-4.6"
 tools: ["search", "read", "web"]
 user-invocable: false
 ---

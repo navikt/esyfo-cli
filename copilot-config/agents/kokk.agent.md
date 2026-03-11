@@ -1,7 +1,7 @@
 ---
 name: kokk
 description: "Smeller sammen koden — implementerer basert på planer og etablerte mønstre"
-model: "GPT-5.3-Codex"
+model: "gpt-5.3-codex"
 tools: ["vscode", "edit", "search", "read", "web", "execute", "github/*", "memory", "todo"]
 user-invocable: false
 ---

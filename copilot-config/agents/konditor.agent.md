@@ -1,7 +1,7 @@
 ---
 name: konditor
 description: "(internt) Pynt og finish — Aksel designsystem, tilgjengelighet og brukeropplevelse"
-model: "Gemini 3 Pro (Preview)"
+model: "gemini-3-pro-preview"
 tools: ["vscode", "edit", "search", "read", "web", "execute", "memory", "todo"]
 user-invocable: false
 ---

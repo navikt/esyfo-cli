@@ -1,7 +1,7 @@
 ---
 name: mattilsynet
 description: "Uanmeldt inspeksjon — code review mot beste praksis og repo-standarder"
-model: "GPT-5.3-Codex"
+model: "gpt-5.3-codex"
 tools: ["search", "read", "web", "memory"]
 user-invocable: false
 ---
