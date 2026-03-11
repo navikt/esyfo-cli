@@ -198,6 +198,15 @@ export async function copilotStatus(options: { repo?: string }): Promise<void> {
         )
     }
 
+    let allTeamRepos: Awaited<ReturnType<typeof fetchAllTeamRepos>> | null = null
+    if (!options.repo) {
+        log(chalk.dim('\nHenter alle team-repos...'))
+        allTeamRepos = await fetchAllTeamRepos()
+    }
+
+    const managedNames = new Set(repos.map((r) => r.name))
+    const unmanaged = allTeamRepos ? allTeamRepos.filter((r) => !managedNames.has(r.name)) : []
+
     // Summary
     const synced = statuses.filter((s) => s.state === 'synced').length
     const missing = statuses.filter((s) => s.state === 'missing').length
@@ -209,6 +218,9 @@ export async function copilotStatus(options: { repo?: string }): Promise<void> {
     if (missing > 0) log(chalk.red(`  ❌ ${missing} missing config`))
     if (outdated > 0) log(chalk.yellow(`  ⚠️  ${outdated} outdated`))
     if (failedClones.length > 0) log(chalk.red(`  ✗ ${failedClones.length} feilet clone/pull`))
+    if (allTeamRepos) {
+        log(`  Managed: ${chalk.cyan(`${repos.length}/${allTeamRepos.length}`)} team repos`)
+    }
 
     if (missing > 0 || outdated > 0) {
         log(chalk.dim(`\n  Kjør ${chalk.white('ecli copilot sync --all')} for å synkronisere.`))
@@ -216,11 +228,6 @@ export async function copilotStatus(options: { repo?: string }): Promise<void> {
 
     // Show unmanaged repos (team repos without copilot-topic)
     if (!options.repo) {
-        log(chalk.dim('\nHenter alle team-repos...'))
-        const allTeamRepos = await fetchAllTeamRepos()
-        const managedNames = new Set(repos.map((r) => r.name))
-        const unmanaged = allTeamRepos.filter((r) => !managedNames.has(r.name))
-
         if (unmanaged.length > 0) {
             log(`\n${chalk.dim.bold('Team-repos uten copilot-topic:')}`)
             for (const repo of unmanaged) {
