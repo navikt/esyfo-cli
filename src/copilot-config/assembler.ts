@@ -12,10 +12,12 @@ import { COPILOT_CONFIG_BASE } from './paths.ts'
 const MANAGED_HEADER =
     '<!-- Managed by esyfo-cli. Do not edit manually. Changes will be overwritten.\n' +
     '     For repo-specific customizations, create your own files without this header. -->\n'
+const MANAGED_HEADER_YAML = '# Managed by esyfo-cli. Do not edit manually. Changes will be overwritten.\n'
 const CONFIG_BASE = COPILOT_CONFIG_BASE
 
 const FRONTMATTER_RE = /^(---\n[\s\S]*?\n---\n)/
 const MANAGED_MARKER = '<!-- Managed by esyfo-cli'
+const MANAGED_MARKER_YAML = '# Managed by esyfo-cli'
 
 /** Prepend managed header after YAML frontmatter so Copilot still parses applyTo/description. */
 function withManagedHeader(content: string): string {
@@ -29,8 +31,14 @@ function withManagedHeader(content: string): string {
 /** Check if file content has the managed header at the expected position (line 1 or right after frontmatter). */
 function isManagedContent(content: string): boolean {
     if (content.startsWith(MANAGED_MARKER)) return true
+    if (content.startsWith(MANAGED_MARKER_YAML)) return true
     const match = content.match(FRONTMATTER_RE)
     return !!match && content.slice(match[1].length).startsWith(MANAGED_MARKER)
+}
+
+/** Prepend managed YAML header to content. */
+function withManagedYamlHeader(content: string): string {
+    return MANAGED_HEADER_YAML + content
 }
 
 export interface AssemblyResult {
@@ -121,7 +129,17 @@ export async function assembleForRepo(
         await writeIfChanged(skillPath, withManagedHeader(content), result)
     }
 
-    // 7. Clean up stale managed files (files we previously managed but no longer need)
+    // 7. Sync workflow for auto-approving copilot-config-sync PRs (always, regardless of profile)
+    const workflowsDir = path.join(githubDir, 'workflows')
+    fs.mkdirSync(workflowsDir, { recursive: true })
+    const workflowFilename = 'copilot-config-auto-approve.yml'
+    const workflowTargetPath = path.join(workflowsDir, workflowFilename)
+    managedFiles.add(workflowTargetPath)
+    const workflowContent = await readConfigFile('workflows', workflowFilename)
+    await writeIfChanged(workflowTargetPath, withManagedYamlHeader(workflowContent), result)
+
+    // 8. Clean up stale managed files (files we previously managed but no longer need)
+    // NOTE: workflowsDir is intentionally NOT included — it contains repo-specific workflows we must not touch.
     const dirsToClean = [instructionsDir, promptsDir, skillsDir]
     if (fs.existsSync(agentsDir)) dirsToClean.unshift(agentsDir)
     await cleanStaleManagedFiles(dirsToClean, managedFiles, result)
