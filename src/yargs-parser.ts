@@ -156,15 +156,9 @@ export const getYargsParser = (argv: string[]): Argv =>
                     )
                     .command(
                         'setup',
-                        'Sett opp din lokale maskin med rolle-agenter (hovmester, kokk, mattilsynet) og MCP-servere',
-                        (yargs) =>
-                            yargs.option('force', {
-                                alias: 'f',
-                                description: 'Overskriv eksisterende agentfiler',
-                                type: 'boolean',
-                                default: false,
-                            }),
-                        async (args) => copilotSetup({ force: args.force }),
+                        '[DEPRECATED] Bruk «copilot sync» i stedet',
+                        () => {},
+                        async () => copilotSetup(),
                     )
                     .command(
                         'status',
@@ -177,7 +171,7 @@ export const getYargsParser = (argv: string[]): Argv =>
                             }),
                         async (args) => copilotStatus({ repo: args.repo }),
                     )
-                    .demandCommand(1, 'Vennligst spesifiser en subkommando: sync, setup eller status')
+                    .demandCommand(1, 'Vennligst spesifiser en subkommando: sync eller status')
                     .epilog(
                         [
                             'Eksempler:',
@@ -186,8 +180,6 @@ export const getYargsParser = (argv: string[]): Argv =>
                             '  ecli copilot sync -r mitt-repo   Synkroniser ett repo',
                             '  ecli copilot sync --all          Synkroniser alle repos',
                             '  ecli copilot sync --dry-run      Forhåndsvis endringer uten å pushe',
-                            '  ecli copilot setup               Installer agenter og MCP lokalt',
-                            '  ecli copilot setup --force       Overskriv eksisterende agentfiler',
                             '',
                             'Tips: Bruk <kommando> --help for flere detaljer, f.eks. ecli copilot sync --help',
                         ].join('\n'),
