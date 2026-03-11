@@ -1,0 +1,42 @@
+# Managed by esyfo-cli. Do not edit manually. Changes will be overwritten.
+name: Auto-approve copilot config sync
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  auto-approve:
+    if: github.head_ref == 'copilot-config-sync'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Verify only .github/ files changed
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          FILES=$(gh api repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files --jq '.[].filename')
+
+          if [ -z "$FILES" ]; then
+            echo "No files changed, skipping approve"
+            exit 0
+          fi
+
+          echo "Changed files:"
+          echo "$FILES"
+
+          while IFS= read -r file; do
+            if [[ "$file" != .github/* ]]; then
+              echo "::error::File outside .github/ detected: $file"
+              echo "Refusing to approve — only .github/ changes are allowed"
+              exit 1
+            fi
+          done <<< "$FILES"
+
+          echo "All changed files are within .github/ — safe to approve"
+
+      - name: Auto-approve PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh pr review --approve ${{ github.event.pull_request.number }} --repo ${{ github.repository }}
