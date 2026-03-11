@@ -67,25 +67,3 @@ profiles:
     copilot_instructions:
       - base.md
 
-# Override per spesifikt repo
-overrides:
-  esyfo-cli:
-    skip: true
-  teamesyfo-github-actions-workflows:
-    skip: true
-  nav-ekstern-api-dok:
-    skip: true
-  oppfolgingsplan-frontend:
-    skip: true
-  oppfolgingsplan-backend:
-    skip: true
-  flexjar-widget:
-    skip: true
-  esyfo-kafka-manager:
-    skip: true
-  esyfovarsel_analyse:
-    skip: true
-  syfooppfolgingsplanservice:
-    skip: true
-  team-esyfo:
-    skip: true

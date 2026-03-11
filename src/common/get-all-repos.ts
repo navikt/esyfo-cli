@@ -7,6 +7,10 @@ export type RepoType = 'backend' | 'frontend' | 'microfrontend' | 'monorepo' | '
 
 export function extractTypeFromTopics(repo: BaseRepoNode<RepoWithBranchAndTopics>): RepoType {
     const topics = repo.repositoryTopics.nodes.map((it) => it.topic.name)
+    return resolveTypeFromTopics(topics)
+}
+
+export function resolveTypeFromTopics(topics: string[]): RepoType {
     if (topics.includes('monorepo')) return 'monorepo'
     if (topics.includes('backend')) return 'backend'
     if (topics.includes('frontend')) return 'frontend'

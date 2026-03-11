@@ -3,47 +3,16 @@ import { execSync } from 'node:child_process'
 
 import chalk from 'chalk'
 
-import { BaseRepoNode, ghGqlQuery, OrgTeamRepoResult, removeIgnoredArchivedAndNonAdmin } from '../common/octokit.ts'
 import { log } from '../common/log.ts'
 import { Gitter } from '../common/git.ts'
 import { GIT_CACHE_DIR } from '../common/cache.ts'
-import { extractTypeFromTopics, RepoWithBranchAndTopics, RepoType } from '../common/get-all-repos.ts'
+import { resolveTypeFromTopics, RepoType } from '../common/get-all-repos.ts'
 import inquirer from '../common/inquirer.ts'
-import { loadCopilotSyncConfig, CopilotSyncConfig, isRepoSkipped, RepoProfile } from '../copilot-config/sync-config.ts'
+import { loadCopilotSyncConfig, CopilotSyncConfig, RepoProfile } from '../copilot-config/sync-config.ts'
 import { COPILOT_CONFIG_BASE } from '../copilot-config/paths.ts'
 import { detectRepoStack, logStackInfo } from '../copilot-config/detector.ts'
 import { assembleForRepo, AssemblyResult } from '../copilot-config/assembler.ts'
-
-const reposQuery = /* GraphQL */ `
-    query ($team: String!) {
-        organization(login: "navikt") {
-            team(slug: $team) {
-                repositories(orderBy: { field: PUSHED_AT, direction: DESC }) {
-                    nodes {
-                        name
-                        description
-                        isArchived
-                        pushedAt
-                        url
-                        defaultBranchRef {
-                            name
-                        }
-                        viewerPermission
-                        repositoryTopics(first: 20) {
-                            nodes {
-                                topic {
-                                    name
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-`
-
-export type RepoNode = BaseRepoNode<RepoWithBranchAndTopics>
+import { fetchReposByTopic, COPILOT_TOPIC } from '../copilot-config/topic-repos.ts'
 
 export function repoTypeToProfile(type: RepoType): RepoProfile {
     if (type === 'monorepo') return 'other'
@@ -53,34 +22,6 @@ export function repoTypeToProfile(type: RepoType): RepoProfile {
 export function loadSyncConfig(): CopilotSyncConfig {
     const configPath = path.resolve(COPILOT_CONFIG_BASE, 'copilot-sync-config.yml')
     return loadCopilotSyncConfig(configPath)
-}
-
-export async function fetchCopilotRepos(config: CopilotSyncConfig, repoFilter?: string): Promise<RepoNode[]> {
-    log(chalk.green('Fetching team-esyfo repositories...'))
-    const result = await ghGqlQuery<OrgTeamRepoResult<RepoWithBranchAndTopics>>(reposQuery, {
-        team: 'team-esyfo',
-    })
-
-    let repos = removeIgnoredArchivedAndNonAdmin(result.organization.team.repositories.nodes) as RepoNode[]
-
-    if (repoFilter) {
-        repos = repos.filter((r) => r.name === repoFilter)
-        if (repos.length === 0) {
-            log(chalk.red(`Repository '${repoFilter}' not found in team-esyfo`))
-            return []
-        }
-    }
-
-    // Filter skipped repos
-    repos = repos.filter((r) => {
-        if (isRepoSkipped(config, r.name)) {
-            log(chalk.dim(`  Skipping ${r.name} (configured to skip)`))
-            return false
-        }
-        return true
-    })
-
-    return repos
 }
 
 interface SyncResult {
@@ -110,8 +51,17 @@ export async function copilotSync(options: { repo?: string; all?: boolean; dryRu
     }
 
     const config = loadSyncConfig()
-    const repos = await fetchCopilotRepos(config, options.repo)
-    if (repos.length === 0) return
+
+    log(chalk.green(`Søker etter repos med topic ${chalk.cyan(COPILOT_TOPIC)}...`))
+    const repos = await fetchReposByTopic(options.repo)
+    if (repos.length === 0) {
+        if (options.repo) {
+            log(chalk.red(`Repo '${options.repo}' ikke funnet med topic ${COPILOT_TOPIC}`))
+        } else {
+            log(chalk.yellow(`Ingen repos funnet. Legg til topic med: ecli copilot manage add <repo>`))
+        }
+        return
+    }
 
     // Confirm before bulk sync (unless dry-run)
     if (!options.repo && repos.length > 1 && !options.dryRun) {
@@ -132,9 +82,7 @@ export async function copilotSync(options: { repo?: string; all?: boolean; dryRu
     // Clone/pull all repos
     log(chalk.green('Cloning/pulling repositories...'))
     const gitter = new Gitter('cache')
-    const cloneResults = await Promise.allSettled(
-        repos.map((r) => gitter.cloneOrPull(r.name, r.defaultBranchRef.name, true)),
-    )
+    const cloneResults = await Promise.allSettled(repos.map((r) => gitter.cloneOrPull(r.name, r.defaultBranch, true)))
 
     const failedClones: string[] = []
     const succeededRepos = repos.filter((repo, i) => {
@@ -169,7 +117,7 @@ export async function copilotSync(options: { repo?: string; all?: boolean; dryRu
     for (const repo of succeededRepos) {
         try {
             const repoPath = path.join(GIT_CACHE_DIR, repo.name)
-            const topicType = extractTypeFromTopics(repo)
+            const topicType = resolveTypeFromTopics(repo.topics)
             const profile = repoTypeToProfile(topicType)
 
             if (profile === 'other') {
@@ -314,7 +262,7 @@ export async function copilotSync(options: { repo?: string; all?: boolean; dryRu
         try {
             // Ensure we're on default branch
             const repoData = repos.find((r) => r.name === repo)
-            const defaultBranch = repoData?.defaultBranchRef.name ?? 'main'
+            const defaultBranch = repoData?.defaultBranch ?? 'main'
 
             spawnOrThrow(['git', 'checkout', defaultBranch], repoPath)
 

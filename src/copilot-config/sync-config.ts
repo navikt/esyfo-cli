@@ -10,10 +10,6 @@ export interface CopilotSyncProfile {
     skills?: string[]
 }
 
-export interface CopilotSyncOverride {
-    skip?: boolean
-}
-
 export interface CopilotSyncConfig {
     common: {
         agents?: string[]
@@ -22,7 +18,6 @@ export interface CopilotSyncConfig {
         skills?: string[]
     }
     profiles: Record<string, CopilotSyncProfile>
-    overrides: Record<string, CopilotSyncOverride>
 }
 
 export type RepoProfile = 'backend' | 'frontend' | 'microfrontend' | 'other'
@@ -35,7 +30,6 @@ interface RawConfig {
         skills?: string[]
     }
     profiles: Record<string, CopilotSyncProfile>
-    overrides?: Record<string, CopilotSyncOverride>
 }
 
 export function loadCopilotSyncConfig(configPath: string): CopilotSyncConfig {
@@ -45,7 +39,6 @@ export function loadCopilotSyncConfig(configPath: string): CopilotSyncConfig {
     return {
         common: raw.common,
         profiles: raw.profiles,
-        overrides: raw.overrides ?? {},
     }
 }
 
@@ -78,10 +71,6 @@ export function getFilesForProfile(
         prompts: [...(config.common.prompts ?? []), ...(profileConfig.prompts ?? [])],
         skills: [...(config.common.skills ?? []), ...(profileConfig.skills ?? [])],
     }
-}
-
-export function isRepoSkipped(config: CopilotSyncConfig, repoName: string): boolean {
-    return config.overrides[repoName]?.skip === true
 }
 
 /**

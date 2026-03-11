@@ -7,11 +7,12 @@ import chalk from 'chalk'
 import { log } from '../common/log.ts'
 import { Gitter } from '../common/git.ts'
 import { GIT_CACHE_DIR } from '../common/cache.ts'
-import { extractTypeFromTopics } from '../common/get-all-repos.ts'
+import { resolveTypeFromTopics } from '../common/get-all-repos.ts'
 import { detectRepoStack } from '../copilot-config/detector.ts'
 import { assembleForRepo } from '../copilot-config/assembler.ts'
+import { fetchReposByTopic, fetchAllTeamRepos, COPILOT_TOPIC } from '../copilot-config/topic-repos.ts'
 
-import { loadSyncConfig, fetchCopilotRepos, repoTypeToProfile } from './copilot-sync.ts'
+import { loadSyncConfig, repoTypeToProfile } from './copilot-sync.ts'
 
 type SyncState = 'synced' | 'outdated' | 'missing'
 
@@ -25,17 +26,25 @@ interface RepoStatus {
 
 export async function copilotStatus(options: { repo?: string }): Promise<void> {
     const config = loadSyncConfig()
-    const repos = await fetchCopilotRepos(config, options.repo)
-    if (repos.length === 0) return
+
+    log(chalk.green(`Søker etter repos med topic ${chalk.cyan(COPILOT_TOPIC)}...`))
+    const repos = await fetchReposByTopic(options.repo)
+    if (repos.length === 0) {
+        if (options.repo) {
+            log(chalk.red(`Repo '${options.repo}' ikke funnet med topic ${COPILOT_TOPIC}`))
+        } else {
+            log(chalk.yellow(`Ingen repos med copilot-topic funnet.`))
+            log(chalk.dim(`  Legg til repos med: ecli copilot manage add <repo>`))
+        }
+        return
+    }
 
     log(`Found ${chalk.yellow(repos.length)} repos to check\n`)
 
     // Clone/pull
     log(chalk.green('Cloning/pulling repositories...'))
     const gitter = new Gitter('cache')
-    const cloneResults = await Promise.allSettled(
-        repos.map((r) => gitter.cloneOrPull(r.name, r.defaultBranchRef.name, true)),
-    )
+    const cloneResults = await Promise.allSettled(repos.map((r) => gitter.cloneOrPull(r.name, r.defaultBranch, true)))
 
     const failedClones: string[] = []
     const succeededRepos = repos.filter((repo, i) => {
@@ -70,7 +79,7 @@ export async function copilotStatus(options: { repo?: string }): Promise<void> {
     for (const repo of succeededRepos) {
         const repoPath = path.join(GIT_CACHE_DIR, repo.name)
         try {
-            const topicType = extractTypeFromTopics(repo)
+            const topicType = resolveTypeFromTopics(repo.topics)
             const profile = repoTypeToProfile(topicType)
 
             const stack = await detectRepoStack(repoPath)
@@ -203,6 +212,22 @@ export async function copilotStatus(options: { repo?: string }): Promise<void> {
 
     if (missing > 0 || outdated > 0) {
         log(chalk.dim(`\n  Kjør ${chalk.white('ecli copilot sync --all')} for å synkronisere.`))
+    }
+
+    // Show unmanaged repos (team repos without copilot-topic)
+    if (!options.repo) {
+        log(chalk.dim('\nHenter alle team-repos...'))
+        const allTeamRepos = await fetchAllTeamRepos()
+        const managedNames = new Set(repos.map((r) => r.name))
+        const unmanaged = allTeamRepos.filter((r) => !managedNames.has(r.name))
+
+        if (unmanaged.length > 0) {
+            log(`\n${chalk.dim.bold('Team-repos uten copilot-topic:')}`)
+            for (const repo of unmanaged) {
+                log(`  ${chalk.dim('⚪')} ${repo.name}`)
+            }
+            log(chalk.dim(`\n  Legg til med: ${chalk.white('ecli copilot manage add <repo>')}`))
+        }
     }
 }
 
