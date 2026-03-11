@@ -1,4 +1,4 @@
-import { BaseRepoNode, getOctokitClient, ghGqlQuery, removeIgnoredArchivedAndNonAdmin } from '../common/octokit.ts'
+import { BaseRepoNode, ghGqlQuery, removeIgnoredArchivedAndNonAdmin } from '../common/octokit.ts'
 
 export const ORG = 'navikt'
 export const TEAM = 'team-esyfo'
@@ -73,40 +73,7 @@ const teamReposQuery = /* GraphQL */ `
     }
 `
 
-export async function fetchReposByTopic(repoFilter?: string): Promise<RepoNode[]> {
-    const octokit = getOctokitClient()
-    const repos: RepoNode[] = []
-
-    let page = 1
-    while (true) {
-        const { data } = await octokit.rest.search.repos({
-            q: `org:${ORG} topic:${COPILOT_TOPIC} archived:false`,
-            per_page: 100,
-            page,
-        })
-
-        for (const item of data.items) {
-            if (!item.permissions?.push) continue
-            repos.push({
-                name: item.name,
-                description: item.description ?? undefined,
-                defaultBranch: item.default_branch,
-                topics: item.topics ?? [],
-            })
-        }
-
-        if (data.items.length < 100) break
-        page++
-    }
-
-    if (repoFilter) {
-        return repos.filter((r) => r.name === repoFilter)
-    }
-
-    return repos
-}
-
-export async function fetchAllTeamRepos(): Promise<TeamRepo[]> {
+async function fetchAllTeamRepoNodes(): Promise<BaseRepoNode<RepoWithTopics>[]> {
     const allRepoNodes: BaseRepoNode<RepoWithTopics>[] = []
     let cursor: string | null = null
     let hasNextPage = true
@@ -119,7 +86,34 @@ export async function fetchAllTeamRepos(): Promise<TeamRepo[]> {
         cursor = result.organization.team.repositories.pageInfo.endCursor
     }
 
-    const repos = removeIgnoredArchivedAndNonAdmin(allRepoNodes).map((repo) => ({
+    return allRepoNodes
+}
+
+function hasPushAccess(viewerPermission: string): boolean {
+    return viewerPermission === 'WRITE' || viewerPermission === 'MAINTAIN' || viewerPermission === 'ADMIN'
+}
+
+export async function fetchReposByTopic(repoFilter?: string): Promise<RepoNode[]> {
+    const repos = (await fetchAllTeamRepoNodes())
+        .filter((repo) => !repo.isArchived)
+        .filter((repo) => hasPushAccess(repo.viewerPermission))
+        .map((repo) => ({
+            name: repo.name,
+            description: repo.description,
+            defaultBranch: repo.defaultBranchRef.name,
+            topics: repo.repositoryTopics.nodes.map((it) => it.topic.name),
+        }))
+        .filter((repo) => repo.topics.includes(COPILOT_TOPIC))
+
+    if (repoFilter) {
+        return repos.filter((repo) => repo.name === repoFilter)
+    }
+
+    return repos
+}
+
+export async function fetchAllTeamRepos(): Promise<TeamRepo[]> {
+    const repos = removeIgnoredArchivedAndNonAdmin(await fetchAllTeamRepoNodes()).map((repo) => ({
         name: repo.name,
         topics: repo.repositoryTopics.nodes.map((it) => it.topic.name),
     }))
