@@ -1,5 +1,8 @@
+import chalk from 'chalk'
+
 import { BaseRepoNode, removeIgnoredArchivedAndNonAdmin } from '../common/octokit.ts'
-import { extractTypeFromTopics, getAllRepos, RepoType, RepoWithBranchAndTopics } from '../common/get-all-repos'
+import { log } from '../common/log.ts'
+import { extractTypeFromTopics, getAllRepos, RepoType, RepoWithBranchAndTopics } from '../common/get-all-repos.ts'
 
 type RepositoryNode = {
     title: string
@@ -53,11 +56,14 @@ function toMarkdown(repositories: RepositoryNode[]): string {
 export async function ourRepos(outputFile = 'repos.json', useMarkdown = false): Promise<void> {
     const githubrepos = (await getAllRepos()) as BaseRepoNode<RepoWithBranchAndTopics>[]
     const repositories = toRepositoryNodes(removeIgnoredArchivedAndNonAdmin(githubrepos))
+    const format = useMarkdown ? 'Markdown' : 'JSON'
+
     if (useMarkdown) {
         await Bun.write(outputFile, `${toMarkdown(repositories)}\n`)
-        return
     } else {
         const pretty = JSON.stringify(repositories, null, 2)
         await Bun.write(outputFile, `${pretty}\n`)
     }
+
+    log(chalk.green(`Found ${repositories.length} repos, wrote ${format} to ${outputFile} ✔`))
 }
