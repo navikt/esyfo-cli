@@ -1,4 +1,4 @@
-import { getOctokitClient } from '../common/octokit.ts'
+import { BaseRepoNode, getOctokitClient, ghGqlQuery, removeIgnoredArchivedAndNonAdmin } from '../common/octokit.ts'
 
 export const ORG = 'navikt'
 export const TEAM = 'team-esyfo'
@@ -15,6 +15,63 @@ export interface TeamRepo {
     name: string
     topics: string[]
 }
+
+interface RepoWithTopics {
+    repositoryTopics: {
+        nodes: {
+            topic: {
+                name: string
+            }
+        }[]
+    }
+}
+
+interface OrgTeamRepoPageResult<AdditionalRepoProps> {
+    organization: {
+        team: {
+            repositories: {
+                nodes: BaseRepoNode<AdditionalRepoProps>[]
+                pageInfo: {
+                    hasNextPage: boolean
+                    endCursor: string | null
+                }
+            }
+        }
+    }
+}
+
+const teamReposQuery = /* GraphQL */ `
+    query ($team: String!, $cursor: String) {
+        organization(login: "navikt") {
+            team(slug: $team) {
+                repositories(first: 100, after: $cursor, orderBy: { field: PUSHED_AT, direction: ASC }) {
+                    nodes {
+                        name
+                        description
+                        isArchived
+                        pushedAt
+                        url
+                        defaultBranchRef {
+                            name
+                        }
+                        viewerPermission
+                        repositoryTopics(first: 20) {
+                            nodes {
+                                topic {
+                                    name
+                                }
+                            }
+                        }
+                    }
+                    pageInfo {
+                        hasNextPage
+                        endCursor
+                    }
+                }
+            }
+        }
+    }
+`
 
 export async function fetchReposByTopic(repoFilter?: string): Promise<RepoNode[]> {
     const octokit = getOctokitClient()
@@ -50,29 +107,22 @@ export async function fetchReposByTopic(repoFilter?: string): Promise<RepoNode[]
 }
 
 export async function fetchAllTeamRepos(): Promise<TeamRepo[]> {
-    const octokit = getOctokitClient()
-    const repos: TeamRepo[] = []
+    const allRepoNodes: BaseRepoNode<RepoWithTopics>[] = []
+    let cursor: string | null = null
+    let hasNextPage = true
 
-    let page = 1
-    while (true) {
-        const { data } = await octokit.rest.teams.listReposInOrg({
-            org: ORG,
-            team_slug: TEAM,
-            per_page: 100,
-            page,
-        })
+    while (hasNextPage) {
+        const result: OrgTeamRepoPageResult<RepoWithTopics> = await ghGqlQuery(teamReposQuery, { team: TEAM, cursor })
+        allRepoNodes.push(...result.organization.team.repositories.nodes)
 
-        for (const item of data) {
-            if (item.archived) continue
-            repos.push({
-                name: item.name,
-                topics: item.topics ?? [],
-            })
-        }
-
-        if (data.length < 100) break
-        page++
+        hasNextPage = result.organization.team.repositories.pageInfo.hasNextPage
+        cursor = result.organization.team.repositories.pageInfo.endCursor
     }
+
+    const repos = removeIgnoredArchivedAndNonAdmin(allRepoNodes).map((repo) => ({
+        name: repo.name,
+        topics: repo.repositoryTopics.nodes.map((it) => it.topic.name),
+    }))
 
     return repos.sort((a, b) => a.name.localeCompare(b.name))
 }
