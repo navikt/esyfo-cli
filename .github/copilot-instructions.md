@@ -46,7 +46,7 @@ There are no tests in this project.
 - `sync-file` — Interactive workflow to copy files between repos, create branches, commit, push, and optionally open auto-merge PRs
 - `repos` — Lists non-archived team repos (JSON or Markdown output)
 - `clone-team-repos` — Clones all team repos, with optional subfolder grouping by topic (backend/frontend/microfrontend)
-- `copilot` — Meta-command for Copilot integration; key subcommands: `copilot sync`, `copilot setup`, `copilot status`
+- `copilot` — Meta-command for Copilot integration; key subcommands: `copilot sync`, `copilot status` (`copilot setup` is deprecated)
 
 ## Conventions
 

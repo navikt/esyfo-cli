@@ -160,6 +160,7 @@ export const getYargsParser = (argv: string[]): Argv =>
                         () => {},
                         async () => copilotSetup(),
                     )
+                    .hide('setup')
                     .command(
                         'status',
                         'Sjekk hvilke repos som mangler eller har utdatert Copilot-konfigurasjon',

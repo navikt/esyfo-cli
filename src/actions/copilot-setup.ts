@@ -24,7 +24,12 @@ async function cleanupOldPluginFiles(): Promise<void> {
 
     if (!fs.existsSync(pluginDir)) return
 
-    fs.rmSync(pluginDir, { recursive: true, force: true })
+    try {
+        fs.rmSync(pluginDir, { recursive: true, force: true })
+    } catch (e) {
+        log(chalk.yellow(`  ⚠️ Klarte ikke fjerne ${pluginDir}: ${e}`))
+        return
+    }
     log(chalk.green('  🧹 Fjernet gamle plugin-filer fra:'))
     log(chalk.green(`     ${pluginDir}`))
     log(chalk.dim('     Disse filene er ikke lenger nødvendige.\n'))

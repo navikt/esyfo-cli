@@ -34,7 +34,6 @@ profiles:
     copilot_instructions:
       - base.md
       - backend.md
-    agents: []
     instructions:
       - kotlin.instructions.md
       - testing-kotlin.instructions.md
@@ -50,7 +49,6 @@ profiles:
     copilot_instructions:
       - base.md
       - frontend.md
-    agents: []
     instructions:
       - frontend.instructions.md
       - testing-typescript.instructions.md
@@ -60,7 +58,6 @@ profiles:
     copilot_instructions:
       - base.md
       - microfrontend.md
-    agents: []
     instructions:
       - frontend.instructions.md
       - testing-typescript.instructions.md
