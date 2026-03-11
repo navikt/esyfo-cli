@@ -86,7 +86,7 @@ Genereres og distribueres til hvert repo av `ecli copilot sync` basert på detek
 | *@inspektør-gpt* 🔬 | *(internt)* Inspeksjon med GPT-modell | GPT |
 | *@inspektør-gemini* 🔬 | *(internt)* Inspeksjon med Gemini-modell | Gemini |
 
-> **Tips**: Start med `@hovmester` for større oppgaver — den planlegger via souschef og delegerer til kokk. Bruk `@kokk` direkte for raske fixes, og `@mattilsynet` for code review.
+> **Tips**: Bruk `@hovmester` for alle oppgaver — den koordinerer planlegging, implementasjon og code review automatisk via spesialiserte sub-agenter.
 
 I tillegg til agenter distribueres:
 
