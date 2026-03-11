@@ -8,25 +8,13 @@ export interface RepoNode {
     name: string
     description?: string
     defaultBranch: string
-    topics: string[]
 }
 
-// Topics are used for stack-type detection (backend/frontend/etc.), not for repo selection
-interface RepoWithTopics {
-    repositoryTopics: {
-        nodes: {
-            topic: {
-                name: string
-            }
-        }[]
-    }
-}
-
-interface OrgTeamRepoPageResult<AdditionalRepoProps> {
+interface OrgTeamRepoPageResult {
     organization: {
         team: {
             repositories: {
-                nodes: BaseRepoNode<AdditionalRepoProps>[]
+                nodes: BaseRepoNode<Record<string, never>>[]
                 pageInfo: {
                     hasNextPage: boolean
                     endCursor: string | null
@@ -51,13 +39,6 @@ const teamReposQuery = /* GraphQL */ `
                             name
                         }
                         viewerPermission
-                        repositoryTopics(first: 20) {
-                            nodes {
-                                topic {
-                                    name
-                                }
-                            }
-                        }
                     }
                     pageInfo {
                         hasNextPage
@@ -69,13 +50,13 @@ const teamReposQuery = /* GraphQL */ `
     }
 `
 
-async function fetchAllTeamRepoNodes(): Promise<BaseRepoNode<RepoWithTopics>[]> {
-    const allRepoNodes: BaseRepoNode<RepoWithTopics>[] = []
+async function fetchAllTeamRepoNodes(): Promise<BaseRepoNode<Record<string, never>>[]> {
+    const allRepoNodes: BaseRepoNode<Record<string, never>>[] = []
     let cursor: string | null = null
     let hasNextPage = true
 
     while (hasNextPage) {
-        const result: OrgTeamRepoPageResult<RepoWithTopics> = await ghGqlQuery(teamReposQuery, { team: TEAM, cursor })
+        const result: OrgTeamRepoPageResult = await ghGqlQuery(teamReposQuery, { team: TEAM, cursor })
         allRepoNodes.push(...result.organization.team.repositories.nodes)
 
         hasNextPage = result.organization.team.repositories.pageInfo.hasNextPage
@@ -93,7 +74,6 @@ export async function fetchCopilotRepos(repoFilter?: string): Promise<RepoNode[]
             name: repo.name,
             description: repo.description,
             defaultBranch: repo.defaultBranchRef.name,
-            topics: repo.repositoryTopics.nodes.map((it) => it.topic.name),
         }))
 
     if (repoFilter) {

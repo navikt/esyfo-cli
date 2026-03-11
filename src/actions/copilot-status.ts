@@ -7,12 +7,11 @@ import chalk from 'chalk'
 import { log } from '../common/log.ts'
 import { Gitter } from '../common/git.ts'
 import { GIT_CACHE_DIR } from '../common/cache.ts'
-import { resolveTypeFromTopics } from '../common/get-all-repos.ts'
 import { detectRepoStack } from '../copilot-config/detector.ts'
 import { assembleForRepo } from '../copilot-config/assembler.ts'
 import { fetchCopilotRepos } from '../copilot-config/copilot-repos.ts'
 
-import { loadSyncConfig, repoTypeToProfile } from './copilot-sync.ts'
+import { loadSyncConfig } from './copilot-sync.ts'
 
 type SyncState = 'synced' | 'outdated' | 'missing'
 
@@ -78,16 +77,8 @@ export async function copilotStatus(options: { repo?: string }): Promise<void> {
     for (const repo of succeededRepos) {
         const repoPath = path.join(GIT_CACHE_DIR, repo.name)
         try {
-            const topicType = resolveTypeFromTopics(repo.topics)
-            const profile = repoTypeToProfile(topicType)
-
             const stack = await detectRepoStack(repoPath)
             stack.repoName = repo.name
-            if (stack.type === 'other' && profile !== 'other') {
-                stack.type = profile
-            }
-
-            const effectiveProfile = stack.type
 
             // Check if copilot config exists BEFORE assembly (to detect truly missing repos)
             const hasCopilotConfig = fs.existsSync(path.join(repoPath, '.github', 'copilot-instructions.md'))
@@ -98,7 +89,7 @@ export async function copilotStatus(options: { repo?: string }): Promise<void> {
 
             try {
                 // Run assembly to compute expected state (writes to cached repo)
-                assembly = await assembleForRepo(repoPath, effectiveProfile, stack, config)
+                assembly = await assembleForRepo(repoPath, stack.type, stack, config)
 
                 // Use git to detect actual content drift (modified + untracked)
                 try {
@@ -143,7 +134,7 @@ export async function copilotStatus(options: { repo?: string }): Promise<void> {
                 }
             }
 
-            const stackParts: string[] = [effectiveProfile]
+            const stackParts: string[] = [stack.type]
             if (stack.subProfiles && stack.subProfiles.length > 1) {
                 const frameworks = [stack.framework, stack.kotlinFramework].filter(Boolean)
                 stackParts.push(frameworks.length > 0 ? frameworks.join(' + ') : stack.subProfiles.join(' + '))
@@ -168,7 +159,7 @@ export async function copilotStatus(options: { repo?: string }): Promise<void> {
 
             statuses.push({
                 repo: repo.name,
-                profile: effectiveProfile,
+                profile: stack.type,
                 stack: stackParts.join(' / '),
                 state,
                 detail,

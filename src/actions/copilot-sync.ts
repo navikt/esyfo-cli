@@ -6,18 +6,12 @@ import chalk from 'chalk'
 import { log } from '../common/log.ts'
 import { Gitter } from '../common/git.ts'
 import { GIT_CACHE_DIR } from '../common/cache.ts'
-import { resolveTypeFromTopics, RepoType } from '../common/get-all-repos.ts'
 import inquirer from '../common/inquirer.ts'
 import { loadCopilotSyncConfig, CopilotSyncConfig, RepoProfile } from '../copilot-config/sync-config.ts'
 import { COPILOT_CONFIG_BASE } from '../copilot-config/paths.ts'
 import { detectRepoStack, logStackInfo } from '../copilot-config/detector.ts'
 import { assembleForRepo, AssemblyResult } from '../copilot-config/assembler.ts'
 import { fetchCopilotRepos } from '../copilot-config/copilot-repos.ts'
-
-export function repoTypeToProfile(type: RepoType): RepoProfile {
-    if (type === 'monorepo') return 'other'
-    return type
-}
 
 export function loadSyncConfig(): CopilotSyncConfig {
     const configPath = path.resolve(COPILOT_CONFIG_BASE, 'copilot-sync-config.yml')
@@ -117,23 +111,12 @@ export async function copilotSync(options: { repo?: string; all?: boolean; dryRu
     for (const repo of succeededRepos) {
         try {
             const repoPath = path.join(GIT_CACHE_DIR, repo.name)
-            const topicType = resolveTypeFromTopics(repo.topics)
-            const profile = repoTypeToProfile(topicType)
-
-            if (profile === 'other') {
-                log(chalk.yellow(`  [WARN] ${repo.name} mangler topics. Faller tilbake til 'other'-profil.`))
-            }
 
             // Detect stack
             const stack = await detectRepoStack(repoPath)
             stack.repoName = repo.name
             stack.repoDescription = repo.description ?? undefined
-            // Fall back to topic-based stack hint (backend/frontend/etc.) if detector found 'other'
-            if (stack.type === 'other' && profile !== 'other') {
-                stack.type = profile
-            }
 
-            const effectiveProfile = stack.type
             const isMonorepo = stack.subProfiles && stack.subProfiles.length > 1
             if (isMonorepo) {
                 log(chalk.magenta(`  [MONOREPO] ${repo.name} → profiles: ${stack.subProfiles!.join(', ')}`))
@@ -142,7 +125,7 @@ export async function copilotSync(options: { repo?: string; all?: boolean; dryRu
 
             if (options.dryRun) {
                 // Assemble into cached repo, then diff to detect real changes
-                const assembly = await assembleForRepo(repoPath, effectiveProfile, stack, config)
+                const assembly = await assembleForRepo(repoPath, stack.type, stack, config)
 
                 let hasChanges = false
                 try {
@@ -181,7 +164,7 @@ export async function copilotSync(options: { repo?: string; all?: boolean; dryRu
 
                 results.push({
                     repo: repo.name,
-                    profile: effectiveProfile,
+                    profile: stack.type,
                     assembly,
                     hasChanges,
                 })
@@ -189,7 +172,7 @@ export async function copilotSync(options: { repo?: string; all?: boolean; dryRu
             }
 
             // Assemble files
-            const assembly = await assembleForRepo(repoPath, effectiveProfile, stack, config)
+            const assembly = await assembleForRepo(repoPath, stack.type, stack, config)
 
             // Check for actual git changes
             let hasChanges = false
@@ -223,7 +206,7 @@ export async function copilotSync(options: { repo?: string; all?: boolean; dryRu
                 log(chalk.yellow(`    ⚠ ${assembly.filesSkipped.length} files skipped (not managed by esyfo-cli)`))
             }
 
-            results.push({ repo: repo.name, profile: effectiveProfile, assembly, hasChanges })
+            results.push({ repo: repo.name, profile: stack.type, assembly, hasChanges })
         } catch (e) {
             log(chalk.red(`  ✗ Failed to process ${repo.name}: ${(e as Error).message}`))
             continue
