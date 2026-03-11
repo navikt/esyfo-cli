@@ -6,7 +6,7 @@ applyTo: "**/*"
 
 ## Authentication Types in NAV
 
-### 1. Azure AD (Internal NAV Users)
+### 1. Azure AD / Entra ID (Internal NAV Users)
 ```yaml
 azure:
   application:
@@ -46,19 +46,21 @@ maskinporten:
 ```
 
 ## Approach
-1. Read NAIS manifest to identify which auth mechanisms are configured
-2. Search codebase for existing JWT validation setup and follow the same pattern
-3. Search codebase for existing auth implementations and follow them
 
-## Testing
-Use the appropriate mock auth server for your framework (search the codebase for existing test auth setup before adding new dependencies).
+1. Les NAIS-manifest for å identifisere hvilke auth-mekanismer som er konfigurert
+2. Søk i kodebasen etter eksisterende auth-oppsett og følg samme mønster
+3. Se språkspesifikke auth-instruksjoner for bibliotekdetaljer
+
+## Referanse
+
+Komplett auth-dokumentasjon: https://doc.nais.io/auth/
 
 ## Boundaries
 
 ### ✅ Always
 - Validate JWT issuer, audience, expiration, and signature
 - Use HTTPS only for token transmission
-- Define explicit `accessPolicy`
+- Define explicit `accessPolicy` in NAIS manifest
 - Use env vars from NAIS (never hardcode)
 
 ### ⚠️ Ask First
@@ -67,6 +69,6 @@ Use the appropriate mock auth server for your framework (search the codebase for
 
 ### 🚫 Never
 - Hardcode client secrets or tokens
-- Log full JWT tokens
+- Log full JWT tokens (or any part of token payload containing PII)
 - Skip token validation
 - Store tokens in localStorage
