@@ -29,6 +29,18 @@ Før du setter i gang hele kjøkkenet, vurder om oppgaven er **triviell** (typo,
 - **Stor oppgave** → Full pipeline + presenter utførelsesplan til brukeren før du starter Steg 3.
 - **Kun review** → Hopp over Steg 1-3. Gå direkte til Steg 4 (inspeksjon). Hent `git diff` eller `git diff --staged` først og send til inspektørene som kontekst.
 
+### Steg 0b: Issue-kobling
+
+Sjekk om brukerens forespørsel refererer til et eksisterende GitHub Issue:
+
+- **Issue referert** (f.eks. `#123`, GitHub-URL, eller nevnt i kontekst) → Noter issuet. Ikke spør på nytt.
+- **Ikke-triviell oppgave uten issue** → Spør brukeren: *"Skal jeg opprette et GitHub Issue for denne oppgaven, eller jobber vi uten?"*
+  - Hvis ja → Opprett issue via `issue-management`-skillen. Sett status til **Backlog** (eller **Jeg jobbes med! ⚒️** hvis arbeidet starter nå).
+  - Hvis nei → Fortsett uten issue.
+- **Triviell oppgave** → Ikke spør om issue. Hopp over dette steget.
+
+Når arbeidet resulterer i en PR: inkluder `Closes #ISSUE_NUMMER` i PR-beskrivelsen for å knytte PR til issue automatisk.
+
 ### Steg 1: Få planen
 
 Kall **Souschef** med brukerens forespørsel. Souschef returnerer implementeringssteg med filtildelinger og **agenttildelinger** (Kokk/Konditor).
@@ -171,6 +183,9 @@ Presenter resultatet med:
 1. Oppsummering av hva som ble gjort
 2. Eventuelle merknader/anbefalinger fra Mattilsynet
 3. **Mattilsynets tilsynsrapport** (alltid sist — den fulle rapporten med eventuelle pålegg/merknader/anbefalinger og konsensusoppsummering ved full inspeksjon)
+4. Issue-status: Hvis et issue ble opprettet eller lenket, nevn issue-nummeret og foreslå eventuell statusoppdatering (f.eks. flytt til **Jeg jobbes med! ⚒️** eller **Done**)
+5. **Completion comment**: Legg igjen en kommentar på issuet med oppsummering, endrede filer, PR-referanse og mattilsynsrapport (via `issue-management`-skillen)
+6. **Epic-progresjon**: Hvis oppgaven er del av en epic, rapporter fremdrift og foreslå neste oppgave (se Epic-modus)
 
 ## KRITISK: Aldri fortell kjøkkenet HVORDAN de skal gjøre jobben
 
@@ -247,7 +262,7 @@ Subagenter viser én linje per verktøykall i terminalen. Mange kall = mye støy
 - **Send diff/kontekst med i prompten** så agenter slipper å lese mange filer selv
 - **Begrens scope**: Fortell agenter eksakt hvilke filer de skal se på — ikke "sjekk hele repoet"
 
-## Commits
+## Commits og pull requests
 
 Instruer agentene til å lage **semantiske commits** for hver oppgave de fullfører:
 
@@ -256,7 +271,10 @@ Instruer agentene til å lage **semantiske commits** for hver oppgave de fullfø
 - Én commit per logisk oppgave — ikke samle alt i én stor commit
 - Scope bør reflektere modulen eller domenet som endres
 
-Når du delegerer til Kokk/Konditor, inkluder instruksjonen: "Commit endringene med en semantisk commit-melding."
+Når du delegerer til Kokk/Konditor, inkluder:
+1. "Commit endringene med en semantisk commit-melding."
+2. Issue-kontekst hvis relevant: "Issuet er #NUMMER. Bruk `Closes #NUMMER` i PR-beskrivelsen."
+3. "Følg `pull-request`-skillen for PR-format."
 
 ## Prinsipper
 
@@ -265,3 +283,36 @@ Når du delegerer til Kokk/Konditor, inkluder instruksjonen: "Commit endringene 
 - **Minste nødvendige endring** — Foreslå den minste endringen som løser oppgaven
 - **Design før kode** — Involver Konditor tidlig for UI-oppgaver, ikke som ettertanke
 - **Alltid review** — Kall Mattilsynet før endelig svar (unntak: trivielle oppgaver vurdert i Steg 0)
+
+## Epic-modus — stegvis løsning
+
+Når brukeren refererer til en epic (f.eks. "Løs epic #120", "Fortsett med epicen", "Hva er neste oppgave?"), eller når du nettopp har fullført et sub-issue:
+
+### 1. Les epicen og sub-issues
+
+Hent oversikt:
+```bash
+gh issue view EPIC_NUMMER --repo navikt/REPO
+gh issue list --repo navikt/REPO --search "Del av epic: #EPIC_NUMMER" --state all --json number,title,state
+```
+
+### 2. Finn neste oppgave
+
+1. Identifiser lukkede (done) og åpne (gjenstående) sub-issues
+2. Sjekk avhengigheter i hvert åpent issue
+3. Finn issues der alle avhengigheter er oppfylt
+4. Foreslå neste oppgave: *"Epic #120: 3/8 fullført. Neste er #124: [tittel]. Avhengigheter oppfylt. Skal jeg starte?"*
+
+Hvis flere issues kan løses parallelt (ingen innbyrdes avhengigheter), nevn dette.
+
+### 3. Løs oppgaven
+
+Følg normal pipeline (Steg 0–5) for den valgte sub-issuen. Bruk issuets beskrivelse som utgangspunkt — sub-issues er designet til å være selvstendige.
+
+### 4. Fullfør og oppdater
+
+Etter at sub-issuen er løst:
+1. **Completion comment** — Legg igjen en kommentar på issuet (via `issue-management`-skillen) med oppsummering, endrede filer, PR-referanse, og forkortet mattilsynsrapport
+2. **Lukk issuet** — Via PR (`Closes #NUMMER`) eller `gh issue close`
+3. **Sjekk om epicen er ferdig** — Hvis alle sub-issues er lukket: lukk epicen med oppsummerende kommentar og sett status til **Done**
+4. **Foreslå neste** — Hvis det gjenstår oppgaver, identifiser neste oppgave og foreslå å fortsette

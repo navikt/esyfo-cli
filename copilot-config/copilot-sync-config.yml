@@ -17,6 +17,8 @@ common:
     - nais-manifest.prompt.md
   skills:
     - observability-setup
+    - issue-management
+    - pull-request
 
 # Profiler per repo-type (additivt til common)
 profiles:
