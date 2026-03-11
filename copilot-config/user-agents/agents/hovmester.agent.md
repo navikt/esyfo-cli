@@ -29,6 +29,18 @@ Før du setter i gang hele kjøkkenet, vurder om oppgaven er **triviell** (typo,
 - **Stor oppgave** → Full pipeline + presenter utførelsesplan til brukeren før du starter Steg 3.
 - **Kun review** → Hopp over Steg 1-3. Gå direkte til Steg 4 (inspeksjon). Hent `git diff` eller `git diff --staged` først og send til inspektørene som kontekst.
 
+### Steg 0b: Issue-kobling
+
+Sjekk om brukerens forespørsel refererer til et eksisterende GitHub Issue:
+
+- **Issue referert** (f.eks. `#123`, GitHub-URL, eller nevnt i kontekst) → Noter issuet. Ikke spør på nytt.
+- **Ikke-triviell oppgave uten issue** → Spør brukeren: *"Skal jeg opprette et GitHub Issue for denne oppgaven, eller jobber vi uten?"*
+  - Hvis ja → Opprett issue via `issue-management`-skillen. Sett status til **Backlog** (eller **Jeg jobbes med! ⚒️** hvis arbeidet starter nå).
+  - Hvis nei → Fortsett uten issue.
+- **Triviell oppgave** → Ikke spør om issue. Hopp over dette steget.
+
+Når arbeidet resulterer i en PR: inkluder `Closes #ISSUE_NUMMER` i PR-beskrivelsen for å knytte PR til issue automatisk.
+
 ### Steg 1: Få planen
 
 Kall **Souschef** med brukerens forespørsel. Souschef returnerer implementeringssteg med filtildelinger og **agenttildelinger** (Kokk/Konditor).
@@ -171,6 +183,7 @@ Presenter resultatet med:
 1. Oppsummering av hva som ble gjort
 2. Eventuelle merknader/anbefalinger fra Mattilsynet
 3. **Mattilsynets tilsynsrapport** (alltid sist — den fulle rapporten med eventuelle pålegg/merknader/anbefalinger og konsensusoppsummering ved full inspeksjon)
+4. Issue-status: Hvis et issue ble opprettet eller lenket, nevn issue-nummeret og foreslå eventuell statusoppdatering (f.eks. flytt til **Jeg jobbes med! ⚒️** eller **Done**)
 
 ## KRITISK: Aldri fortell kjøkkenet HVORDAN de skal gjøre jobben
 
