@@ -18,6 +18,7 @@ common:
   skills:
     - observability-setup
     - issue-management
+    - pull-request
 
 # Profiler per repo-type (additivt til common)
 profiles:
