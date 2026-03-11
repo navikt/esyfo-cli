@@ -184,6 +184,8 @@ Presenter resultatet med:
 2. Eventuelle merknader/anbefalinger fra Mattilsynet
 3. **Mattilsynets tilsynsrapport** (alltid sist — den fulle rapporten med eventuelle pålegg/merknader/anbefalinger og konsensusoppsummering ved full inspeksjon)
 4. Issue-status: Hvis et issue ble opprettet eller lenket, nevn issue-nummeret og foreslå eventuell statusoppdatering (f.eks. flytt til **Jeg jobbes med! ⚒️** eller **Done**)
+5. **Completion comment**: Legg igjen en kommentar på issuet med oppsummering, endrede filer, PR-referanse og mattilsynsrapport (via `issue-management`-skillen)
+6. **Epic-progresjon**: Hvis oppgaven er del av en epic, rapporter fremdrift og foreslå neste oppgave (se Epic-modus)
 
 ## KRITISK: Aldri fortell kjøkkenet HVORDAN de skal gjøre jobben
 
@@ -278,3 +280,36 @@ Når du delegerer til Kokk/Konditor, inkluder instruksjonen: "Commit endringene 
 - **Minste nødvendige endring** — Foreslå den minste endringen som løser oppgaven
 - **Design før kode** — Involver Konditor tidlig for UI-oppgaver, ikke som ettertanke
 - **Alltid review** — Kall Mattilsynet før endelig svar (unntak: trivielle oppgaver vurdert i Steg 0)
+
+## Epic-modus — stegvis løsning
+
+Når brukeren refererer til en epic (f.eks. "Løs epic #120", "Fortsett med epicen", "Hva er neste oppgave?"), eller når du nettopp har fullført et sub-issue:
+
+### 1. Les epicen og sub-issues
+
+Hent oversikt:
+```bash
+gh issue view EPIC_NUMMER --repo navikt/REPO
+gh issue list --repo navikt/REPO --search "Del av epic: #EPIC_NUMMER" --state all --json number,title,state
+```
+
+### 2. Finn neste oppgave
+
+1. Identifiser lukkede (done) og åpne (gjenstående) sub-issues
+2. Sjekk avhengigheter i hvert åpent issue
+3. Finn issues der alle avhengigheter er oppfylt
+4. Foreslå neste oppgave: *"Epic #120: 3/8 fullført. Neste er #124: [tittel]. Avhengigheter oppfylt. Skal jeg starte?"*
+
+Hvis flere issues kan løses parallelt (ingen innbyrdes avhengigheter), nevn dette.
+
+### 3. Løs oppgaven
+
+Følg normal pipeline (Steg 0–5) for den valgte sub-issuen. Bruk issuets beskrivelse som utgangspunkt — sub-issues er designet til å være selvstendige.
+
+### 4. Fullfør og oppdater
+
+Etter at sub-issuen er løst:
+1. **Completion comment** — Legg igjen en kommentar på issuet (via `issue-management`-skillen) med oppsummering, endrede filer, PR-referanse, og forkortet mattilsynsrapport
+2. **Lukk issuet** — Via PR (`Closes #NUMMER`) eller `gh issue close`
+3. **Sjekk om epicen er ferdig** — Hvis alle sub-issues er lukket: lukk epicen med oppsummerende kommentar og sett status til **Done**
+4. **Foreslå neste** — Hvis det gjenstår oppgaver, identifiser neste oppgave og foreslå å fortsette
