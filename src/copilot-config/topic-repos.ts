@@ -1,18 +1,16 @@
 import { BaseRepoNode, ghGqlQuery, removeIgnoredArchivedAndNonAdmin } from '../common/octokit.ts'
 
+import { blacklisted as copilotBlacklisted } from './copilot-blacklist.ts'
+
 export const ORG = 'navikt'
 export const TEAM = 'team-esyfo'
+// TODO: remove after copilot-manage.ts is deleted
 export const COPILOT_TOPIC = 'team-esyfo-copilot'
 
 export interface RepoNode {
     name: string
     description?: string
     defaultBranch: string
-    topics: string[]
-}
-
-export interface TeamRepo {
-    name: string
     topics: string[]
 }
 
@@ -89,21 +87,15 @@ async function fetchAllTeamRepoNodes(): Promise<BaseRepoNode<RepoWithTopics>[]> 
     return allRepoNodes
 }
 
-function hasPushAccess(viewerPermission: string): boolean {
-    return viewerPermission === 'WRITE' || viewerPermission === 'MAINTAIN' || viewerPermission === 'ADMIN'
-}
-
-export async function fetchReposByTopic(repoFilter?: string): Promise<RepoNode[]> {
-    const repos = (await fetchAllTeamRepoNodes())
-        .filter((repo) => !repo.isArchived)
-        .filter((repo) => hasPushAccess(repo.viewerPermission))
+export async function fetchCopilotRepos(repoFilter?: string): Promise<RepoNode[]> {
+    const repos = removeIgnoredArchivedAndNonAdmin(await fetchAllTeamRepoNodes())
+        .filter(copilotBlacklisted)
         .map((repo) => ({
             name: repo.name,
             description: repo.description,
             defaultBranch: repo.defaultBranchRef.name,
             topics: repo.repositoryTopics.nodes.map((it) => it.topic.name),
         }))
-        .filter((repo) => repo.topics.includes(COPILOT_TOPIC))
 
     if (repoFilter) {
         return repos.filter((repo) => repo.name === repoFilter)
@@ -112,7 +104,13 @@ export async function fetchReposByTopic(repoFilter?: string): Promise<RepoNode[]
     return repos
 }
 
-export async function fetchAllTeamRepos(): Promise<TeamRepo[]> {
+// TODO: remove after copilot-manage.ts is deleted
+export async function fetchReposByTopic(repoFilter?: string): Promise<RepoNode[]> {
+    return fetchCopilotRepos(repoFilter)
+}
+
+// TODO: remove after copilot-manage.ts is deleted
+export async function fetchAllTeamRepos(): Promise<Array<{ name: string; topics: string[] }>> {
     const repos = removeIgnoredArchivedAndNonAdmin(await fetchAllTeamRepoNodes()).map((repo) => ({
         name: repo.name,
         topics: repo.repositoryTopics.nodes.map((it) => it.topic.name),
