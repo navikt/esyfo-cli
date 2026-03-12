@@ -10,7 +10,6 @@ const blacklist: string[] = [
     'nav-ekstern-api-dok',
     'oppfolgingsplan-backend',
     'oppfolgingsplan-frontend',
-    'syfo-oppfolgingsplan-frontend',
     'syfojanitor-backend',
     'syfojanitor-frontend',
     'syfooppdfgen',
