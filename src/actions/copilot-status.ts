@@ -147,6 +147,7 @@ export async function copilotStatus(options: { repo?: string }): Promise<void> {
         }
     }
 
+    statuses.sort((a, b) => a.repo.localeCompare(b.repo))
     // Print table
     const maxRepo = Math.max(4, ...statuses.map((s) => s.repo.length))
     const maxStack = Math.max(5, ...statuses.map((s) => s.stack.length))
