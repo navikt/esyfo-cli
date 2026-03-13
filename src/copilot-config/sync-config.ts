@@ -16,6 +16,8 @@ export interface CopilotSyncConfig {
         instructions?: string[]
         prompts?: string[]
         skills?: string[]
+        issue_templates?: string[]
+        pull_request_template?: string
     }
     profiles: Record<string, CopilotSyncProfile>
 }
@@ -28,6 +30,8 @@ interface RawConfig {
         instructions?: string[]
         prompts?: string[]
         skills?: string[]
+        issue_templates?: string[]
+        pull_request_template?: string
     }
     profiles: Record<string, CopilotSyncProfile>
 }
@@ -51,6 +55,8 @@ export function getFilesForProfile(
     instructions: string[]
     prompts: string[]
     skills: string[]
+    issueTemplates: string[]
+    pullRequestTemplate: string | null
 } {
     const profileConfig = config.profiles[profile]
 
@@ -61,6 +67,8 @@ export function getFilesForProfile(
             instructions: [...(config.common.instructions ?? [])],
             prompts: [...(config.common.prompts ?? [])],
             skills: [...(config.common.skills ?? [])],
+            issueTemplates: [...(config.common.issue_templates ?? [])],
+            pullRequestTemplate: config.common.pull_request_template ?? null,
         }
     }
 
@@ -70,6 +78,8 @@ export function getFilesForProfile(
         instructions: [...(config.common.instructions ?? []), ...(profileConfig.instructions ?? [])],
         prompts: [...(config.common.prompts ?? []), ...(profileConfig.prompts ?? [])],
         skills: [...(config.common.skills ?? []), ...(profileConfig.skills ?? [])],
+        issueTemplates: [...(config.common.issue_templates ?? [])],
+        pullRequestTemplate: config.common.pull_request_template ?? null,
     }
 }
 
@@ -113,5 +123,7 @@ export function getFilesForProfiles(
         instructions: [...instructions],
         prompts: [...prompts],
         skills: [...skills],
+        issueTemplates: [...(config.common.issue_templates ?? [])],
+        pullRequestTemplate: config.common.pull_request_template ?? null,
     }
 }

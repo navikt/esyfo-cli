@@ -23,6 +23,10 @@ type(scope): kort beskrivelse
 
 ## PR-body
 
+Repoet har en PR-template i `.github/PULL_REQUEST_TEMPLATE.md` som automatisk pre-fyller body når du oppretter en PR. Fyll inn seksjonene i templaten.
+
+Templaten følger denne strukturen:
+
 Bruk denne malen for PR-beskrivelsen:
 
 ~~~markdown
@@ -81,6 +85,12 @@ gh pr create \
   --body "BODY_FRA_MAL_OVER" \
   && gh pr merge --auto --squash
 ```
+
+### Med MCP (foretrukket)
+
+Bruk `create_pull_request` MCP-verktøyet for å opprette PR. Fyll inn title og body basert på malen over.
+
+For å sette auto-merge etter opprettelse, bruk `gh pr merge --auto --squash`.
 
 ## Kobling til issues
 
