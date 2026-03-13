@@ -3,9 +3,6 @@ description: Foreslå ny funksjonalitet eller forbedring
 title: "[Feature]: "
 type: Feature
 body:
-  - type: markdown
-    attributes:
-      value: "Takk for at du foreslår en forbedring! Fyll ut feltene under."
   - type: textarea
     id: description
     attributes:
