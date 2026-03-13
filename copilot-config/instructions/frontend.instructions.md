@@ -36,18 +36,18 @@ applyTo: "**/*.{ts,tsx,css}"
 <div className="p-4 md:p-6">
 ```
 
-Available tokens: `space-4`, `space-8`, `space-12`, `space-16`, `space-20`, `space-24`, `space-32`, `space-40`
+Available tokens: `space-0`, `space-1`, `space-2`, `space-4`, `space-6`, `space-8`, `space-12`, `space-16`, `space-20`, `space-24`, `space-28`, `space-32`, `space-36`, `space-40`, `space-44`, `space-48`, `space-56`, `space-64`, `space-72`, `space-80`, `space-96`, `space-128`
 
-Note: `gap` on layout components (`VStack`, `HStack`, `HGrid`) uses Aksel's numeric scale (e.g. `gap="4"`), which maps to the same tokens internally. Only `padding`/`margin` on `Box` need the `space-` prefix.
+All Aksel spacing props use the `space-` prefix — including `gap` on `VStack`/`HStack`/`HGrid` and `padding`/`margin` on `Box`.
 
 ### Layout Components
 
 ```tsx
 import { Box, VStack, HStack, HGrid } from "@navikt/ds-react";
 
-<VStack gap="4">          {/* Vertical stack */}
-<HStack gap="4" align="center">  {/* Horizontal stack */}
-<HGrid columns={{ xs: 1, md: 2, lg: 3 }} gap="4">  {/* Responsive grid */}
+<VStack gap="space-4">          {/* Vertical stack */}
+<HStack gap="space-4" align="center">  {/* Horizontal stack */}
+<HGrid columns={{ xs: 1, md: 2, lg: 3 }} gap="space-4">  {/* Responsive grid */}
 ```
 
 ### Typography
@@ -132,7 +132,7 @@ import { useState } from "react";
 ### 🚫 Never
 - Use raw HTML for elements Aksel provides
 - Hardcode colors, spacing, or typography values
-- Use numeric padding/margin values without `space-` prefix (note: `gap` on layout components like VStack/HStack/HGrid accepts numeric values e.g. `gap="4"`)
+- Use numeric spacing values without `space-` prefix — this applies to all Aksel spacing props including `gap`, `padding`, and `margin`
 - Skip accessibility requirements
 - Skip responsive props
 - Import from `@navikt/ds-react` internals
