@@ -32,6 +32,7 @@ common:
     - feature.yml
     - bug.yml
     - task.yml
+    - epic.yml
     - config.yml
   pull_request_template: PULL_REQUEST_TEMPLATE.md
 
