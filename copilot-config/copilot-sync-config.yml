@@ -27,6 +27,13 @@ common:
     - observability-setup
     - issue-management
     - pull-request
+    - git-commit
+  issue_templates:
+    - feature.yml
+    - bug.yml
+    - task.yml
+    - config.yml
+  pull_request_template: PULL_REQUEST_TEMPLATE.md
 
 # Profiler per repo-type (additivt til common)
 profiles:
@@ -66,4 +73,3 @@ profiles:
   other:
     copilot_instructions:
       - base.md
-

@@ -102,29 +102,36 @@ Løses i rekkefølge. Issues uten innbyrdes avhengigheter kan løses parallelt.
 Oppdateres etterhvert som issues opprettes og fullføres.
 ~~~
 
-### 4. Opprett issue med `gh` CLI
+### 4. Opprett issue
 
+**MCP (foretrukket):** Bruk `issue_write`-verktøyet med `type`-parameter for å opprette issue med riktig type direkte.
+
+**Fallback (`gh api`):**
 ```bash
-gh issue create \
-  --repo navikt/REPO_NAVN \
-  --title "Kort, beskrivende tittel" \
-  --body "BODY_FRA_MAL_OVER" \
-  --project "Team eSyfo"
+ISSUE_URL=$(gh api repos/navikt/REPO_NAVN/issues \
+  -X POST \
+  -f title="Kort, beskrivende tittel" \
+  -f body="BODY_FRA_MAL_OVER" \
+  -f type="Feature" \
+  --jq '.html_url')
 ```
 
-Issuet legges automatisk til Team eSyfo-prosjektet via `--project`-flagget.
+Legg deretter til i Team eSyfo-prosjektet:
+```bash
+gh issue create --repo navikt/REPO_NAVN --title "..." --body "..." --project "Team eSyfo"
+```
+
+> **Merk:** `gh issue create --project` legger til i prosjektet, men støtter ikke `--type`. Bruk `gh api` for å sette type, eller opprett med `gh issue create` og sett type etterpå via MCP.
+
+Se `references/issue-types.md` for detaljer om issue types.
 
 ### 5. Sett project-felter
 
-Etter opprettelse, sett riktig type og status i prosjektet:
+Etter opprettelse, sett riktig type og status i prosjektet.
 
-```bash
-# Finn prosjektnummer
-gh project list --owner navikt --format json --jq '.projects[] | select(.title == "Team eSyfo") | .number'
+**MCP (foretrukket):** Bruk `projects_write`-verktøyet for å sette Status og Type. Krever at `projects`-toolsettet er aktivert.
 
-# Sett type og status (krever project item ID)
-# Bruk gh project item-list og item-edit for å oppdatere felter
-```
+**Fallback (`gh project`):** Se `references/projects.md` for komplett workflow med `gh project item-add` og `gh project item-edit`.
 
 **Statuser:**
 | Status | Bruk |
@@ -143,8 +150,13 @@ For store oppgaver som brytes ned:
 
 1. Opprett epic-issuet først (type: Epic)
 2. Opprett underliggende issues (type: Task/Story/Feature)
-3. Inkluder `Del av epic: #EPIC_NUMMER` i hvert underliggende issue
-4. Inkluder avhengigheter: `Avhenger av #NNN` der det er relevant
+3. Koble sub-issues til epicen via native sub-issues API:
+   - **MCP (foretrukket):** Bruk `sub_issue_write` med action `add` for å legge til sub-issue
+   - **Fallback:** Se `references/sub-issues.md` for `gh api` REST-kommandoer
+   - Inkluder også `Del av epic: #EPIC_NUMMER` i issue-body for lesbarhet
+4. Koble avhengigheter via native dependencies API:
+   - Se `references/dependencies.md` for MCP og `gh api`-kommandoer
+   - Inkluder også `Avhenger av #NNN` i issue-body for lesbarhet
 5. Oppdater epicens deloppgave-liste med lenker til nye issues
 6. Sett epicen til **Monday epics 🎯** hvis den skal jobbes med nå
 7. Underliggende issues starter i **Backlog** eller **Plukk meg! 🙌**
@@ -164,6 +176,9 @@ Dette gjør at oppgaver kan gjenopptas neste dag eller overtas av et annet teamm
 Når en epic skal løses stegvis:
 
 1. **Les epicen** — Hent epic og alle sub-issues:
+   **MCP (foretrukket):** Bruk `issue_read` for å lese epicen, og list sub-issues via MCP.
+
+   **Fallback:**
    ```bash
    gh issue view EPIC_NUMMER --repo navikt/REPO
    gh issue list --repo navikt/REPO --search "Del av epic: #EPIC_NUMMER" --state all --json number,title,state
