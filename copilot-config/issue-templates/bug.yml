@@ -3,9 +3,6 @@ description: Rapporter en feil
 title: "[Bug]: "
 type: Bug
 body:
-  - type: markdown
-    attributes:
-      value: "Takk for at du rapporterer en feil! Fyll ut så mye du kan."
   - type: textarea
     id: description
     attributes:
