@@ -27,10 +27,18 @@ common:
     - issue-management
     - pull-request
     - auth-overview
+    - conventional-commit
     - docker
     - github-actions
     - security-review
     - klarsprak
+  issue_templates:
+    - feature.yml
+    - bug.yml
+    - task.yml
+    - epic.yml
+    - config.yml
+  pull_request_template: PULL_REQUEST_TEMPLATE.md
 
 # Profiler per repo-type (additivt til common)
 profiles:
