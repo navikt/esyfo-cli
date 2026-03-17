@@ -262,10 +262,12 @@ Subagenter viser én linje per verktøykall i terminalen. Mange kall = mye støy
 
 ## Commits og pull requests
 
+Instruer agentene til å bruke `conventional-commit`-skillen for commits og `pull-request`-skillen for PRer.
+
 Når du delegerer til Kokk/Konditor, inkluder:
-1. "Bruk `git-commit`-skillen for commits."
+1. "Commit endringene med en semantisk commit-melding."
 2. Issue-kontekst hvis relevant: "Issuet er #NUMMER."
-3. "Bruk `pull-request`-skillen for PR-opprettelse. Inkluder `Closes #NUMMER` i PR-body."
+3. "Følg `pull-request`-skillen for PR-format."
 
 ## Prinsipper
 

@@ -25,7 +25,7 @@ Skriv koden. Følg eksisterende mønstre i kodebasen.
 Skriv tester sammen med implementasjonen. Følg eksisterende testmønstre.
 
 ### 6. Commit
-Bruk `git-commit`-skillen for commits. Én commit per logisk oppgave.
+Bruk `conventional-commit`-skillen for commits. Én commit per logisk oppgave.
 
 ### 7. Pull request
 Når arbeidet er klart for review, bruk `pull-request`-skillen for å opprette PR. Inkluder issue-referanse (`Closes #NUMMER`) hvis relevant.

@@ -43,3 +43,11 @@ gh project item-edit \
 ### Notat
 
 `FIELD_ID` og `OPTION_ID` er stabile over tid og kan caches for raskere operasjoner.
+
+### Token scopes
+
+`gh project`-kommandoer krever at tokenet har `read:project` (les) og `project` (skriv) scopes. Hvis du får tilgangsfeil:
+
+```bash
+gh auth refresh -s read:project,project
+```

@@ -22,85 +22,13 @@ Før du oppretter et nytt issue, sjekk om brukeren allerede har referert til et 
 | **Task** | Teknisk oppgave, vedlikehold, chore |
 | **Bug** | Feil som må fikses |
 
-### 3. Opprett issue med standardisert beskrivelse
+### 3. Opprett issue med riktig struktur
 
-#### Feature / Story / Task
+Repoet har issue-templates i `.github/ISSUE_TEMPLATE/` for hvert type (feature, bug, task, epic). Les feltstrukturen fra templaten for den valgte typen og lag en markdown-body med tilsvarende seksjoner.
 
-~~~markdown
-## Beskrivelse
-
-[Kort og presis beskrivelse av hva som skal gjøres]
-
-## Bakgrunn
-
-[Hvorfor er dette nødvendig? Kontekst og motivasjon]
-
-## Avhengigheter
-
-[Valgfritt: Andre issues som må være løst først, f.eks. "Avhenger av #101"]
-Del av epic: [#EPIC_NUMMER hvis relevant]
-
-## Akseptansekriterier
-
-- [ ] [Kriterium 1]
-- [ ] [Kriterium 2]
-- [ ] [Kriterium 3]
-
-## Teknisk kontekst
-
-[Valgfritt: Relevante filer, API-er, avhengigheter, lenker]
-~~~
-
-#### Bug
-
-~~~markdown
-## Beskrivelse
-
-[Kort beskrivelse av feilen]
-
-## Steg for å reprodusere
-
-1. [Steg 1]
-2. [Steg 2]
-
-## Forventet oppførsel
-
-[Hva burde skje]
-
-## Faktisk oppførsel
-
-[Hva skjer i dag]
-
-## Teknisk kontekst
-
-[Stacktrace, logger, relevante filer]
-~~~
-
-#### Epic
-
-~~~markdown
-## Mål
-
-[Overordnet mål for epicen]
-
-## Bakgrunn
-
-[Kontekst og motivasjon]
-
-## Omfang
-
-[Hva er inkludert og hva er utenfor scope]
-
-## Deloppgaver
-
-Løses i rekkefølge. Issues uten innbyrdes avhengigheter kan løses parallelt.
-
-- [ ] #NNN — [Kort beskrivelse]
-- [ ] #NNN — [Kort beskrivelse] (avhenger av #NNN)
-- [ ] #NNN — [Kort beskrivelse] (avhenger av #NNN, #NNN)
-
-Oppdateres etterhvert som issues opprettes og fullføres.
-~~~
+Inkluder alltid:
+- **Avhengigheter** (valgfritt): `Avhenger av #NNN` hvis relevant
+- **Epic-kobling** (valgfritt): `Del av epic: #EPIC_NUMMER` hvis relevant
 
 ### 4. Opprett issue
 
@@ -108,12 +36,12 @@ Oppdateres etterhvert som issues opprettes og fullføres.
 
 **Fallback (`gh api`):**
 ```bash
-ISSUE_URL=$(gh api repos/navikt/REPO_NAVN/issues \
+gh api repos/navikt/REPO_NAVN/issues \
   -X POST \
   -f title="Kort, beskrivende tittel" \
-  -f body="BODY_FRA_MAL_OVER" \
+  -f body="BODY" \
   -f type="Feature" \
-  --jq '.html_url')
+  --jq '.html_url'
 ```
 
 Legg deretter til i Team eSyfo-prosjektet:
@@ -169,8 +97,6 @@ Hvert sub-issue skal inneholde nok kontekst til at noen kan plukke det opp uten 
 - Avhengigheter til andre issues
 - Akseptansekriterier
 
-Dette gjør at oppgaver kan gjenopptas neste dag eller overtas av et annet teammedlem uten re-analyse.
-
 ### 7. Stegvis løsning av epic
 
 Når en epic skal løses stegvis:
@@ -225,7 +151,6 @@ Kommentaren skal inneholde:
 Etter at et sub-issue er lukket, sjekk om alle sub-issues i epicen er fullført:
 
 ```bash
-# Sjekk om åpne sub-issues gjenstår
 gh issue list --repo navikt/REPO --search "Del av epic: #EPIC_NUMMER" --state open --json number
 ```
 
@@ -266,16 +191,3 @@ Er oppgaven stor nok for en epic?
 └── Nei → Opprett frittstående issue
     └── Type? → Feature / Story / Task / Bug
 ```
-
-## Sjekkliste
-
-- [ ] Issue opprettet med standardisert beskrivelse
-- [ ] Lagt til i Team eSyfo-prosjektet
-- [ ] Riktig type satt
-- [ ] Status satt (default: Backlog)
-- [ ] Avhengigheter dokumentert (hvis del av epic)
-- [ ] Sub-issues er selvstendige (nok kontekst til å jobbe uten epic-lesing)
-- [ ] PR knyttet til issue (når arbeidet er ferdig)
-- [ ] Completion comment lagt igjen etter løsning
-- [ ] Epic-kobling satt opp (hvis relevant)
-- [ ] Epic lukket når alle sub-issues er done
