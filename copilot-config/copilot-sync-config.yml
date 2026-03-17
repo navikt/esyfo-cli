@@ -53,6 +53,8 @@ profiles:
       - frontend.instructions.md
       - testing-typescript.instructions.md
       - auth-typescript.instructions.md
+    skills:
+      - lumi-survey
 
   microfrontend:
     copilot_instructions:
@@ -62,6 +64,8 @@ profiles:
       - frontend.instructions.md
       - testing-typescript.instructions.md
       - auth-typescript.instructions.md
+    skills:
+      - lumi-survey
 
   other:
     copilot_instructions:
