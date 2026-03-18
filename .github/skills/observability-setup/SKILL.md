@@ -1,5 +1,5 @@
 ---
-description: Sett opp observability (metrikker, logging, tracing) for en Nav-applikasjon
+description: Sett opp og vedlikehold observability — metrikker, navngivning, logging, tracing for Nav-applikasjoner
 ---
 
 # Sett opp observability
@@ -8,10 +8,18 @@ Konfigurer metrikker, strukturert logging og tracing for en Nav-applikasjon.
 
 ## Steg
 
-1. Les NAIS-manifestet for å sjekke gjeldende observability-konfigurasjon og endepunktstier
-2. Sjekk `build.gradle.kts` eller `package.json` for eksisterende observability-avhengigheter
-3. Sjekk eksisterende kode for mønstre i metrics-biblioteket (Micrometer, prom-client osv.)
-4. Søk i kodebasen etter eksisterende metrikkdefinisjoner, logging-mønstre og health-endepunkter
+1. Les NAIS-manifestet for å sjekke gjeldende observability-konfigurasjon og endepunktstier.
+2. Sjekk `build.gradle.kts` eller `package.json` for eksisterende observability-avhengigheter.
+3. Sjekk eksisterende kode for mønstre i metrics-biblioteket (Micrometer, prom-client osv.).
+4. Søk i kodebasen etter eksisterende metrikkdefinisjoner, logging-mønstre og health-endepunkter.
+
+## Metrikk-navngivning
+
+- Bruk `snake_case`.
+- Bruk enhetssuffiks der det er relevant, for eksempel `_seconds`, `_bytes` og `_total`.
+- Countere skal ha suffikset `_total`.
+- Unngå labels med høy kardinalitet, som `user_id`, `email` og `transaction_id`.
+- Ikke bruk `camelCase` i metrikk-navn.
 
 ## Backend (Kotlin)
 
@@ -44,6 +52,13 @@ spec:
       runtime: nodejs
 ```
 
+## Logging
+
+- Structured JSON to stdout/stderr.
+- Include `trace_id` in all log entries.
+- Follow existing logging patterns in the codebase.
+- Never log sensitive data such as PII, tokens or passwords.
+
 ## Sjekkliste
 
 - [ ] Health- og metrics-endepunkter er implementert (verifiser stier fra NAIS-manifestet)
@@ -51,3 +66,19 @@ spec:
 - [ ] Strukturert logging er konfigurert (JSON til stdout)
 - [ ] Egendefinerte business-metrics er definert der det er relevant
 - [ ] Ingen sensitive data i logger eller metric-labels
+
+## Boundaries
+
+### ✅ Always
+- Include `trace_id` in log entries
+- Use `snake_case` with unit suffix for metrics
+- Follow existing logging patterns
+
+### ⚠️ Ask First
+- New metric labels (cardinality impact)
+- Changing alert thresholds in production
+
+### 🚫 Never
+- High-cardinality labels
+- Log sensitive data (PII, tokens, passwords)
+- camelCase metric names

@@ -16,10 +16,9 @@ common:
     - inspektør-claude.agent.md
     - inspektør-gpt.agent.md
     - inspektør-gemini.agent.md
+    - inspektør-base.md
   instructions:
     - security.instructions.md
-    - observability.instructions.md
-    - nais.instructions.md
   skills:
     - observability-setup
     - issue-management
@@ -53,7 +52,7 @@ profiles:
       # dynamically by the assembler based on detected stack
     skills:
       - api-design
-      - kafka-topic
+      # kafka-topic resolved dynamically when hasKafka
       # flyway-migration and postgresql-review resolved dynamically when hasDatabase
 
   frontend:

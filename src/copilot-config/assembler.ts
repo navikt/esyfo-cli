@@ -170,7 +170,9 @@ export async function assembleForRepo(
 
     // 7. Clean up stale managed files (files we previously managed but no longer need)
     // NOTE: workflowsDir is intentionally NOT included — it contains repo-specific workflows we must not touch.
+    const promptsDir = path.join(githubDir, 'prompts')
     const dirsToClean = [instructionsDir, skillsDir]
+    if (fs.existsSync(promptsDir)) dirsToClean.push(promptsDir) // Legacy cleanup — prompts migrated to skills
     if (fs.existsSync(issueTemplatesDir)) dirsToClean.push(issueTemplatesDir)
     if (fs.existsSync(agentsDir)) dirsToClean.unshift(agentsDir)
     await cleanStaleManagedFiles(dirsToClean, managedFiles, result)

@@ -1,19 +1,20 @@
 ---
-description: Generer NAIS-applikasjonsmanifest for team-esyfo — spec, ressurser, accessPolicy
+description: Generer og vedlikehold NAIS-manifest — spec, database, Kafka, auth, accessPolicy, ressurser
 ---
 
 # NAIS-manifest
 
-Bruk denne skillen når du skal lage et komplett NAIS-manifest for en applikasjon i team-esyfo.
+Bruk denne skillen når du skal lage eller oppdatere et komplett NAIS-manifest for en applikasjon i team-esyfo.
 
 ## Fremgangsmåte
 
 1. Les eksisterende NAIS-manifester i `.nais/` eller `nais/` for å forstå hvordan applikasjonen er satt opp i dag.
-2. Avklar om applikasjonen er backend (Kotlin) eller frontend (Node.js).
-3. Kartlegg hvilke ressurser applikasjonen trenger, for eksempel database, Kafka, auth og ingress.
+2. Avklar om applikasjonen er backend (Kotlin) eller frontend (Node.js), siden port, health paths og observability-oppsett kan variere.
+3. Kartlegg hvilke ressurser applikasjonen trenger, for eksempel database, Kafka, auth, ingress og scaling.
 4. Gjenbruk eksisterende stier for health, readiness og metrics fra nåværende manifester.
+5. Bruk miljøspesifikke manifester (`app-dev.yaml`, `app-prod.yaml`) når repoet allerede følger det mønsteret.
 
-## Mal
+## Manifest-mal
 
 Generer manifestet med denne strukturen:
 
@@ -27,26 +28,139 @@ metadata:
     team: team-esyfo
 spec:
   image: {{ image }}
-  port: 8080  # Sjekk eksisterende manifester for faktisk port
-  # Sjekk eksisterende manifester for riktige paths — disse varierer per repo
+  port: 8080  # Check existing manifests — varies per repo (for example 3000 for frontend)
+
+  # Paths vary per repo — check existing manifests for actual values
   prometheus:
     enabled: true
-    path: /metrics
+    path: /metrics  # or /internal/prometheus
   liveness:
-    path: /isalive
+    path: /isalive  # or /internal/health/livenessState
+    initialDelay: 5
   readiness:
-    path: /isready
+    path: /isready  # or /internal/health/readinessState
+    initialDelay: 5
+
   resources:
     requests:
       cpu: 50m
       memory: 256Mi
     limits:
       memory: 512Mi
-  replicas:
-    min: 2
-    max: 4
 ```
 
-**Viktig**: Sjekk alltid eksisterende NAIS-manifester for korrekt `prometheus.path`, `liveness.path` og `readiness.path`. Disse varierer mellom repoer, for eksempel `/metrics` vs `/internal/prometheus` og `/isalive` vs `/internal/health/livenessState`.
+**Viktig**: Sjekk alltid eksisterende NAIS-manifester for korrekt `port`, `prometheus.path`, `liveness.path` og `readiness.path`. Disse varierer mellom repoer.
 
-Legg til seksjoner for `gcp.sqlInstances`, `kafka`, `azure`, `tokenx`, `accessPolicy` og `ingresses` ved behov, basert på kravene til applikasjonen.
+## PostgreSQL Database
+
+Legg til PostgreSQL når applikasjonen trenger database:
+
+```yaml
+gcp:
+  sqlInstances:
+    - type: POSTGRES_15  # Check repo's existing manifests for actual version
+      databases:
+        - name: myapp-db
+          envVarPrefix: DB
+```
+
+Dette gir typisk følgende miljøvariabler: `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`.
+
+## Kafka
+
+Legg til Kafka når applikasjonen produserer eller konsumerer meldinger:
+
+```yaml
+kafka:
+  pool: nav-dev  # or nav-prod
+```
+
+## Azure AD
+
+Bruk Azure AD når applikasjonen trenger autentisering eller validering av tokens fra Azure AD:
+
+```yaml
+azure:
+  application:
+    enabled: true
+    tenant: nav.no
+```
+
+## TokenX (on-behalf-of)
+
+Bruk TokenX når applikasjonen skal gjøre kall på vegne av en innlogget bruker.
+
+```yaml
+tokenx:
+  enabled: true
+```
+
+For ren maskin-til-maskin-kommunikasjon, bruk Maskinporten.
+
+## accessPolicy
+
+Definer eksplisitt nettverkstilgang for alle tjenester:
+
+```yaml
+accessPolicy:
+  inbound:
+    rules:
+      - application: calling-app
+        namespace: calling-namespace
+  outbound:
+    rules:
+      - application: downstream-app
+        namespace: downstream-namespace
+```
+
+## Ingress
+
+Legg til `ingresses` ved behov, og gjenbruk etablerte URL-mønstre i repoet:
+
+```yaml
+ingresses:
+  - https://myapp.intern.dev.nav.no   # Internal dev
+  - https://myapp.dev.nav.no          # External dev
+```
+
+## Scaling
+
+Bruk eksisterende mønstre for `replicas`, og vær forsiktig med endringer i produksjon:
+
+```yaml
+replicas:
+  min: 2
+  max: 4
+  cpuThresholdPercentage: 80
+```
+
+## Auto-Instrumentation (Observability)
+
+Aktiver NAIS auto-instrumentation når applikasjonen skal eksponere tracing og standard observability-signaler:
+
+```yaml
+spec:
+  observability:
+    autoInstrumentation:
+      enabled: true
+      runtime: java  # or nodejs, python
+```
+
+## Boundaries
+
+### ✅ Always
+- Include liveness, readiness, and metrics endpoints
+- Set memory limits
+- Define explicit `accessPolicy`
+- Use environment-specific manifests (`app-dev.yaml`, `app-prod.yaml`)
+
+### ⚠️ Ask First
+- Changing production resource limits or replicas
+- Adding new GCP resources (cost implications)
+- Modifying network policies
+- Changing CPU limits (can cause throttling — follow existing manifests)
+
+### 🚫 Never
+- Store secrets in Git
+- Deploy without CI/CD pipeline
+- Skip health endpoints
