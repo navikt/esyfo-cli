@@ -1,5 +1,5 @@
 ---
-description: Integrer @navikt/lumi-survey tilbakemeldingswidget i en NAV-frontendapplikasjon
+description: Integrer @navikt/lumi-survey tilbakemeldingswidget i en Nav-frontendapplikasjon
 ---
 
 # Lumi Survey-integrasjon
@@ -67,7 +67,7 @@ Presenter alternativer med anbefalinger:
 | **Task Priority** | Rangere hva som betyr mest for brukerne (Long Neck-metoden) | Best for veikartprioritering |
 | **Tilpasset** | Skreddersydde spørsmålsflyter med forgreningslogikk | Kun når forhåndsdefinerte typer ikke passer |
 
-Hvis utvikleren er usikker, anbefal **Rating med emoji-variant** — det er det mest utprøvde mønsteret i NAV.
+Hvis utvikleren er usikker, anbefal **Rating med emoji-variant** — det er det mest utprøvde mønsteret i Nav.
 
 ### Spørsmål 2: Oppfølgingsspørsmål (kun for Rating)
 
@@ -93,7 +93,7 @@ Sjekk om `.npmrc` allerede har GitHub Packages-konfig. Hvis ikke:
 npm install @navikt/lumi-survey
 ```
 
-Peer-avhengigheter (`@navikt/ds-react`, `@navikt/ds-css`) er vanligvis allerede installert i NAV-apper. Hvis ikke:
+Peer-avhengigheter (`@navikt/ds-react`, `@navikt/ds-css`) er vanligvis allerede installert i Nav-apper. Hvis ikke:
 
 ```bash
 npm install @navikt/ds-react @navikt/ds-css
@@ -357,7 +357,7 @@ Regler for kontekst:
 
 ### 4e. Lagringsstrategi
 
-For **offentlige sider** med NAV-dekoratøren (nav.no): standard `consent`-strategi fungerer automatisk.
+For **offentlige sider** med Nav-dekoratøren (nav.no): standard `consent`-strategi fungerer automatisk.
 
 For **interne apper** (Modia, admin-verktøy) uten dekoratøren:
 
