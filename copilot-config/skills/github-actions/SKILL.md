@@ -91,7 +91,7 @@ jobs:
     outputs:
       image: ${{ steps.docker-build-push.outputs.image }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - uses: nais/docker-build-push@v0
         id: docker-build-push
         with:
@@ -101,7 +101,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: dev-gcp
@@ -112,7 +112,7 @@ jobs:
     needs: [build, deploy-dev]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: prod-gcp
@@ -123,15 +123,15 @@ jobs:
 ## Caching
 
 ```yaml
-# Gradle
-- uses: actions/setup-java@v4
+# Gradle — pin til SHA i produksjon
+- uses: actions/setup-java@v4 # pin SHA
   with:
     distribution: temurin
     java-version: 21
     cache: gradle
 
-# Node/pnpm
-- uses: actions/setup-node@v4
+# Node/pnpm — pin til SHA i produksjon
+- uses: actions/setup-node@v4 # pin SHA
   with:
     node-version: 22
     cache: pnpm
@@ -152,7 +152,7 @@ jobs:
     timeout-minutes: 15
 
 # Scanning
-- uses: aquasecurity/trivy-action@0.28.0
+- uses: aquasecurity/trivy-action@0.28.0 # pin SHA
   with:
     scan-type: fs
     severity: HIGH,CRITICAL

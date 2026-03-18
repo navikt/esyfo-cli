@@ -1,7 +1,7 @@
 ---
-description: Dockerfile-standarder for NAV — Chainguard base images, multi-stage builds og sikkerhet
+description: Dockerfile-standarder for Nav — Chainguard base images, multi-stage builds og sikkerhet
 ---
-# Docker — NAV Standarder
+# Docker — Nav
 
 Standarder for Dockerfile i Nav: Chainguard base images, multi-stage builds og sikkerhetspraksis.
 
@@ -53,12 +53,12 @@ FROM openjdk:21
 
 Alle Nav-apper skal bruke multi-stage builds.
 
-### JVM (bygg utenfor Dockerfile)
+### JVM (JAR bygget i CI — single-stage OK)
 
 ```dockerfile
 FROM europe-north1-docker.pkg.dev/cgr-nav/pull-through/nav.no/jre:openjdk-21
 ENV TZ="Europe/Oslo"
-COPY target/app.jar app.jar
+COPY build/libs/app.jar app.jar
 CMD ["-jar","app.jar"]
 ```
 
