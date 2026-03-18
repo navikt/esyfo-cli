@@ -121,6 +121,15 @@ export async function assembleForRepo(
         const content = await readConfigFile(`skills/${skill}`, 'SKILL.md')
         await writeIfChanged(skillPath, withManagedHeader(content), result)
 
+        // Copy metadata.json if it exists
+        const metadataSource = path.join(CONFIG_BASE, `skills/${skill}`, 'metadata.json')
+        if (fs.existsSync(metadataSource)) {
+            const metadataPath = path.join(skillDir, 'metadata.json')
+            managedFiles.add(metadataPath)
+            const metadataContent = fs.readFileSync(metadataSource, 'utf-8')
+            await writeIfChanged(metadataPath, metadataContent, result)
+        }
+
         // Copy references/ if they exist
         const refsSourceDir = path.join(CONFIG_BASE, `skills/${skill}`, 'references')
         if (fs.existsSync(refsSourceDir)) {
