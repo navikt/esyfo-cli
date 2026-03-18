@@ -55,9 +55,11 @@ Se `references/issue-types.md` for detaljer om issue types.
 
 ### 5. Sett project-felter
 
-Etter opprettelse, sett riktig type og status i prosjektet.
+Issue-templates har `projects: ["navikt/157"]` som automatisk legger issues i Team eSyfo-prosjektet når de opprettes via web UI. Ved programmatisk opprettelse (`gh api`, `gh issue create`, MCP), legg til manuelt:
 
-**MCP (foretrukket):** Bruk `projects_write`-verktøyet for å sette Status og Type. Krever at `projects`-toolsettet er aktivert.
+**MCP (foretrukket):** Bruk `projects_write`-verktøyet for å legge issue i prosjektet og sette Status og Type.
+
+**`gh issue create`:** Bruk `--project "Team eSyfo"` for å legge til i prosjektet automatisk.
 
 **Fallback (`gh project`):** Se `references/projects.md` for komplett workflow med `gh project item-add` og `gh project item-edit`.
 

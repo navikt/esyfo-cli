@@ -2,6 +2,7 @@ name: Task
 description: Teknisk oppgave, vedlikehold eller chore
 title: "[Task]: "
 type: Task
+projects: ["navikt/157"]
 body:
   - type: textarea
     id: description

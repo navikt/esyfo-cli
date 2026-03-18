@@ -2,6 +2,7 @@ name: Bug
 description: Rapporter en feil
 title: "[Bug]: "
 type: Bug
+projects: ["navikt/157"]
 body:
   - type: textarea
     id: description
