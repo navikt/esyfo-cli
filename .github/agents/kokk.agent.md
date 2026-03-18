@@ -1,8 +1,7 @@
 ---
 name: kokk
 description: "Smeller sammen koden — implementerer basert på planer og etablerte mønstre"
-model: "gpt-5.3-codex"
-tools: ["vscode", "edit", "search", "read", "web", "execute", "github/*", "memory", "todo"]
+model: "gpt-5.4"
 user-invocable: false
 ---
 <!-- Managed by esyfo-cli. Do not edit manually. Changes will be overwritten.

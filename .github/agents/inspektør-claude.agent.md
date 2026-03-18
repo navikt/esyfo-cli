@@ -2,7 +2,6 @@
 name: inspektør-claude
 description: "(internt) Code review-inspektør — Claude-perspektiv"
 model: "claude-sonnet-4.6"
-tools: ["search", "read", "web"]
 user-invocable: false
 ---
 <!-- Managed by esyfo-cli. Do not edit manually. Changes will be overwritten.

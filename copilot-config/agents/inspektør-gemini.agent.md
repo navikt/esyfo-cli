@@ -2,7 +2,6 @@
 name: inspektør-gemini
 description: "(internt) Code review-inspektør — Gemini-perspektiv"
 model: "gemini-3-pro-preview"
-tools: ["search", "read", "web"]
 user-invocable: false
 ---
 
