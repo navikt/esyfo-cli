@@ -44,7 +44,7 @@ gh api repos/navikt/REPO_NAVN/issues \
   --jq '.html_url'
 ```
 
-Legg deretter til i Team eSyfo-prosjektet:
+Legg deretter til i Team eSyfo-prosjektet (bruk `html_url` fra forrige steg):
 ```bash
 gh project item-add PROJECT_NUMBER --owner navikt --url ISSUE_URL --format json
 ```
