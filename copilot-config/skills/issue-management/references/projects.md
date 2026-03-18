@@ -2,7 +2,7 @@
 
 ## Automatisk prosjekttilknytning via templates
 
-Issue-templates i `.github/ISSUE_TEMPLATE/` har `projects: ["navikt/157"]` som automatisk legger nye issues i Team eSyfo-prosjektet når de opprettes via web UI. Ved programmatisk opprettelse (API, CLI, MCP) må prosjektet settes manuelt — se under.
+Issue-templates i `.github/ISSUE_TEMPLATE/` har `projects: ["navikt/157"]` som automatisk legger nye issues i Team eSyfo-prosjektet når de opprettes via web UI. En prosjekt-workflow setter deretter Status til **Backlog** automatisk (kun issues, ikke PRs). Ved programmatisk opprettelse (API, CLI, MCP) må prosjektet settes manuelt — se under.
 
 ## MCP (primær)
 
