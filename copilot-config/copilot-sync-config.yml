@@ -27,6 +27,10 @@ common:
     - issue-management
     - pull-request
     - auth-overview
+    - docker
+    - github-actions
+    - security-review
+    - klarsprak
 
 # Profiler per repo-type (additivt til common)
 profiles:
@@ -42,8 +46,9 @@ profiles:
       # dynamically by the assembler based on detected stack
     prompts: []
       # kafka-topic.prompt.md resolved dynamically when hasKafka
-    skills: []
-      # flyway-migration resolved dynamically when hasDatabase
+    skills:
+      - api-design
+      # flyway-migration and postgresql-review resolved dynamically when hasDatabase
 
   frontend:
     copilot_instructions:
@@ -55,6 +60,7 @@ profiles:
       - auth-typescript.instructions.md
     skills:
       - lumi-survey
+      - accessibility
 
   microfrontend:
     copilot_instructions:
@@ -66,6 +72,7 @@ profiles:
       - auth-typescript.instructions.md
     skills:
       - lumi-survey
+      - accessibility
 
   other:
     copilot_instructions:

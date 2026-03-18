@@ -151,6 +151,7 @@ export function resolveConditionalFiles(
     if (stack.hasDatabase) {
         files.instructions.push('sql.instructions.md')
         files.skills.push('flyway-migration')
+        files.skills.push('postgresql-review')
     }
 
     // Framework-specific Kotlin instructions
