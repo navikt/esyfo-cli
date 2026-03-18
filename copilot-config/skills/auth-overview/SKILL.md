@@ -2,7 +2,7 @@
 description: NAV authentication overview — Azure AD, TokenX, ID-porten, Maskinporten configuration and best practices
 ---
 
-# Authentication Overview — NAV
+# Authentication Overview — Nav
 
 Oversikt over autentiseringsmekanismer i NAV. Bruk denne som referanse ved oppsett av auth i nye eller eksisterende tjenester.
 

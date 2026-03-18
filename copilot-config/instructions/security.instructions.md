@@ -2,7 +2,7 @@
 applyTo: "**/*"
 ---
 
-# Security — NAV
+# Security — Nav
 
 ## Golden Path (sikkerhet.nav.no)
 

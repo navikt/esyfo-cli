@@ -2,7 +2,7 @@
 applyTo: "**/*"
 ---
 
-# Observability — NAV
+# Observability — Nav
 
 ## Metric Naming
 - `snake_case` with unit suffix (`_seconds`, `_bytes`, `_total`)
