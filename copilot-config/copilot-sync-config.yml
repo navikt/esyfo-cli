@@ -17,7 +17,6 @@ common:
     - inspektør-gpt.agent.md
     - inspektør-gemini.agent.md
   instructions:
-    - auth.instructions.md
     - security.instructions.md
     - observability.instructions.md
     - nais.instructions.md
@@ -27,6 +26,7 @@ common:
     - observability-setup
     - issue-management
     - pull-request
+    - auth-overview
 
 # Profiler per repo-type (additivt til common)
 profiles:
@@ -66,4 +66,3 @@ profiles:
   other:
     copilot_instructions:
       - base.md
-
