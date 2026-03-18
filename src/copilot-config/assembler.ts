@@ -73,6 +73,7 @@ export async function assembleForRepo(
     const instructionsDir = path.join(githubDir, 'instructions')
     const promptsDir = path.join(githubDir, 'prompts')
     const skillsDir = path.join(githubDir, 'skills')
+    const issueTemplatesDir = path.join(githubDir, 'ISSUE_TEMPLATE')
 
     const hasAgents = files.agents.length > 0
     const dirsToCreate = [instructionsDir, promptsDir, skillsDir]
@@ -111,7 +112,7 @@ export async function assembleForRepo(
         await writeIfChanged(promptPath, withManagedHeader(content), result)
     }
 
-    // 5. Copy skills
+    // 5. Copy skills (including references)
     for (const skill of files.skills) {
         const skillDir = path.join(skillsDir, skill)
         fs.mkdirSync(skillDir, { recursive: true })
@@ -119,6 +120,52 @@ export async function assembleForRepo(
         managedFiles.add(skillPath)
         const content = await readConfigFile(`skills/${skill}`, 'SKILL.md')
         await writeIfChanged(skillPath, withManagedHeader(content), result)
+
+        // Copy metadata.json if it exists
+        const metadataSource = path.join(CONFIG_BASE, `skills/${skill}`, 'metadata.json')
+        if (fs.existsSync(metadataSource)) {
+            const metadataPath = path.join(skillDir, 'metadata.json')
+            managedFiles.add(metadataPath)
+            const metadataContent = fs.readFileSync(metadataSource, 'utf-8')
+            await writeIfChanged(metadataPath, metadataContent, result)
+        }
+
+        // Copy references/ if they exist
+        const refsSourceDir = path.join(CONFIG_BASE, `skills/${skill}`, 'references')
+        if (fs.existsSync(refsSourceDir)) {
+            const refsTargetDir = path.join(skillDir, 'references')
+            fs.mkdirSync(refsTargetDir, { recursive: true })
+            for (const ref of fs.readdirSync(refsSourceDir)) {
+                if (!ref.endsWith('.md')) continue
+                const refPath = path.join(refsTargetDir, ref)
+                managedFiles.add(refPath)
+                const refContent = await readConfigFile(`skills/${skill}/references`, ref)
+                await writeIfChanged(refPath, withManagedHeader(refContent), result)
+            }
+        }
+    }
+
+    // 5b. Copy issue templates
+    if (files.issueTemplates.length > 0) {
+        fs.mkdirSync(issueTemplatesDir, { recursive: true })
+        for (const template of files.issueTemplates) {
+            const templatePath = path.join(issueTemplatesDir, template)
+            managedFiles.add(templatePath)
+            const content = await readConfigFile('issue-templates', template)
+            if (template.endsWith('.yml') || template.endsWith('.yaml')) {
+                await writeIfChanged(templatePath, withManagedYamlHeader(content), result)
+            } else {
+                await writeIfChanged(templatePath, withManagedHeader(content), result)
+            }
+        }
+    }
+
+    // 5c. Copy pull request template
+    if (files.pullRequestTemplate) {
+        const prTemplatePath = path.join(githubDir, 'PULL_REQUEST_TEMPLATE.md')
+        managedFiles.add(prTemplatePath)
+        const content = await readConfigFile('pull-request-template', files.pullRequestTemplate)
+        await writeIfChanged(prTemplatePath, withManagedHeader(content), result)
     }
 
     // 6. Sync workflow for auto-approving copilot-config-sync PRs (always, regardless of profile)
@@ -133,8 +180,20 @@ export async function assembleForRepo(
     // 7. Clean up stale managed files (files we previously managed but no longer need)
     // NOTE: workflowsDir is intentionally NOT included — it contains repo-specific workflows we must not touch.
     const dirsToClean = [instructionsDir, promptsDir, skillsDir]
+    if (fs.existsSync(issueTemplatesDir)) dirsToClean.push(issueTemplatesDir)
     if (fs.existsSync(agentsDir)) dirsToClean.unshift(agentsDir)
     await cleanStaleManagedFiles(dirsToClean, managedFiles, result)
+
+    // Clean stale PR template
+    const prTemplatePath = path.join(githubDir, 'PULL_REQUEST_TEMPLATE.md')
+    if (!managedFiles.has(prTemplatePath) && fs.existsSync(prTemplatePath)) {
+        const content = await Bun.file(prTemplatePath).text()
+        if (isManagedContent(content)) {
+            fs.unlinkSync(prTemplatePath)
+            result.filesRemoved.push('PULL_REQUEST_TEMPLATE.md')
+            log(chalk.red(`  🗑 Removed stale: PULL_REQUEST_TEMPLATE.md`))
+        }
+    }
 
     return result
 }
@@ -285,18 +344,46 @@ async function cleanStaleManagedFiles(
             if (entry.isDirectory()) {
                 // Check SKILL.md inside skill directories
                 const skillMd = path.join(fullPath, 'SKILL.md')
+                let removedSkillMd = false
                 if (fs.existsSync(skillMd) && !currentManagedFiles.has(skillMd)) {
                     const content = await Bun.file(skillMd).text()
                     if (isManagedContent(content)) {
                         fs.unlinkSync(skillMd)
-                        try {
-                            fs.rmdirSync(fullPath)
-                        } catch {
-                            /* not empty, that's fine */
-                        }
+                        removedSkillMd = true
                         const skillRelativePath = skillMd.split('.github/').pop() ?? skillMd
                         result.filesRemoved.push(skillRelativePath)
                         log(chalk.red(`  🗑 Removed stale: ${skillRelativePath}`))
+                    }
+                }
+
+                // Check stale references in skill directories
+                const referencesDir = path.join(fullPath, 'references')
+                if (fs.existsSync(referencesDir)) {
+                    const references = fs.readdirSync(referencesDir, { withFileTypes: true })
+                    for (const reference of references) {
+                        if (!reference.isFile()) continue
+                        const referencePath = path.join(referencesDir, reference.name)
+                        if (currentManagedFiles.has(referencePath)) continue
+
+                        const referenceContent = await Bun.file(referencePath).text()
+                        if (!isManagedContent(referenceContent)) continue
+
+                        fs.unlinkSync(referencePath)
+                        const referenceRelativePath = referencePath.split('.github/').pop() ?? referencePath
+                        result.filesRemoved.push(referenceRelativePath)
+                        log(chalk.red(`  🗑 Removed stale: ${referenceRelativePath}`))
+                    }
+
+                    if (fs.existsSync(referencesDir) && fs.readdirSync(referencesDir).length === 0) {
+                        fs.rmdirSync(referencesDir)
+                    }
+                }
+
+                if (removedSkillMd) {
+                    try {
+                        fs.rmdirSync(fullPath)
+                    } catch {
+                        /* not empty, that's fine */
                     }
                 }
                 continue

@@ -20,14 +20,26 @@ Du må ha en `.npmrc` fil på root i home-mappen din med følgende innhold:
 
 ### Tilgang
 
-Du må ha en PAT (Personal Access Token) for å kunne laste ned pakker fra Github Package Registry. Denne kan
-du lage [her](https://github.com/settings/tokens). Du må gi den `read:packages` scope, bruk PAT typen "classic"
+Vi bruker `gh` CLI som eneste kilde til tokens — ingen hardkodede PAT-er.
 
-Legg til denne i din `~/.bashrc` eller `~/.zshrc` fil:
+**1. Legg til nødvendige scopes (én gang):**
 
 ```bash
-export NPM_AUTH_TOKEN=<din token>
+gh auth refresh -s read:packages,read:project,project
 ```
+
+**2. Sett opp automatisk token via mise (én gang):**
+
+Legg til i `~/.config/mise/config.toml` (opprett filen om den ikke finnes):
+
+```toml
+[env]
+NPM_AUTH_TOKEN = { value = "{{ exec(command='gh auth token', cache_key='NPM_AUTH_TOKEN', cache_duration='1h') | trim }}", redact = true }
+```
+
+Dette gir deg `NPM_AUTH_TOKEN` automatisk i alle repos, cachet i 1 time, uten hardkodede tokens.
+
+> **Hvorfor?** Tokenet roteres enkelt med `gh auth refresh`, variabelen er aldri lagret i klartekst, og `redact: true` skjuler verdien i mise-output.
 
 ### Installer CLI
 
