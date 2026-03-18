@@ -6,7 +6,6 @@ export interface CopilotSyncProfile {
     copilot_instructions: string[]
     agents?: string[]
     instructions?: string[]
-    prompts?: string[]
     skills?: string[]
 }
 
@@ -14,7 +13,6 @@ export interface CopilotSyncConfig {
     common: {
         agents?: string[]
         instructions?: string[]
-        prompts?: string[]
         skills?: string[]
         issue_templates?: string[]
         pull_request_template?: string
@@ -28,7 +26,6 @@ interface RawConfig {
     common: {
         agents?: string[]
         instructions?: string[]
-        prompts?: string[]
         skills?: string[]
         issue_templates?: string[]
         pull_request_template?: string
@@ -53,7 +50,6 @@ export function getFilesForProfile(
     copilotInstructions: string[]
     agents: string[]
     instructions: string[]
-    prompts: string[]
     skills: string[]
     issueTemplates: string[]
     pullRequestTemplate: string | null
@@ -65,7 +61,6 @@ export function getFilesForProfile(
             copilotInstructions: ['base.md'],
             agents: [...(config.common.agents ?? [])],
             instructions: [...(config.common.instructions ?? [])],
-            prompts: [...(config.common.prompts ?? [])],
             skills: [...(config.common.skills ?? [])],
             issueTemplates: [...(config.common.issue_templates ?? [])],
             pullRequestTemplate: config.common.pull_request_template ?? null,
@@ -76,7 +71,6 @@ export function getFilesForProfile(
         copilotInstructions: profileConfig.copilot_instructions,
         agents: [...(config.common.agents ?? []), ...(profileConfig.agents ?? [])],
         instructions: [...(config.common.instructions ?? []), ...(profileConfig.instructions ?? [])],
-        prompts: [...(config.common.prompts ?? []), ...(profileConfig.prompts ?? [])],
         skills: [...(config.common.skills ?? []), ...(profileConfig.skills ?? [])],
         issueTemplates: [...(config.common.issue_templates ?? [])],
         pullRequestTemplate: config.common.pull_request_template ?? null,
@@ -97,7 +91,6 @@ export function getFilesForProfiles(
     const instructionTemplates: string[] = ['base.md']
     const agents = new Set<string>(config.common.agents ?? [])
     const instructions = new Set<string>(config.common.instructions ?? [])
-    const prompts = new Set<string>(config.common.prompts ?? [])
     const skills = new Set<string>(config.common.skills ?? [])
 
     for (const profile of profiles) {
@@ -113,7 +106,6 @@ export function getFilesForProfiles(
 
         for (const a of profileConfig.agents ?? []) agents.add(a)
         for (const i of profileConfig.instructions ?? []) instructions.add(i)
-        for (const p of profileConfig.prompts ?? []) prompts.add(p)
         for (const s of profileConfig.skills ?? []) skills.add(s)
     }
 
@@ -121,7 +113,6 @@ export function getFilesForProfiles(
         copilotInstructions: instructionTemplates,
         agents: [...agents],
         instructions: [...instructions],
-        prompts: [...prompts],
         skills: [...skills],
         issueTemplates: [...(config.common.issue_templates ?? [])],
         pullRequestTemplate: config.common.pull_request_template ?? null,

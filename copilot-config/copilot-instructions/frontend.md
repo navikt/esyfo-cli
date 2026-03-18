@@ -2,7 +2,7 @@
 ## Tech Stack
 - **Language**: TypeScript
 - **Framework**: {{framework}}
-- **UI Library**: NAV Aksel Design System (`@navikt/ds-react`, `@navikt/aksel-icons`)
+- **UI Library**: Nav Aksel Design System (`@navikt/ds-react`, `@navikt/aksel-icons`)
 - **Testing**: {{testing}}
 - **Bundler**: {{bundler}}
 

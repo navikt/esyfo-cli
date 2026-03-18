@@ -1,5 +1,5 @@
 ---
-description: Sikkerhetsgjennomgang før commit/push/PR — OWASP Top 10, skanning, sjekkliste
+description: Sikkerhetsgjennomgang før commit/push/PR — OWASP Top 10, Dependabot, Trivy, hemmeligheter, inputvalidering
 ---
 # Security Review
 

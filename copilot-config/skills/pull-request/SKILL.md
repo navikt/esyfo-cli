@@ -1,5 +1,5 @@
 ---
-description: Create standardized pull requests linked to GitHub Issues and the Team eSyfo workflow
+description: Opprett pull requests med semantisk tittel, issue-kobling og sjekkliste etter Team eSyfos arbeidsflyt
 ---
 
 # Pull Request — Team eSyfo

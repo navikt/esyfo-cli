@@ -3,14 +3,14 @@
 {{description}}
 
 ## Team
-- **Team**: team-esyfo, NAV IT
+- **Team**: team-esyfo, Nav IT
 - **Org**: navikt
 
 ## Commands
 
 {{commands}}
 
-## NAV Principles
+## Nav Principles
 - **Team First**: Autonomous teams with circles of autonomy
 - **Product Development**: Continuous development over ad hoc approaches
 - **Essential Complexity**: Focus on essential, avoid accidental complexity

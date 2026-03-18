@@ -2,9 +2,9 @@
 description: Generer conventional commit-meldinger med Nav-relevante scopes og breaking change-format
 ---
 
-# Conventional Commit
+# Conventional commit
 
-Generate commit messages following the Conventional Commits specification, adapted for Nav projects.
+Generer commit-meldinger etter Conventional Commits-spesifikasjonen, tilpasset Nav-prosjekter.
 
 ## Format
 
@@ -16,20 +16,20 @@ Generate commit messages following the Conventional Commits specification, adapt
 [optional footer]
 ```
 
-## Types
+## Typer
 
-| Type | Usage |
+| Type | Brukes når |
 |---|---|
-| `feat` | New functionality |
-| `fix` | Bug fix |
-| `docs` | Documentation-only changes |
-| `style` | Formatting, semicolons, etc. (no code change) |
-| `refactor` | Code that neither fixes a bug nor adds a feature |
-| `perf` | Performance changes |
-| `test` | Adding or fixing tests |
-| `build` | Build system or dependency changes |
-| `ci` | CI configuration changes |
-| `chore` | Other changes that don't affect code |
+| `feat` | Ny funksjonalitet |
+| `fix` | Bugfiks |
+| `docs` | Kun dokumentasjonsendringer |
+| `style` | Formatering, semikolon osv. (ingen kodeendring) |
+| `refactor` | Kode som verken fikser en bug eller legger til en feature |
+| `perf` | Ytelsesendringer |
+| `test` | Legge til eller fikse tester |
+| `build` | Endringer i build-system eller avhengigheter |
+| `ci` | Endringer i CI-konfigurasjon |
+| `chore` | Andre endringer som ikke påvirker kode |
 
 ## Nav-relevante scopes
 
@@ -45,7 +45,7 @@ perf(db): legg til indeks på bruker_id
 chore(nais): oppdater ressursgrenser
 ```
 
-## Breaking Changes
+## Breaking changes
 
 ```
 feat(api)!: endre responsformat for vedtak-endepunktet
@@ -54,32 +54,32 @@ BREAKING CHANGE: Feltet `vedtakDato` er endret til `opprettetDato`.
 Konsumenter må oppdatere sin parsing.
 ```
 
-## Rules
+## Regler
 
-- First line: max 72 characters
-- Use imperative form: "add", not "added" or "adds"
-- Don't end with a period
-- Use Norwegian or English consistently within the project
-- Reference GitHub issue in footer: `Closes #123`
-- Always include Co-authored-by trailer for Copilot
+- Første linje: maks 72 tegn
+- Bruk imperativ: "add", ikke "added" eller "adds"
+- Ikke avslutt med punktum
+- Bruk norsk eller engelsk konsekvent i prosjektet
+- Referer til GitHub-issue i footer: `Closes #123`
+- Ta alltid med `Co-authored-by`-trailer for Copilot
 
-## Workflow
+## Arbeidsflyt
 
-### 1. Analyze staged changes
+### 1. Analyser staged changes
 
 ```bash
 git diff --cached --stat        # Overview of changed files
 git diff --cached               # Detailed diff
 ```
 
-### 2. Determine type and scope
+### 2. Finn type og scope
 
-Based on the diff:
-1. Identify **type** (feat/fix/refactor/etc.)
-2. Identify **scope** (which module/domain)
-3. Write short, precise description
+Basert på diff-en:
+1. Identifiser **type** (feat/fix/refactor/etc.)
+2. Identifiser **scope** (hvilket modul- eller domeneområde)
+3. Skriv en kort og presis beskrivelse
 
-### 3. Write commit message
+### 3. Skriv commit-melding
 
 ```bash
 git commit -m "type(scope): kort beskrivelse" \
@@ -87,31 +87,31 @@ git commit -m "type(scope): kort beskrivelse" \
   -m "Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
 ```
 
-### 4. Multiple logical changes
+### 4. Flere logiske endringer
 
-If staged changes contain multiple logical changes:
-1. Suggest splitting into separate commits
-2. Use `git add -p` to stage partially
-3. One commit per logical change
+Hvis staged changes inneholder flere logiske endringer:
+1. Foreslå å dele dem opp i egne commits
+2. Bruk `git add -p` for å stage deler av endringene
+3. Lag én commit per logisk endring
 
-## Security Protocol
+## Sikkerhetsprotokoll
 
-Before committing, verify that staged changes do **NOT** contain:
-- Tokens, API keys, or credentials
-- Passwords or secrets (even in comments)
-- PII (national identity numbers, emails, names in test data)
-- `.env` files with sensitive values
+Før du committer, verifiser at staged changes **IKKE** inneholder:
+- Tokens, API keys eller credentials
+- Passord eller secrets (også i kommentarer)
+- PII (fødselsnumre, e-postadresser, navn i testdata)
+- `.env`-filer med sensitive verdier
 
-If sensitive data is detected: **STOP** and alert the user.
+Hvis du oppdager sensitive data: **STOPP** og varsle brukeren.
 
-## Examples
+## Eksempler
 
 ```bash
-# Simple feature
+# Enkel feature
 git commit -m "feat(søknad): legg til validering av fødselsnummer" \
   -m "Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
 
-# Bugfix with reference
+# Bugfiks med referanse
 git commit -m "fix(auth): håndter utløpt refresh-token" \
   -m "Refresh-tokenet ble ikke fornyet ved utløp, som førte til
 at brukere ble logget ut uten varsel." \
@@ -119,7 +119,7 @@ at brukere ble logget ut uten varsel." \
 
 Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
 
-# Dependency update
+# Oppdatering av avhengighet
 git commit -m "build(deps): oppgrader postgresql driver til 42.7.4" \
   -m "Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
 

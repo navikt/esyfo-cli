@@ -2,7 +2,7 @@
 ## Tech Stack
 - **Language**: TypeScript
 - **Type**: Microfrontend (imported by host application)
-- **UI Library**: NAV Aksel Design System (`@navikt/ds-react`, `@navikt/aksel-icons`)
+- **UI Library**: Nav Aksel Design System (`@navikt/ds-react`, `@navikt/aksel-icons`)
 - **Bundler**: Vite
 - **Testing**: {{testing}}
 

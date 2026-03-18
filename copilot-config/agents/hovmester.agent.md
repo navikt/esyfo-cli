@@ -112,6 +112,10 @@ For hver fase:
 3. **Inkluder alltid output fra forrige fase som kontekst** — når Kokk skal implementere noe Konditor har designet, send Konditoren sitt resultat med i delegeringen
 4. Vent til alle oppgaver i fasen er ferdig før neste fase
 5. Rapporter fremgang etter hver fase
+6. **Ved feil fra subagent**, vurder type:
+   - **Forbigående** (timeout, API-feil) → Prøv på nytt (maks 1 retry)
+   - **Trenger ny plan** (feil antagelser, manglende kontekst) → Send tilbake til Souschef med feilen som kontekst
+   - **Eskaler** (utenfor scope, krever brukerinput) → Stopp og spør brukeren
 
 ### Steg 4: Mattilsynet — inspeksjon og utbedring
 
@@ -174,6 +178,18 @@ Mattilsynet returnerer en strukturert tilsynsrapport med smilefjes og funn i tre
 #### 4c. Aldri skjul rapporten
 
 Mattilsynets tilsynsrapport (den fulle ASCII-rapporten med smilefjes) skal **alltid** inkluderes i svaret til brukeren — uansett resultat. Den er det siste brukeren ser.
+
+#### 4d. Selvevaluering (store oppgaver)
+
+For store oppgaver, vurder resultatet mot disse 5 dimensjonene før presentasjon (mål: >8/10 på alle):
+
+1. **Korrekthet** — Oppfyller kravene?
+2. **Robusthet** — Håndterer edge cases?
+3. **Enkelhet** — Fri for over-engineering?
+4. **Vedlikeholdbarhet** — Lett å utvide og debugge?
+5. **Konsistens** — Følger prosjektets etablerte mønstre?
+
+Hvis noen dimensjon scorer <8: identifiser konkret utbedring, send til riktig agent, maks 2 iterasjoner.
 
 ### Steg 5: Presenter til brukeren
 

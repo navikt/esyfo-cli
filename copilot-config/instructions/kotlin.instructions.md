@@ -1,4 +1,5 @@
 ---
+description: 'Kotlin-standarder — val/var, data classes, extension functions, Gradle'
 applyTo: "**/*.kt"
 ---
 

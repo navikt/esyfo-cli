@@ -1,6 +1,9 @@
 ---
+description: 'Spring Kafka-spesifikke mønstre — @KafkaListener, ContainerFactory, retry'
 applyTo: "**/*Kafka*.kt,**/*Consumer*.kt,**/*Producer*.kt,**/*Listener*.kt,**/*Event*.kt"
 ---
+
+> Spring Kafka-spesifikke patterns. Disse utvider (og tar presedens over) kafka.instructions.md for Spring-spesifikke konsepter.
 
 # Kafka — Spring Kafka Patterns
 

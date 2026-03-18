@@ -20,8 +20,6 @@ common:
     - security.instructions.md
     - observability.instructions.md
     - nais.instructions.md
-  prompts:
-    - nais-manifest.prompt.md
   skills:
     - observability-setup
     - issue-management
@@ -32,6 +30,7 @@ common:
     - github-actions
     - security-review
     - klarsprak
+    - nais-manifest
   issue_templates:
     - feature.yml
     - bug.yml
@@ -52,10 +51,9 @@ profiles:
       - auth-kotlin.instructions.md
       # sql, kafka, and framework-specific kotlin instructions are resolved
       # dynamically by the assembler based on detected stack
-    prompts: []
-      # kafka-topic.prompt.md resolved dynamically when hasKafka
     skills:
       - api-design
+      - kafka-topic
       # flyway-migration and postgresql-review resolved dynamically when hasDatabase
 
   frontend:

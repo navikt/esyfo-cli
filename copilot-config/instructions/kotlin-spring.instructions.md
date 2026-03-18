@@ -1,4 +1,5 @@
 ---
+description: 'Spring Boot-spesifikke mønstre — DI, @Transactional, REST controllers'
 applyTo: "**/*.kt"
 ---
 
