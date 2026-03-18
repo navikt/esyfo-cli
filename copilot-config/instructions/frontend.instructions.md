@@ -69,13 +69,9 @@ import { Heading, BodyShort, Label } from "@navikt/ds-react";
 - Never use `toLocaleString()` without explicit locale
 
 ## Accessibility (UU) — WCAG 2.1 AA
-- All interactive elements must be keyboard accessible
-- Use semantic HTML (`<nav>`, `<main>`, `<section>`, `<article>`)
-- All images need `alt` text (decorative: `alt=""`)
-- Color contrast minimum 4.5:1 for text
-- Form inputs must have associated `<label>` elements
-- Error messages must be programmatically associated with inputs
-- Use `aria-live` for dynamic content updates
+- Follow WCAG 2.1 AA — use Aksel components which have built-in a11y
+- Use semantic HTML, keyboard navigation, proper ARIA
+- Detailed UU guidance available via the `accessibility` skill
 
 ## React
 - Use functional components with hooks
