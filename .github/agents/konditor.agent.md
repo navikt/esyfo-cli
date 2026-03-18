@@ -2,7 +2,6 @@
 name: konditor
 description: "(internt) Pynt og finish — Aksel designsystem, tilgjengelighet og brukeropplevelse"
 model: "gemini-3-pro-preview"
-tools: ["vscode", "edit", "search", "read", "web", "execute", "memory", "todo"]
 user-invocable: false
 ---
 <!-- Managed by esyfo-cli. Do not edit manually. Changes will be overwritten.

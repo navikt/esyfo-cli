@@ -2,7 +2,6 @@
 name: inspektør-gpt
 description: "(internt) Code review-inspektør — GPT-perspektiv"
 model: "gpt-5.4"
-tools: ["search", "read", "web"]
 user-invocable: false
 ---
 <!-- Managed by esyfo-cli. Do not edit manually. Changes will be overwritten.
