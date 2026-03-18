@@ -1,8 +1,6 @@
 ---
 description: Norsk teknisk redaktør — klarspråk, AI-markører, anglismer, fagtermer, mikrotekst
 ---
-<!-- Managed by esyfo-cli. Do not edit manually. Changes will be overwritten. -->
-
 # Klarspråk — norsk teknisk skriving
 
 Retningslinjer for norsk bokmål i teknisk dokumentasjon, UI-tekst og PR-beskrivelser.

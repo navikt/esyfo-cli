@@ -1,8 +1,6 @@
 ---
 description: PostgreSQL-gjennomgang — EXPLAIN-analyse, indeksstrategier, N+1-deteksjon og migrasjoner
 ---
-<!-- Managed by esyfo-cli. Do not edit manually. Changes will be overwritten. -->
-
 # PostgreSQL Review
 
 Gjennomgang av PostgreSQL-bruk i Nav-applikasjoner. Dekker spørringsoptimalisering, indeksering, anti-mønstre og migrasjoner.
@@ -115,23 +113,12 @@ HikariConfig().apply {
 }
 ```
 
-## Migrasjoner (Flyway)
+## Migrasjoner
 
-```sql
--- V1__create_vedtak.sql
-CREATE TABLE vedtak (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    bruker_id VARCHAR(11) NOT NULL,
-    status VARCHAR(20) NOT NULL DEFAULT 'OPPRETTET',
-    opprettet TIMESTAMP NOT NULL DEFAULT now(),
-    oppdatert TIMESTAMP NOT NULL DEFAULT now()
-);
-
-CREATE INDEX idx_vedtak_bruker ON vedtak (bruker_id);
-
--- ✅ Alltid: NOT NULL der mulig, indekser på FK-kolonner, UUID PK
--- ❌ Aldri: DROP TABLE i produksjon uten backup-plan
-```
+For Flyway-migrasjoner og SQL-konvensjoner, se `flyway-migration`-skillen. Nøkkelpunkter:
+- Bruk `TIMESTAMPTZ` (ikke `TIMESTAMP`) for alle tidsstempel-kolonner
+- Indekser på alle FK-kolonner
+- UUID primary keys med `gen_random_uuid()`
 
 ## Sjekkliste
 
@@ -143,3 +130,21 @@ CREATE INDEX idx_vedtak_bruker ON vedtak (bruker_id);
 - [ ] Connection pool riktig dimensjonert
 - [ ] Migrasjoner er reversible der mulig
 - [ ] Ingen `SELECT *` i produksjonskode
+
+## Grenser
+
+### ✅ Alltid
+- EXPLAIN ANALYZE på tunge spørringer
+- Indekser på FK-kolonner og hyppige WHERE-kolonner
+- TIMESTAMPTZ for alle tidsstempel-kolonner
+- LIMIT på spørringer som kan returnere mange rader
+
+### ⚠️ Spør først
+- Nye indekser på store tabeller (låsing i produksjon)
+- Endring av connection pool-størrelse
+
+### 🚫 Aldri
+- `SELECT *` i produksjonskode
+- N+1-spørringer
+- `DROP TABLE` i produksjon uten backup-plan
+- `TIMESTAMP` uten tidssone (bruk `TIMESTAMPTZ`)

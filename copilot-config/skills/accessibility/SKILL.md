@@ -1,8 +1,6 @@
 ---
 description: Universell utforming (UU) — WCAG 2.1 AA med Aksel-komponenter for Nav-frontend
 ---
-<!-- Managed by esyfo-cli. Do not edit manually. Changes will be overwritten. -->
-
 # Tilgjengelighet (UU) — WCAG 2.1 AA
 
 Universell utforming er lovpålagt i Norge. All frontend-kode i Nav skal oppfylle WCAG 2.1 AA.

@@ -1,8 +1,6 @@
 ---
 description: Dockerfile-standarder for NAV — Chainguard base images, multi-stage builds og sikkerhet
 ---
-<!-- Managed by esyfo-cli. Do not edit manually. Changes will be overwritten. -->
-
 # Docker — NAV Standarder
 
 Standarder for Dockerfile i Nav: Chainguard base images, multi-stage builds og sikkerhetspraksis.
@@ -166,7 +164,7 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
       - uses: nais/docker-build-push@v0
         id: docker-push
         with:

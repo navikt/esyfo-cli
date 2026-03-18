@@ -1,8 +1,6 @@
 ---
 description: REST API-design — URL-konvensjoner, feilhåndtering (RFC 7807), paginering og OpenAPI
 ---
-<!-- Managed by esyfo-cli. Do not edit manually. Changes will be overwritten. -->
-
 # API Design — REST
 
 Standarder for REST API-design i Nav-applikasjoner.

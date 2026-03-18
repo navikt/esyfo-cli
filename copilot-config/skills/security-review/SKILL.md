@@ -1,8 +1,6 @@
 ---
 description: Sikkerhetsgjennomgang før commit/push/PR — OWASP Top 10, skanning, sjekkliste
 ---
-<!-- Managed by esyfo-cli. Do not edit manually. Changes will be overwritten. -->
-
 # Security Review
 
 Pre-commit og pre-PR sikkerhetssjekk for Nav-applikasjoner. Dekker secret scanning, sårbarhetsskanning og OWASP Top 10.

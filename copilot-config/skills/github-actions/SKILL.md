@@ -1,8 +1,6 @@
 ---
 description: GitHub Actions CI/CD-standarder — SHA-pinning, Nais deploy, sikkerhet og Team eSyfos gjenbrukbare workflows
 ---
-<!-- Managed by esyfo-cli. Do not edit manually. Changes will be overwritten. -->
-
 # GitHub Actions — Team eSyfo
 
 Standarder for CI/CD-workflows med GitHub Actions på Nais.
@@ -62,6 +60,8 @@ Pin alle actions til full commit SHA:
 - uses: actions/checkout@v4
 ```
 
+> **Unntak**: `nais/*`-actions (f.eks. `nais/docker-build-push`, `nais/deploy`) er interne Nav-actions som bruker stabile semver-tags. Disse trenger ikke SHA-pinning, men bør ha versjonskommentar.
+
 ## Minimale tilganger
 
 ```yaml
@@ -91,7 +91,7 @@ jobs:
     outputs:
       image: ${{ steps.docker-build-push.outputs.image }}
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@v4
       - uses: nais/docker-build-push@v0
         id: docker-build-push
         with:
@@ -101,7 +101,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@v4
       - uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: dev-gcp
@@ -112,7 +112,7 @@ jobs:
     needs: [build, deploy-dev]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@v4
       - uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: prod-gcp
@@ -178,6 +178,6 @@ jobs:
 
 ### 🚫 Aldri
 - `permissions: write-all`
-- Upinnede action-versjoner (`@v4`)
+- Upinnede 3rd-party action-versjoner uten SHA (unntak: `nais/*`-actions)
 - Logg secrets i workflow-output
 - `pull_request_target` med `actions/checkout` av PR-branch (code injection)
