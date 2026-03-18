@@ -1,12 +1,9 @@
 ---
-description: REST API-design — URL-konvensjoner, feilhåndtering (RFC 7807), paginering og OpenAPI
+description: REST API-design for Ktor — URL-konvensjoner, StatusPages-basert feilhåndtering, paginering og input-validering
 ---
 # API Design — REST
-
-Standarder for REST API-design i Nav-applikasjoner.
-
+Standarder for REST API-design i Nav-applikasjoner bygget med Ktor.
 ## URL-konvensjoner
-
 ```
 GET    /api/v1/vedtak              → List vedtak
 GET    /api/v1/vedtak/{id}         → Hent enkelt vedtak
@@ -17,7 +14,6 @@ DELETE /api/v1/vedtak/{id}         → Slett vedtak
 ```
 
 ### Regler
-
 - Bruk **flertall** for ressursnavn: `/vedtak`, `/saker`, `/brukere`
 - Bruk **kebab-case** for sammensatte navn: `/sykmeldinger`, `/oppfolgingsplaner`
 - Bruk **path params** for identifikatorer: `/vedtak/{id}`
@@ -25,7 +21,6 @@ DELETE /api/v1/vedtak/{id}         → Slett vedtak
 - Maks **3 nivåer** nesting: `/saker/{id}/vedtak` (ikke dypere)
 
 ## HTTP-statuskoder
-
 | Kode | Bruksområde |
 |------|-------------|
 | 200 | Vellykket henting/oppdatering |
@@ -39,41 +34,119 @@ DELETE /api/v1/vedtak/{id}         → Slett vedtak
 | 422 | Ugyldig input som er syntaktisk korrekt |
 | 500 | Intern feil |
 
-## Feilhåndtering — RFC 7807 ProblemDetail
-
+## Feilhåndtering — Ktor StatusPages
 ```kotlin
-// ✅ Strukturert feilrespons
-@ExceptionHandler(VedtakNotFoundException::class)
-fun handleNotFound(ex: VedtakNotFoundException): ProblemDetail =
-    ProblemDetail.forStatusAndDetail(
-        HttpStatus.NOT_FOUND,
-        ex.message ?: "Vedtak ikke funnet"
-    ).apply {
-        title = "Vedtak ikke funnet"
-        type = URI("https://api.nav.no/problems/vedtak-not-found")
+open class ApiError(
+    val status: HttpStatusCode,
+    val type: ErrorType,
+    open val message: String,
+    open val path: String? = null,
+    val timestamp: Instant = Instant.now(),
+)
+
+enum class ErrorType { AUTHENTICATION_ERROR, AUTHORIZATION_ERROR, NOT_FOUND, INTERNAL_SERVER_ERROR, BAD_REQUEST, INVALID_FORMAT, CONFLICT }
+
+sealed class ApiErrorException(message: String, val type: ErrorType, cause: Throwable?) : RuntimeException(message, cause) {
+    abstract fun toApiError(path: String): ApiError
+    class ForbiddenException(val errorMessage: String = "Forbidden", cause: Throwable? = null, type: ErrorType = ErrorType.AUTHORIZATION_ERROR) : ApiErrorException(errorMessage, type, cause) {
+        override fun toApiError(path: String) = ApiError(HttpStatusCode.Forbidden, type, errorMessage, path)
     }
+    class BadRequestException(val errorMessage: String = "Bad Request", cause: Throwable? = null, type: ErrorType = ErrorType.BAD_REQUEST) : ApiErrorException(errorMessage, type, cause) {
+        override fun toApiError(path: String) = ApiError(HttpStatusCode.BadRequest, type, errorMessage, path)
+    }
+    class NotFoundException(val errorMessage: String = "Not Found", cause: Throwable? = null, type: ErrorType = ErrorType.NOT_FOUND) : ApiErrorException(errorMessage, type, cause) {
+        override fun toApiError(path: String) = ApiError(HttpStatusCode.NotFound, type, errorMessage, path)
+    }
+    class InternalServerErrorException(val errorMessage: String = "Internal Server Error", cause: Throwable? = null, type: ErrorType = ErrorType.INTERNAL_SERVER_ERROR) : ApiErrorException(errorMessage, type, cause) {
+        override fun toApiError(path: String) = ApiError(HttpStatusCode.InternalServerError, type, errorMessage, path)
+    }
+    class UnauthorizedException(val errorMessage: String = "Unauthorized", cause: Throwable? = null, type: ErrorType = ErrorType.AUTHORIZATION_ERROR) : ApiErrorException(errorMessage, type, cause) {
+        override fun toApiError(path: String) = ApiError(HttpStatusCode.Unauthorized, type, errorMessage, path)
+    }
+}
+
+fun Application.installStatusPages() {
+    install(StatusPages) {
+        exception<Throwable> { call, cause ->
+            logException(call, cause)
+            val apiError = determineApiError(cause, call.request.path())
+            call.respond(apiError.status, apiError)
+        }
+    }
+}
+
+fun determineApiError(cause: Throwable, path: String): ApiError = when (cause) {
+    is BadRequestException -> cause.toApiError(path)
+    is NotFoundException -> cause.toApiError(path)
+    is ApiErrorException -> cause.toApiError(path)
+    else -> ApiError(HttpStatusCode.InternalServerError, ErrorType.INTERNAL_SERVER_ERROR, cause.message ?: "Internal server error", path)
+}
+
+fun BadRequestException.toApiError(path: String?): ApiError {
+    val rootCause = this.rootCause()
+    return if (rootCause is MissingFieldException) {
+        ApiErrorException.BadRequestException("Invalid request body. Missing required field: ${rootCause.fieldName}", type = ErrorType.INVALID_FORMAT).toApiError(path ?: "")
+    } else {
+        ApiError(status = HttpStatusCode.BadRequest, type = ErrorType.BAD_REQUEST, message = this.message ?: "Bad request", path = path)
+    }
+}
+
+fun NotFoundException.toApiError(path: String?): ApiError = ApiError(
+    status = HttpStatusCode.NotFound, type = ErrorType.NOT_FOUND, message = this.message ?: "Not found", path = path,
+)
+
+fun Throwable.rootCause(): Throwable {
+    var root: Throwable = this
+    while (root.cause != null && root.cause != root) root = root.cause!!
+    return root
+}
+
+private fun logException(call: ApplicationCall, cause: Throwable) {
+    val callId = call.callId
+    val logMessage = "Caught exception, callId=$callId"
+    val log = call.application.log
+    when (cause) {
+        is ApiErrorException -> log.warn(logMessage, cause)
+        else -> log.error(logMessage, cause)
+    }
+}
+
+fun Application.apiModule() {
+    installCallId()
+    installContentNegotiation()
+    installStatusPages()
+    // ... routing
+}
 ```
 
 ```json
 {
-  "type": "https://api.nav.no/problems/vedtak-not-found",
-  "title": "Vedtak ikke funnet",
   "status": 404,
-  "detail": "Vedtak med id 550e8400-e29b-41d4-a716-446655440000 finnes ikke"
+  "type": "NOT_FOUND",
+  "message": "Vedtak med id 550e8400 finnes ikke",
+  "path": "/api/v1/vedtak/550e8400",
+  "timestamp": "2025-01-15T10:30:00Z"
 }
 ```
 
 ## Paginering
 
 ```kotlin
-// ✅ Offset-basert paginering
-@GetMapping("/api/v1/vedtak")
-fun listVedtak(
-    @RequestParam(defaultValue = "0") side: Int,
-    @RequestParam(defaultValue = "20") antall: Int,
-): Page<VedtakDTO> {
+@Serializable
+data class PaginatedResponse<T>(
+    val innhold: List<T>,
+    val side: Int,
+    val antallPerSide: Int,
+    val totaltAntall: Long,
+    val totaltAntallSider: Int,
+)
+
+get("/api/v1/vedtak") {
+    val side = call.queryParameters["side"]?.toIntOrNull() ?: 0
+    val antall = call.queryParameters["antall"]?.toIntOrNull() ?: 20
     require(antall <= 100) { "Maks 100 per side" }
-    return vedtakService.findAll(PageRequest.of(side, antall))
+    val result = vedtakService.findAll(offset = side * antall, limit = antall)
+    call.respond(result)
 }
 ```
 
@@ -90,31 +163,17 @@ fun listVedtak(
 ## Input-validering
 
 ```kotlin
-// ✅ Valider input med Bean Validation
-data class CreateVedtakRequest(
-    @field:NotBlank val brukerId: String,
-    @field:Size(max = 500) val beskrivelse: String?,
-    @field:NotNull val type: VedtakType,
-)
+@Serializable
+data class CreateVedtakRequest(val brukerId: String, val beskrivelse: String? = null, val type: VedtakType)
 
-@PostMapping("/api/v1/vedtak")
-fun create(@RequestBody @Valid request: CreateVedtakRequest): ResponseEntity<VedtakDTO> {
+post("/api/v1/vedtak") {
+    val request = call.receive<CreateVedtakRequest>()
+    if (request.brukerId.isBlank()) throw ApiErrorException.BadRequestException("brukerId kan ikke være tom")
+    request.beskrivelse?.let { if (it.length > 500) throw ApiErrorException.BadRequestException("beskrivelse maks 500 tegn") }
     val vedtak = vedtakService.create(request)
-    return ResponseEntity
-        .created(URI("/api/v1/vedtak/${vedtak.id}"))
-        .body(vedtak.toDTO())
+    call.response.header("Location", "/api/v1/vedtak/${vedtak.id}")
+    call.respond(HttpStatusCode.Created, vedtak.toDTO())
 }
-```
-
-## OpenAPI / Swagger
-
-```kotlin
-// ✅ Dokumenter endepunkter med OpenAPI-annotasjoner
-@Operation(summary = "Hent vedtak", description = "Henter et vedtak basert på ID")
-@ApiResponse(responseCode = "200", description = "Vedtak funnet")
-@ApiResponse(responseCode = "404", description = "Vedtak ikke funnet")
-@GetMapping("/api/v1/vedtak/{id}")
-fun getVedtak(@PathVariable id: UUID): VedtakDTO
 ```
 
 ## Versjonering
@@ -128,9 +187,8 @@ fun getVedtak(@PathVariable id: UUID): VedtakDTO
 
 ### ✅ Alltid
 - Flertall for ressursnavn
-- RFC 7807 ProblemDetail for feilresponser
+- Strukturert ApiError via StatusPages
 - Valider all input
-- Dokumenter med OpenAPI
 - Location-header ved 201
 
 ### ⚠️ Spør først
@@ -143,3 +201,4 @@ fun getVedtak(@PathVariable id: UUID): VedtakDTO
 - PII i URL-er eller query params (FNR, navn)
 - 200 med feilmelding i body
 - Ukonsistent navngiving mellom endepunkter
+- Kaste exceptions som ikke fanges av StatusPages uten bevisst valg
