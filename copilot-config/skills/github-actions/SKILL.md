@@ -123,15 +123,15 @@ jobs:
 ## Caching
 
 ```yaml
-# Gradle — pin til SHA i produksjon
-- uses: actions/setup-java@v4 # pin SHA
+# Gradle
+- uses: actions/setup-java@v4 # erstatt med SHA i produksjon
   with:
     distribution: temurin
     java-version: 21
     cache: gradle
 
-# Node/pnpm — pin til SHA i produksjon
-- uses: actions/setup-node@v4 # pin SHA
+# Node/pnpm
+- uses: actions/setup-node@v4 # erstatt med SHA i produksjon
   with:
     node-version: 22
     cache: pnpm

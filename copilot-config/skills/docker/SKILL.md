@@ -59,7 +59,7 @@ Alle Nav-apper skal bruke multi-stage builds.
 FROM europe-north1-docker.pkg.dev/cgr-nav/pull-through/nav.no/jre:openjdk-21
 ENV TZ="Europe/Oslo"
 COPY build/libs/app.jar app.jar
-CMD ["-jar","app.jar"]
+CMD ["java", "-jar", "app.jar"]
 ```
 
 ### JVM med bygg i Dockerfile (Kotlin/Java)

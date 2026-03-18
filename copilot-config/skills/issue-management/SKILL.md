@@ -44,12 +44,12 @@ gh api repos/navikt/REPO_NAVN/issues \
   --jq '.html_url'
 ```
 
-Legg deretter til i Team eSyfo-prosjektet:
+Legg deretter til i Team eSyfo-prosjektet (bruk `html_url` fra forrige steg):
 ```bash
-gh issue create --repo navikt/REPO_NAVN --title "..." --body "..." --project "Team eSyfo"
+gh project item-add PROJECT_NUMBER --owner navikt --url ISSUE_URL --format json
 ```
 
-> **Merk:** `gh issue create --project` legger til i prosjektet, men støtter ikke `--type`. Bruk `gh api` for å sette type, eller opprett med `gh issue create` og sett type etterpå via MCP.
+Se `references/projects.md` for prosjektnummer og feltoppdatering.
 
 Se `references/issue-types.md` for detaljer om issue types.
 
