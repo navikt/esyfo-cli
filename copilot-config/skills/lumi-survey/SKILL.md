@@ -368,6 +368,8 @@ For **interne apper** (Modia, admin-verktøy) uten dekoratøren:
 />
 ```
 
+> **Merk:** `localStorage` brukes kun for ikke-sensitiv survey UX-state (f.eks. om brukeren har sett/lukket undersøkelsen). Aldri lagre tokens, PII eller sensitiv data i localStorage.
+
 ## Fase 5: Backend-endepunkt
 
 Widgeten sender tilbakemelding til DITT backend, som utveksler token og videresender til Lumi API.
@@ -460,6 +462,8 @@ Legg til i NAIS-manifest(ene). **Merk:** Verdiene avhenger av auth-type og milj�
 spec:
   env:
     - name: LUMI_API_HOST
+      # Intern service-to-service trafikk i NAIS-clusteret bruker HTTP.
+      # HTTPS brukes kun for ekstern trafikk via ingress.
       value: http://lumi-api.team-esyfo
     - name: LUMI_AUDIENCE
       value: "dev-gcp:team-esyfo:lumi-api"
