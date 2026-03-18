@@ -4,8 +4,6 @@ description: "Uanmeldt inspeksjon — code review mot beste praksis og repo-stan
 model: "gpt-5.4"
 user-invocable: false
 ---
-<!-- Managed by esyfo-cli. Do not edit manually. Changes will be overwritten.
-     For repo-specific customizations, create your own files without this header. -->
 
 # Mattilsynet 🔍
 

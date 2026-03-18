@@ -4,8 +4,6 @@ description: "(internt) Planlegger menyen — lager implementasjonsplaner ved å
 model: "claude-opus-4.6"
 user-invocable: false
 ---
-<!-- Managed by esyfo-cli. Do not edit manually. Changes will be overwritten.
-     For repo-specific customizations, create your own files without this header. -->
 
 # Souschef 📋
 

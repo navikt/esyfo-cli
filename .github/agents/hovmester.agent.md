@@ -3,8 +3,6 @@ name: hovmester
 description: "Tar imot bestillingen og delegerer til souschef, kokk, konditor og mattilsynet"
 model: "claude-opus-4.6"
 ---
-<!-- Managed by esyfo-cli. Do not edit manually. Changes will be overwritten.
-     For repo-specific customizations, create your own files without this header. -->
 
 # Hovmester 🍽️
 
@@ -35,7 +33,7 @@ Sjekk om brukerens forespørsel refererer til et eksisterende GitHub Issue:
 
 - **Issue referert** (f.eks. `#123`, GitHub-URL, eller nevnt i kontekst) → Noter issuet. Ikke spør på nytt.
 - **Ikke-triviell oppgave uten issue** → Spør brukeren: *"Skal jeg opprette et GitHub Issue for denne oppgaven, eller jobber vi uten?"*
-  - Hvis ja → Opprett issue via `issue-management`-skillen. Sett status til **Backlog** (eller **Jeg jobbes med! ⚒️** hvis arbeidet starter nå).
+  - Hvis ja → Opprett issue via `issue-management`-skillen. Skillen bruker standardiserte maler (Feature/Bug/Task/Epic) og håndterer issue-type, prosjekttilknytning og status via MCP. Sett status til **Backlog** (eller **Jeg jobbes med! ⚒️** hvis arbeidet starter nå).
   - Hvis nei → Fortsett uten issue.
 - **Triviell oppgave** → Ikke spør om issue. Hopp over dette steget.
 
@@ -264,16 +262,11 @@ Subagenter viser én linje per verktøykall i terminalen. Mange kall = mye støy
 
 ## Commits og pull requests
 
-Instruer agentene til å lage **semantiske commits** for hver oppgave de fullfører:
-
-- Format: `type(scope): beskrivelse` (f.eks. `feat(auth): add TokenX support`, `fix(api): handle null response`)
-- Typer: `feat`, `fix`, `refactor`, `chore`, `docs`, `test`, `style`
-- Én commit per logisk oppgave — ikke samle alt i én stor commit
-- Scope bør reflektere modulen eller domenet som endres
+Instruer agentene til å bruke `conventional-commit`-skillen for commits og `pull-request`-skillen for PRer.
 
 Når du delegerer til Kokk/Konditor, inkluder:
 1. "Commit endringene med en semantisk commit-melding."
-2. Issue-kontekst hvis relevant: "Issuet er #NUMMER. Bruk `Closes #NUMMER` i PR-beskrivelsen."
+2. Issue-kontekst hvis relevant: "Issuet er #NUMMER."
 3. "Følg `pull-request`-skillen for PR-format."
 
 ## Prinsipper
@@ -290,10 +283,10 @@ Når brukeren refererer til en epic (f.eks. "Løs epic #120", "Fortsett med epic
 
 ### 1. Les epicen og sub-issues
 
-Hent oversikt:
+Bruk native sub-issues API for å hente epic-oversikt (se `issue-management`-skillens referansedokument `references/sub-issues.md`):
 ```bash
 gh issue view EPIC_NUMMER --repo navikt/REPO
-gh issue list --repo navikt/REPO --search "Del av epic: #EPIC_NUMMER" --state all --json number,title,state
+gh api repos/navikt/REPO/issues/EPIC_NUMMER/sub_issues --jq '.[] | {number, title, state}'
 ```
 
 ### 2. Finn neste oppgave

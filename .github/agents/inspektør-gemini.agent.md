@@ -4,8 +4,6 @@ description: "(internt) Code review-inspektør — Gemini-perspektiv"
 model: "gemini-3-pro-preview"
 user-invocable: false
 ---
-<!-- Managed by esyfo-cli. Do not edit manually. Changes will be overwritten.
-     For repo-specific customizations, create your own files without this header. -->
 
 # Inspektør (Gemini) 🔍
 

@@ -2,52 +2,43 @@
 applyTo: "**/*"
 ---
 
-# Security Standards for CLI Tools
+# Security — Nav
 
-## Principles
-1. **Least Privilege**: Request minimum necessary permissions (GitHub scopes, file system access)
-2. **No Secrets in Code**: All credentials via environment variables or `gh auth`
-3. **Defense in Depth**: Validate inputs even from trusted sources
+## Golden Path (sikkerhet.nav.no)
 
-## Token & Credential Handling
-- GitHub auth: always via `gh auth status --show-token` (interactive) or `NPM_AUTH_TOKEN` env var (CI)
-- Never log, print, or persist tokens — even in debug mode
-- Never hardcode tokens, org names with elevated access, or API keys
+1. **Platform**: Use NAIS defaults for auth. Control secrets (never copy prod secrets locally).
+2. **Scanning**: Dependabot for dependencies. Trivy for Docker images.
+3. **Development**: Chainguard/Distroless base images. No sensitive data in logs (FNR, JWT tokens, connection strings). Prefer OAuth/Maskinporten for new M2M (service users are legacy).
 
-## Input Validation
-- Validate repo names, branch names, and file paths from user input
-- Sanitize paths to prevent directory traversal
-- Validate YAML/JSON parsed from config files before using
+## Network Policies
 
-## GitHub API Security
-- Use Octokit's built-in auth — don't construct Authorization headers manually
-- Respect rate limits — check `x-ratelimit-remaining` headers
-- Handle 401/403 gracefully with clear error messages about token scope
-
-## CI/CD
-- `NPM_AUTH_TOKEN` for publishing — never committed, always from GitHub secrets
-- Commit messages with `[skip ci]` skip pipeline entirely — use deliberately
-- Version auto-increment happens in CI only — don't hardcode versions
-
-## Dependency Management
-- Dependabot enabled for vulnerability scanning
-- Review dependency updates before merging (especially Octokit, simple-git, yargs)
-- Prefer well-maintained packages with active security response
+**Default Deny** — all traffic blocked unless explicitly allowed via `accessPolicy`:
+```yaml
+accessPolicy:
+  outbound:
+    rules:
+      - application: user-service
+        namespace: team-user
+    external:
+      - host: api.external.com
+  inbound:
+    rules:
+      - application: frontend
+        namespace: team-web
+```
 
 ## Boundaries
 
 ### ✅ Always
-- Use `gh auth` or env vars for authentication
-- Validate all user-provided paths and repo names
-- Handle API auth errors with clear messages
+- Parameterized SQL queries
+- Input validation at all boundaries
+- `accessPolicy` defined for every service
 
 ### ⚠️ Ask First
-- Adding new GitHub API scopes
-- Changing authentication flow
-- Writing to file system outside of known directories (`~/.cache/team-esyfo/`, repo roots)
+- Modifying `accessPolicy` in production
+- Changing authentication mechanisms
 
 ### 🚫 Never
 - Commit secrets to git
-- Log tokens or credentials (even partially)
-- Use string interpolation for GitHub API queries (use Octokit/parameterized GraphQL)
-- Write to arbitrary paths without validation
+- Log FNR, JWT tokens, passwords, or connection strings
+- Skip input validation
