@@ -1,5 +1,5 @@
 ---
-description: NAV authentication overview — Azure AD, TokenX, ID-porten, Maskinporten configuration and best practices
+description: Nav authentication overview — Azure AD, TokenX, ID-porten, Maskinporten configuration and best practices
 ---
 
 # Authentication Overview — Nav
