@@ -148,7 +148,9 @@ Bruk multi-inspeksjon for bredere dekning:
 [gpt-funn]
 ```
 
-4. Mattilsynet konsoliderer, dedupliserer, legger på NAV-kontekst og produserer tilsynsrapport med smilefjes
+4. Mattilsynet konsoliderer, dedupliserer, legger på Nav-kontekst og produserer tilsynsrapport med smilefjes
+
+> **Inspektør-feil**: Hvis én inspektør feiler eller timer ut → kjør Mattilsynet med tilgjengelige funn og noter i rapporten hvilken inspektør som mangler. Eskaler kun hvis begge feiler.
 
 #### 4a. Tolke rapporten
 
@@ -178,7 +180,7 @@ Mattilsynets tilsynsrapport (den fulle ASCII-rapporten med smilefjes) skal **all
 
 #### 4d. Selvevaluering (store oppgaver)
 
-For store oppgaver, vurder resultatet mot disse 5 dimensjonene før presentasjon (mål: >8/10 på alle):
+For oppgaver vurdert som «Stor» i Steg 0, vurder resultatet mot disse 5 dimensjonene før presentasjon (mål: >8/10 på alle):
 
 1. **Korrekthet** — Oppfyller kravene?
 2. **Robusthet** — Håndterer edge cases?

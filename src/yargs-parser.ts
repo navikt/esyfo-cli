@@ -108,7 +108,7 @@ export const getYargsParser = (argv: string[]): Argv =>
                     })
                     .option('use-sub-folders', {
                         alias: 's',
-                        description: 'Should repos be spread over subfolders like backend, frontend, microfrontends',
+                        description: 'Spread repos over subfolders by type (backend, frontend, etc.)',
                         type: 'boolean',
                         default: false,
                     }),

@@ -177,6 +177,11 @@ export async function assembleForRepo(
     if (fs.existsSync(agentsDir)) dirsToClean.unshift(agentsDir)
     await cleanStaleManagedFiles(dirsToClean, managedFiles, result)
 
+    // Remove empty legacy prompts directory after cleanup
+    if (fs.existsSync(promptsDir) && fs.readdirSync(promptsDir).length === 0) {
+        fs.rmdirSync(promptsDir)
+    }
+
     // Clean stale PR template
     const prTemplatePath = path.join(githubDir, 'PULL_REQUEST_TEMPLATE.md')
     if (!managedFiles.has(prTemplatePath) && fs.existsSync(prTemplatePath)) {

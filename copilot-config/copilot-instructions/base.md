@@ -42,7 +42,7 @@
 
 ## Keeping Copilot Config in Sync
 
-When making changes that affect patterns described in `.github/` config files (instructions, prompts, skills), **suggest** updating — but do not update automatically.
+When making changes that affect patterns described in `.github/` config files (instructions, skills, agents), **suggest** updating — but do not update automatically.
 
 Examples: upgrading frameworks, changing test patterns, adding auth mechanisms, changing DB access patterns, adding Kafka topics, modifying build tooling.
 
