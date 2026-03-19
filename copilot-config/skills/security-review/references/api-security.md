@@ -90,11 +90,12 @@ Minstekrav i gjennomgangen er `Content-Security-Policy`, `X-Frame-Options`, `Str
 
 ## Sikker håndtering av sesjoner og cookies
 
-Hvis løsningen bruker sesjoner eller cookies, må de være sikre som standard.
+Hvis løsningen bruker sesjoner eller cookies, må de være sikre som standard. `csrf { disable() }` er bare riktig for rene stateless API-er som autentiserer med Bearer tokens og ikke bruker cookies eller server-side sesjoner.
 
 ```kotlin
 @Bean
 fun apiSecurity(http: HttpSecurity): SecurityFilterChain {
+    // ✅ Stateless API med Bearer token — ingen cookies/sesjoner
     http {
         sessionManagement {
             sessionFixation {
@@ -102,12 +103,15 @@ fun apiSecurity(http: HttpSecurity): SecurityFilterChain {
             }
         }
         csrf {
-            disable()
+            disable()  // Trygt: ingen cookie-basert auth
         }
+        // ...
     }
     return http.build()
 }
 ```
+
+⚠️ Browser-klient med cookies? Da MÅ CSRF-beskyttelse være PÅ.
 
 Sjekk at session fixation-beskyttelse er aktiv hvis sesjoner brukes, at cookies settes med `Secure`, `HttpOnly` og riktig `SameSite`, at CSRF er vurdert eksplisitt for browser-baserte klienter, og at tokens og sessions ikke blandes uten tydelig begrunnelse.
 

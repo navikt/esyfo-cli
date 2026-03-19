@@ -60,6 +60,19 @@ Bruk dem for:
 
 Hold versjonerte `V__`-migreringer uendrede, og bruk repeterbare migreringer for objekter som naturlig regenereres.
 
+Eksempel på `updated_at`-trigger i en repeterbar migrering:
+
+```sql
+-- R__update_updated_at.sql
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+```
+
 ## Testcontainers-eksempel
 
 Bruk Testcontainers for å verifisere at migrasjoner faktisk kan kjøres mot en ekte PostgreSQL-instans i tester.

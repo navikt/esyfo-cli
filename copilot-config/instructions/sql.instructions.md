@@ -46,6 +46,7 @@ CREATE INDEX idx_table_column ON table_name(column_name);
 
 ## Best Practices
 - Always include `created_at` and `updated_at` timestamps
+- For `updated_at` trigger-mønster, se `flyway-migration`-skillen (repeatable migrations)
 - Index foreign keys
 - Use partial indexes for filtered queries: `CREATE INDEX idx_active ON orders(user_id) WHERE status = 'active'`
 - Use `BIGSERIAL` for auto-incrementing IDs, `UUID` for distributed systems

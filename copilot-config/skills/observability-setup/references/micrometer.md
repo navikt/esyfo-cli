@@ -4,19 +4,26 @@ Denne referansen samler typiske backend-mønstre for Kotlin/Spring i Nav-applika
 
 ## MeterRegistry-oppsett
 
-Bruk eksisterende registry hvis repoet allerede har Micrometer eller Spring Boot Actuator.
+Bruk eksisterende registry hvis repoet allerede har Micrometer eller Spring Boot Actuator. I Spring Boot er det mest pragmatisk å la Actuator auto-konfigurere Prometheus-registry i stedet for å opprette `PrometheusMeterRegistry` manuelt.
 
 ```kotlin
-import io.micrometer.prometheus.PrometheusConfig
-import io.micrometer.prometheus.PrometheusMeterRegistry
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
+// Spring Boot Actuator auto-konfigurerer PrometheusMeterRegistry.
+// build.gradle.kts:
+//   implementation("org.springframework.boot:spring-boot-starter-actuator")
+//   runtimeOnly("io.micrometer:micrometer-registry-prometheus")
+//
+// Bruk MeterRegistry direkte via dependency injection:
+import io.micrometer.core.instrument.MeterRegistry
+import org.springframework.stereotype.Service
 
-@Configuration
-class MetricsConfig {
-    @Bean
-    fun prometheusMeterRegistry(): PrometheusMeterRegistry {
-        return PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
+@Service
+class MetricsService(
+    private val registry: MeterRegistry,
+) {
+    private val customRequests = registry.counter("custom_requests_total")
+
+    fun recordRequest(): Unit {
+        customRequests.increment()
     }
 }
 ```
@@ -80,9 +87,10 @@ class TaskService(private val registry: MeterRegistry) {
         .register(registry)
 
     fun processTask(): String {
-        return processingTimer.recordCallable {
+        val result = processingTimer.recordCallable {
             "done"
-        } ?: "done"
+        }
+        return requireNotNull(result) { "Task processing returned null" }
     }
 }
 ```
@@ -168,7 +176,10 @@ class PaymentMetrics(registry: MeterRegistry) {
 
     fun recordFailure(): Unit = failed.increment()
 
-    fun <T> recordDuration(block: () -> T): T = duration.recordCallable(block)!!
+    fun <T : Any> recordDuration(block: () -> T): T {
+        val result = duration.recordCallable(block)
+        return requireNotNull(result) { "Timed block returned null" }
+    }
 }
 ```
 

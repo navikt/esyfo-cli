@@ -31,13 +31,15 @@ Bruk disse tokenene i Aksel-props som `gap`, `padding`, `paddingInline`, `paddin
 | `space-96` | 96px |
 | `space-128` | 128px |
 
-## Migrering fra eldre tokens (pre-v8 → v8)
+## Legacy migreringstabell (pre-v7 → v7)
 
-Bruk denne tabellen når du rydder i eldre CSS-variabler. For komponent-props i Aksel-primitives bruker du fortsatt `space-*`/`radius-*`-tokenene i prop-API-et.
+> **Merk**: Denne migrasjonsguiden dekker pre-v7 (`--navds-*`) til v7 (`--a-spacing-*` / `--a-border-radius-*`). For v7 → v8, bruk codemods: `npx @navikt/aksel codemod v8-primitive-spacing`
 
-### Spacing-variabler
+Bruk denne tabellen når du rydder i eldre CSS-variabler. For komponent-props i Aksel-primitives bruker du `space-*` og `radius-*` i prop-API-et, mens CSS-eksemplene lenger ned viser dagens `--a-*`-variabler fra `@navikt/ds-css`.
 
-| Pre-v8 | v8 |
+### Spacing-variabler (legacy)
+
+| Pre-v7 | v7 |
 |---|---|
 | `--navds-spacing-1` | `--a-spacing-1` |
 | `--navds-spacing-2` | `--a-spacing-2` |
@@ -49,9 +51,9 @@ Bruk denne tabellen når du rydder i eldre CSS-variabler. For komponent-props i 
 | `--navds-spacing-24` | `--a-spacing-24` |
 | `--navds-spacing-32` | `--a-spacing-32` |
 
-### Radius-variabler
+### Radius-variabler (legacy)
 
-| Pre-v8 | v8 |
+| Pre-v7 | v7 |
 |---|---|
 | `--navds-border-radius-small` | `--a-border-radius-small` |
 | `--navds-border-radius-medium` | `--a-border-radius-medium` |
@@ -103,21 +105,23 @@ Disse er gode standardvalg for vanlige flater og tekst.
 
 ## CSS-variabler
 
-Når du må skrive CSS, bruk Aksel sine variabler direkte.
+> **Merk**: CSS-variabelnavn avhenger av Aksel-versjon og importmetode. Sjekk faktisk installerte tokens i prosjektet (`@navikt/ds-css` vs `@navikt/ds-tokens`). Eksemplene under bruker `--a-*`-prefikset fra `@navikt/ds-css`, som fortsatt er vanlig i Nav-prosjekter.
+
+Når du må skrive CSS, bruk Aksel sine variabler direkte og hold prop-token og CSS-variabel i samme familie.
 
 ### Spacing
-- `var(--a-space-4)`
-- `var(--a-space-16)`
-- `var(--a-space-24)`
-- `var(--a-space-40)`
-- `var(--a-space-128)`
+- `space-4` i prop-API ↔ `var(--a-space-4)` i CSS
+- `space-16` i prop-API ↔ `var(--a-space-16)` i CSS
+- `space-24` i prop-API ↔ `var(--a-space-24)` i CSS
+- `space-40` i prop-API ↔ `var(--a-space-40)` i CSS
+- `space-128` i prop-API ↔ `var(--a-space-128)` i CSS
 
 ### Radius
-- `var(--a-radius-2)`
-- `var(--a-radius-4)`
-- `var(--a-radius-8)`
-- `var(--a-radius-12)`
-- `var(--a-radius-full)`
+- `radius-2` i prop-API ↔ `var(--a-radius-2)` i CSS
+- `radius-4` i prop-API ↔ `var(--a-radius-4)` i CSS
+- `radius-8` i prop-API ↔ `var(--a-radius-8)` i CSS
+- `radius-12` i prop-API ↔ `var(--a-radius-12)` i CSS
+- `radius-full` i prop-API ↔ `var(--a-radius-full)` i CSS
 
 ### Surface / border / text
 - `var(--a-surface-default)`
@@ -136,5 +140,5 @@ Når du må skrive CSS, bruk Aksel sine variabler direkte.
 ## Tommelfingerregler
 
 - I React-props: bruk `space-*` og responsive objekt-props
-- I CSS: bruk `var(--a-space-*)`, `var(--a-radius-*)` og semantiske tokens
+- I CSS: bruk `var(--a-space-*)`, `var(--a-radius-*)` og semantiske tokens når prosjektet eksporterer dem via `@navikt/ds-css`
 - Foretrekk semantiske surface-/text-/border-tokens foran rå farger

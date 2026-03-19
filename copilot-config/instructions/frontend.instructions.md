@@ -28,7 +28,6 @@ applyTo: "**/*.{ts,tsx,css}"
 - Prefer Aksel spacing tokens over Tailwind padding/margin when Aksel tokens are available
 - Use `space-*` tokens in Aksel props like `gap`, `padding`, and `margin`
 - Prefer directional spacing with `paddingBlock`, `paddingInline`, `marginBlock`, and `marginInline`
-- For komplett Aksel-referanse (tokens, komponenter, patterns), bruk `aksel-design`-skillen.
 
 ### Layout Components
 - Prefer `Box` for padding, background, border, and radius
