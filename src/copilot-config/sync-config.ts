@@ -20,7 +20,7 @@ export interface CopilotSyncConfig {
     profiles: Record<string, CopilotSyncProfile>
 }
 
-export type RepoProfile = 'backend' | 'frontend' | 'microfrontend' | 'other'
+export type RepoProfile = 'backend' | 'frontend' | 'other'
 
 interface RawConfig {
     common: {

@@ -65,18 +65,6 @@ profiles:
       - lumi-survey
       - accessibility
 
-  microfrontend:
-    copilot_instructions:
-      - base.md
-      - microfrontend.md
-    instructions:
-      - frontend.instructions.md
-      - testing-typescript.instructions.md
-      - auth-typescript.instructions.md
-    skills:
-      - lumi-survey
-      - accessibility
-
   other:
     copilot_instructions:
       - base.md

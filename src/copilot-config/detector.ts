@@ -147,15 +147,8 @@ async function detectTypeScriptStack(repoPath: string, stack: RepoStackInfo): Pr
         stack.type = 'frontend'
     } else if (allDeps['vite']) {
         stack.bundler = 'Vite'
-        // Check if microfrontend (has @navikt/decorator-* or is named *-mikrofrontend)
-        const name = (pkg.name as string) ?? ''
-        if (name.includes('mikrofrontend') || name.includes('microfrontend')) {
-            stack.type = 'microfrontend'
-            stack.framework = 'Vite (microfrontend)'
-        } else {
-            stack.type = 'frontend'
-            stack.framework = 'Vite'
-        }
+        stack.type = 'frontend'
+        stack.framework = 'Vite'
     }
 
     // Testing
