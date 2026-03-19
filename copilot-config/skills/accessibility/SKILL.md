@@ -158,6 +158,38 @@ it("should have no accessibility violations", async () => {
 });
 ```
 
+## E2E-tilgjengelighetstesting
+
+### Playwright + axe-core
+
+```tsx
+import { test, expect } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
+
+test("side har ingen tilgjengelighetsfeil", async ({ page }) => {
+  await page.goto("/skjema");
+  const results = await new AxeBuilder({ page }).analyze();
+  expect(results.violations).toEqual([]);
+});
+
+test("skjema er brukbart med tastatur", async ({ page }) => {
+  await page.goto("/skjema");
+  await page.keyboard.press("Tab");
+  const focused = await page.evaluate(() => document.activeElement?.tagName);
+  expect(focused).toBe("INPUT");
+});
+```
+
+### Lighthouse CLI
+
+```bash
+# Kjør Lighthouse tilgjengelighetsaudit
+npx lighthouse http://localhost:3000 --only-categories=accessibility --output=json --output-path=./a11y-report.json
+
+# Sjekk score i CI
+npx lighthouse http://localhost:3000 --only-categories=accessibility --budget-path=./lighthouse-budget.json
+```
+
 ## Sjekkliste
 
 - [ ] Heading-nivåer er logiske (h1 → h2 → h3, ingen hopp)
