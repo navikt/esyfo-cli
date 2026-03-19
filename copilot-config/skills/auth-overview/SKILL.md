@@ -47,9 +47,11 @@ maskinporten:
       - name: "nav:example/scope"
 ```
 
-### 5. Systembrukere (legacy)
+### 5. Systembruker via Maskinporten (Altinn 3)
 
-Systembrukere er en eldre autentiseringsmekanisme i Nav. For nye integrasjoner, bruk Maskinporten eller Azure AD i stedet. Eksisterende systembrukere vedlikeholdes, men skal ikke innføres i nye tjenester.
+Systembruker er en mekanisme i Altinn 3 der eksterne virksomheter oppretter en systembruker som gir tilgang til Nav-tjenester via Maskinporten. Brukes blant annet i syfo-dokumentporten.
+
+Se [Altinn 3 systembruker-dokumentasjon](https://docs.altinn.studio/authentication/what-do-you-get/systemuser/) for oppsett.
 
 ## Tilnærming
 
