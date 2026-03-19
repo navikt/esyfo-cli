@@ -8,13 +8,13 @@ Opprett en ny Flyway-migreringsfil etter team-esyfos konvensjoner.
 
 ## Steg
 
-1. Finn migreringsmappen ved å søke etter eksisterende `V*__*.sql`-filer under `src/main/resources/db/` (eller ved å sjekke `flyway.locations` i applikasjonskonfigurasjonen), og list deretter eksisterende migreringer for å finne neste versjonsnummer
+1. Finn migreringsmappen ved å søke etter eksisterende `V*__*.sql`-filer under `src/main/resources/db/`, eller sjekk `flyway.locations` i applikasjonskonfigurasjonen. List deretter eksisterende migreringer for å finne neste versjonsnummer.
 2. Les den nyeste migreringen for å forstå navngivings- og stilkonvensjonene
 3. Opprett den nye migreringsfilen med riktig navn: `V{next}__{description}.sql`
 
 ## Konvensjoner
 
-- Foretrekk fail-fast i versjonerte migreringer — bruk `IF NOT EXISTS` / `IF EXISTS` bare når idempotency er bevisst
+- Foretrekk fail-fast i versjonerte migreringer — bruk `IF NOT EXISTS` / `IF EXISTS` bare når du bevisst vil gjøre migreringen idempotent
 - Bruk `TIMESTAMPTZ` for tidsstempler (med `DEFAULT NOW()`)
 - Bruk `UUID` med `gen_random_uuid()` for primærnøkler der det passer
 - Bruk `TEXT` i stedet for `VARCHAR`
@@ -48,7 +48,7 @@ CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_vedtak_bruker ON vedtak (bruker_id);
 
 Hvis prosjektet bruker rammeverk-konfig for Flyway, verifiser tilsvarende innstilling der i stedet for å gjette på globale properties.
 
-## Repeatable migrations
+## Repeterbare migreringer
 
 `R__*.sql`-filer kjøres på nytt hver gang innholdet endres.
 
@@ -58,7 +58,7 @@ Bruk dem for:
 - triggers
 - seed data
 
-Hold versionerte `V__`-migreringer immutable, og bruk repeatable migrations for objekter som naturlig regenereres.
+Hold versjonerte `V__`-migreringer uendrede, og bruk repeterbare migreringer for objekter som naturlig regenereres.
 
 ## Testcontainers-eksempel
 
@@ -83,4 +83,4 @@ class DatabaseTest {
 }
 ```
 
-Dette gir rask feedback på at migrasjonsrekkefølge, SQL-syntaks og Flyway-konfig faktisk fungerer sammen.
+Dette gir rask tilbakemelding på at migrasjonsrekkefølge, SQL-syntaks og Flyway-konfig faktisk fungerer sammen.

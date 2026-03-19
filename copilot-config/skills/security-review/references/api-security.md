@@ -1,8 +1,8 @@
 # API-sikkerhet
 
-## API Security patterns
+## API-sikkerhetsmønstre
 
-Sensitive eller offentlig tilgjengelige API-er bør ha både rate limiting og request size limits.
+Sensitive eller offentlig tilgjengelige API-er bør ha både rate limiting og grenser for request-størrelse.
 
 ```kotlin
 @Component
@@ -60,9 +60,9 @@ fun corsConfigurationSource(): UrlBasedCorsConfigurationSource {
 
 Se etter at dev-domener er avgrenset til ikke-produksjonsmiljø, og at preflight-svar ikke åpner mer enn nødvendig.
 
-## Security headers
+## Sikkerhetsheadere
 
-Security headers bør være eksplisitt vurdert på webflater og administrative API-er.
+Sikkerhetsheadere bør være eksplisitt vurdert på webflater og administrative API-er.
 
 ```kotlin
 @Bean
@@ -86,9 +86,9 @@ fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
 }
 ```
 
-Minstekrav i review er `Content-Security-Policy`, `X-Frame-Options`, `Strict-Transport-Security` for rene HTTPS-flater, `Referrer-Policy` og `X-Content-Type-Options`.
+Minstekrav i gjennomgangen er `Content-Security-Policy`, `X-Frame-Options`, `Strict-Transport-Security` for rene HTTPS-flater, `Referrer-Policy` og `X-Content-Type-Options`.
 
-## Secure session/cookie-håndtering
+## Sikker håndtering av sesjoner og cookies
 
 Hvis løsningen bruker sesjoner eller cookies, må de være sikre som standard.
 
@@ -117,7 +117,7 @@ Eksempel på sikker cookie-header:
 Set-Cookie: JSESSIONID=randomid; Secure; HttpOnly; SameSite=Lax
 ```
 
-## Call ID Tracing for correlation
+## Sporbarhet med Call ID
 
 `Nav-Call-Id` gjør det mulig å følge et kall gjennom flere tjenester.
 
@@ -143,7 +143,7 @@ class CallIdFilter : OncePerRequestFilter() {
 }
 ```
 
-Propager samme header videre til downstream-kall og logg den strukturert i stedet for å logge persondata.
+Send samme header videre til downstream-kall, og logg den strukturert i stedet for å logge persondata.
 
 ## STRIDE threat modeling
 
@@ -155,12 +155,12 @@ Bruk STRIDE som en kort sjekkliste før nye endepunkter eller integrasjoner:
 | Tampering | Kan input eller meldinger manipuleres? | Validering, integritetssjekk, signering |
 | Repudiation | Kan handlinger benektes i ettertid? | Audit logging, `Nav-Call-Id`, sporbarhet |
 | Information Disclosure | Kan data lekke via svar, logger eller feil? | Tilgangskontroll, masking, kryptering |
-| Denial of Service | Kan API-et overbelastes? | Rate limiting, request size limits, ressursgrenser |
+| Denial of Service | Kan API-et overbelastes? | Rate limiting, grenser for request-størrelse, ressursgrenser |
 | Elevation of Privilege | Kan noen få mer tilgang enn de skal? | RBAC, least privilege, eksplisitte policy-sjekker |
 
-## Incident Response
+## Hendelseshåndtering
 
-Når reviewen avdekker en mulig sikkerhetshendelse, følg denne rekkefølgen:
+Når gjennomgangen avdekker en mulig sikkerhetshendelse, følg denne rekkefølgen:
 
 1. **Detect**: bekreft signalet med logger, alarmer og reproduksjon
 2. **Contain**: begrens skade med sperring av konto, nøkkelrotasjon eller midlertidig blokkering

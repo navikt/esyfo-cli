@@ -1,5 +1,5 @@
 ---
-description: Aksel Design System — spacing-tokens, layout-komponenter, responsivt design og komponentmønstre for Nav-frontend
+description: Aksel designsystem — spacing-tokens, layout-komponenter, responsivt design og komponentmønstre for Nav-frontend
 ---
 
 # Aksel Design System
@@ -99,7 +99,7 @@ export function Example(): JSX.Element {
 }
 ```
 
-## Responsive design
+## Responsivt design
 
 - Jobb mobile-first med `xs`, `sm`, `md`, `lg`, `xl`
 - Foretrekk responsive props fremfor egne media queries
@@ -142,7 +142,7 @@ export function Example(): JSX.Element {
 - Bruk Aksel-komponenter for standard UI-elementer
 - Bruk `space-*`-tokens i layout-props
 - Bruk responsive props når komponenten støtter det
-- Håndter loading, error, empty og success states eksplisitt
+- Håndter lasting, feil, tomtilstand og suksess eksplisitt
 - Sjekk eksisterende UI-mønstre i repoet først
 
 ### ⚠️ Spør først
@@ -153,9 +153,9 @@ export function Example(): JSX.Element {
 
 ### 🚫 Aldri
 - Hardkod spacing, radius, farger eller typografi når Aksel-tokens finnes
-- Bygg standardfelter, knapper eller alerts med rå HTML hvis Aksel tilbyr komponenten
+- Bygg standardfelter, knapper eller varsler med rå HTML hvis Aksel tilbyr komponenten
 - Bruk responsive hacks når responsive props dekker behovet
 
 For komplett token-oversikt, se `references/tokens.md`.
 For komponent-API, se `references/components.md`.
-For layout-patterns, se `references/patterns.md`.
+For layout-mønstre, se `references/patterns.md`.

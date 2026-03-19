@@ -1,6 +1,6 @@
 # GDPR og personvern
 
-## Personal Data Handling
+## Håndtering av persondata
 
 Kartlegg hvilke datafelter som faktisk er nødvendige. Del gjerne data i tre nivåer:
 
@@ -29,9 +29,9 @@ data class UserProfile(
 )
 ```
 
-Se etter at hvert felt er nødvendig, at formålet er forklart, og at sensitive felter ikke lekker i logger, events eller feilmeldinger.
+Sjekk at hvert felt er nødvendig, at formålet er forklart, og at sensitive felter ikke lekker i logger, events eller feilmeldinger.
 
-## Data Retention
+## Lagringstid
 
 Lagringstid skal være definert, begrunnet og implementert.
 
@@ -58,7 +58,7 @@ class RetentionJob(
 
 Se etter automatisk sletting eller arkivering, retention-perioder som kan spores til regelverk eller policy, og at også testdata, eksportfiler, backup og analytics-datasett er vurdert. Hvis data må beholdes for statistikk eller revisjon, vurder anonymisering i stedet for full identitet.
 
-## Data Anonymization
+## Anonymisering av data
 
 Anonymisering betyr at personen ikke lenger kan identifiseres. Pseudonymisering reduserer risiko, men er fortsatt personopplysninger under GDPR. Vanlige teknikker er å fjerne direkte identifikatorer, bruke irreversible eller nøytrale erstatninger, aggregere data eller splitte identitet og domenedata med streng tilgangskontroll.
 
@@ -111,7 +111,7 @@ Tommelfingerregler: én brukerhandling per logglinje, ikke logg mer enn nødvend
 
 ## Samtykke-håndtering
 
-Når samtykke er behandlingsgrunnlaget, må det være frivillig, spesifikt og like lett å trekke tilbake som å gi. Reviewen bør avdekke om løsningen lagrer samtykkehistorikk og stopper videre behandling etter tilbaketrekking.
+Når samtykke er behandlingsgrunnlaget, må det være frivillig, spesifikt og like lett å trekke tilbake som å gi. Gjennomgangen bør avdekke om løsningen lagrer samtykkehistorikk og stopper videre behandling etter tilbaketrekking.
 
 ```kotlin
 data class ConsentRecord(

@@ -1,8 +1,8 @@
 # Alerting, Faro og varsling
 
-Denne referansen beskriver praktiske patterns for Prometheus-regler, frontend-observability med Faro og varsling til Slack i NAIS.
+Denne referansen beskriver praktiske mønstre for Prometheus-regler, frontend-observability med Faro og varsling til Slack i NAIS.
 
-## Vanlige alert patterns
+## Vanlige varslingsmønstre
 
 Prioriter varsler som peker på reelle brukerproblemer eller driftsproblemer teamet faktisk må reagere på.
 
@@ -80,16 +80,16 @@ groups:
     description: "Lag has stayed above 10000 for 15 minutes"
 ```
 
-## NAIS-patterns for alert-regler
+## NAIS-mønstre for varslingsregler
 
 - Bruk korte, stabile alert-navn
 - Legg alltid til `summary`, `description` og helst runbook-lenke
 - Bruk `warning` for ting som bør undersøkes, `critical` for aktiv hendelse
 - Alert på symptomer før interne indikatorer
 - Test terskler i dev eller staging før du strammer dem i prod
-- Unngå mange nesten-like alerts med små variasjoner i terskel
+- Unngå mange nesten-like varsler med små variasjoner i terskel
 
-## Slack integration
+## Slack-integrasjon
 
 Varsler kan sendes til Slack-kanaler via NAIS Alert-ressurser.
 
@@ -152,4 +152,4 @@ export async function submitApplication(): Promise<void> {
 - Send bare teknisk og forretningsmessig nyttig metadata
 - Ikke send fødselsnummer, e-post, tokens eller andre sensitive felter
 - Bruk konsistente event-navn og et lite, stabilt sett med attributter
-- Samordne event-navn med dashboards og alerts der det gir verdi
+- Samordne event-navn med dashboards og varsler der det gir verdi

@@ -90,7 +90,7 @@ sum by (event_type) (
 )
 ```
 
-### Correlation med traces
+### Korrelasjon med traces
 
 Når logger inneholder `trace_id`, kan du hente alle loggene for et trace:
 
@@ -146,7 +146,7 @@ Et godt dashboard bør dekke både teknisk helse og domeneeffekt.
 
 ## Praktiske tips
 
-- Bruk samme label-sett i dashboard og alert der det gir mening
+- Bruk samme label-sett i dashboard og varsler der det gir mening
 - Normaliser `route` eller `uri` før du bygger paneler, ellers blir grafene støyete
 - Se alltid på både metrics og logs når du feilsøker latency eller feilrater
 - Bruk traces når du må finne flaskehalser på tvers av HTTP, Kafka og databasekall

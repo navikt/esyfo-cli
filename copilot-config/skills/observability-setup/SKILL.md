@@ -1,5 +1,5 @@
 ---
-description: Observability for Nav apps — metrikker, logging, tracing, alerts og referanser for backend/frontend
+description: Observability for Nav-apper — metrikker, logging, tracing, varsler og referanser for backend/frontend
 ---
 
 # Sett opp observability
@@ -11,15 +11,15 @@ Bruk denne skillen når du skal etablere eller forbedre observability i en Nav-a
 - **Metrics** forteller *hva* som skjer
 - **Logs** forklarer *hvorfor* det skjedde
 - **Traces** viser *hvor* i flyten det skjedde
-- Verifiser alltid eksisterende oppsett i repoet før du legger til nye målepunkter, labels eller alerts
+- Verifiser alltid eksisterende oppsett i repoet før du legger til nye målepunkter, labels eller varsler
 
-## Workflow
+## Arbeidsflyt
 
 1. Les NAIS-manifest, `application*.yaml`, `build.gradle.kts` eller `package.json` for eksisterende observability-oppsett.
 2. Finn etablerte mønstre for Micrometer, `prom-client`, strukturert logging, health-endepunkter og tracing.
 3. Verifiser hvilke endepunkter som faktisk brukes (`/isalive`, `/isready`, `/metrics`, `/internal/*`, `/actuator/*`).
 4. Start med standardmålinger og utvid med business metrics som gir operativ verdi.
-5. Legg til dashboards og alerts når metrikkene og label-settet er stabile.
+5. Legg til dashboards og varsler når metrikkene og label-settet er stabile.
 
 ## Navngivning for metrics og labels
 
@@ -35,12 +35,12 @@ Bruk denne skillen når du skal etablere eller forbedre observability i en Nav-a
 - Gode labels: `method`, `route`, `status`, `event_type`, `result`, `consumer_group`
 - Dårlige labels: `user_id`, `email`, `fnr`, `trace_id`, `transaction_id`, rå URL-er med dynamiske segmenter
 - Foretrekk normaliserte verdier som `/api/oppgaver/:id`
-- Hver unik label-kombinasjon gir en ny tidsserie: legg bare til labels som brukes i dashboards, alerts eller feilsøking
+- Hver unik label-kombinasjon gir en ny tidsserie: legg bare til labels som brukes i dashboards, varsler eller feilsøking
 
 ## Backend (Kotlin/Spring)
 
 - Aktiver Prometheus/Micrometer og behold eksisterende registry-oppsett hvis det finnes
-- Sørg for health- og metrics-endepunkter som matcher NAIS-manifestet
+- Sørg for health- og metrics-endepunkter som stemmer med NAIS-manifestet
 - Bruk `Counter`, `Timer`, `Gauge` og `DistributionSummary` bevisst
 - Mål viktige domenehendelser, køstørrelser, feilrater og behandlingstid
 - Aktiver OpenTelemetry auto-instrumentation i NAIS før du legger til manuelle spans
@@ -66,14 +66,14 @@ Se `references/alerting.md` for Faro-oppsett og varslingsmønstre.
 
 Se `references/promql-logql.md` for PromQL-, LogQL- og dashboard-eksempler.
 
-## Alerting
+## Varsling
 
 - Alert på brukeropplevde symptomer først: feilrate, latency, utilgjengelighet og restarts
 - Bruk runbook-lenker og tydelige annotasjoner
 - Hold terskler konservative til du kjenner trafikkmønstrene
 - Skill mellom `warning`, `critical` og informasjonelle varsler
 
-Se `references/alerting.md` for Prometheus-regler, Slack-integrasjon og vanlige alert patterns.
+Se `references/alerting.md` for Prometheus-regler, Slack-integrasjon og vanlige varslingsmønstre.
 
 ## Sjekkliste
 
@@ -82,7 +82,7 @@ Se `references/alerting.md` for Prometheus-regler, Slack-integrasjon og vanlige 
 - [ ] Strukturert logging er på plass med korrelasjonsfelt der det er relevant
 - [ ] Viktige business metrics er definert med stabile navn og labels
 - [ ] Dashboards dekker throughput, error rate, latency og sentrale domeneindikatorer
-- [ ] Alerts finnes for høy feilrate, latency-spikes, pod restarts og kritiske avhengigheter
+- [ ] Varsler finnes for høy feilrate, latency-spikes, pod restarts og kritiske avhengigheter
 - [ ] Logger, traces og metric-labels inneholder ikke sensitive data
 
 ## Boundaries
@@ -95,8 +95,8 @@ Se `references/alerting.md` for Prometheus-regler, Slack-integrasjon og vanlige 
 
 ### ⚠️ Spør først
 - Nye labels som kan øke kardinalitet vesentlig
-- Endring av produksjonsterskler for alerts
-- Nye dashboards, folders eller varslingskanaler som påvirker teamets arbeidsflyt
+- Endring av produksjonsterskler for varsler
+- Nye dashboards, mapper eller varslingskanaler som påvirker teamets arbeidsflyt
 
 ### 🚫 Aldri
 - Logg eller eksponer PII, tokens, passord eller andre hemmeligheter

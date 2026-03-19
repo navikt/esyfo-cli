@@ -62,7 +62,7 @@ Fjern mønstre som avslører KI-generert tekst.
 | "digital transformasjon" | Si hva som endres konkret |
 | "sikre at" | "passe på", "gjøre X mulig" |
 | "sørge for at" | "gjøre", "passe på" |
-| "muliggjøre" | "gjøre mulig", "la oss" |
+| "muliggjøre" | "gjøre mulig", "gi rom for" |
 | "understreke behovet for" | Si behovet direkte |
 | "hensynta" | "ta hensyn til" |
 | "implementere" | "innføre", "ta i bruk", "lage" |
@@ -81,7 +81,7 @@ Fjern mønstre som avslører KI-generert tekst.
 - Fjern oppsummeringssetninger som bare gjentar det du har skrevet
 - Ikke tving balanse mellom alternativer når ett er bedre
 - Varier grammatisk struktur i kulepunkter
-- Ikke overforklarer ting som er åpenbare for målgruppa
+- Ikke overforklar ting som er åpenbare for målgruppa
 
 ### Overgangsord og setningsbinding
 

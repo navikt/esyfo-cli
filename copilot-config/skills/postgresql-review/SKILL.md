@@ -1,7 +1,7 @@
 ---
 description: PostgreSQL-gjennomgang — EXPLAIN ANALYZE, indekser, N+1-deteksjon, ytelsesproblemer og Flyway-migrasjoner
 ---
-# PostgreSQL Review
+# PostgreSQL-gjennomgang
 
 Gjennomgang av PostgreSQL-bruk i Nav-applikasjoner. Dekker spørringsoptimalisering, indeksering, anti-mønstre og migrasjoner.
 
@@ -38,7 +38,7 @@ CREATE INDEX idx_metadata_gin ON dokument USING gin (metadata);
 CREATE INDEX idx_vedtak_status ON vedtak (status); -- bare 3-4 verdier
 ```
 
-## CONCURRENT indexes i produksjon
+## CONCURRENT-indekser i produksjon
 
 ```sql
 -- ✅ Produksjon: bruk CONCURRENTLY (blokkerer ikke skriving)
@@ -61,7 +61,7 @@ SELECT metadata->>'type' FROM dokument WHERE id = '...';
 SELECT * FROM dokument WHERE metadata->>'type' = 'søknad';
 ```
 
-## Window functions
+## Vindusfunksjoner
 
 ```sql
 -- ✅ ROW_NUMBER for paginering/dedup
@@ -124,7 +124,7 @@ INSERT INTO hendelse (id, type, data) VALUES (?, ?, ?)
 ON CONFLICT (id) DO NOTHING;
 ```
 
-Bruk `ON CONFLICT` når domenet tåler deterministisk deduplisering. Sørg for at konfliktmålet matcher en faktisk `UNIQUE`-constraint eller unik indeks.
+Bruk `ON CONFLICT` når domenet tåler deterministisk deduplisering. Kontroller at konfliktmålet samsvarer med en faktisk `UNIQUE`-constraint eller unik indeks.
 
 ## CHECK og UNIQUE constraints
 
@@ -164,7 +164,7 @@ CREATE TABLE audit_log_2025_01 PARTITION OF audit_log
 FOR VALUES FROM ('2025-01-01') TO ('2025-02-01');
 ```
 
-Bruk `RANGE` for tidsbaserte tabeller og `LIST` når data naturlig deles på for eksempel tenant eller type. Hold omtalen kort i review, og spør først før du introduserer partisjonering i et eksisterende skjema.
+Bruk `RANGE` for tidsbaserte tabeller og `LIST` når data naturlig deles på for eksempel tenant eller type. Hold omtalen kort i gjennomgangen, og spør først før du introduserer partisjonering i et eksisterende skjema.
 
 ## Anti-mønstre
 
@@ -204,7 +204,7 @@ SELECT * FROM hendelse WHERE type = 'SYKMELDING'
 ORDER BY opprettet DESC LIMIT 100;
 ```
 
-## Connection pooling
+## Tilkoblingspool
 
 ```yaml
 # Nais — HikariCP-konfigurasjon
@@ -233,9 +233,9 @@ HikariConfig().apply {
 For Flyway-migrasjoner og SQL-konvensjoner, se `flyway-migration`-skillen. Nøkkelpunkter:
 - Bruk `TIMESTAMPTZ` (ikke `TIMESTAMP`) for alle tidsstempel-kolonner
 - Indekser på alle FK-kolonner
-- UUID primary keys med `gen_random_uuid()`
+- UUID-primærnøkler med `gen_random_uuid()`
 - Egne migreringer for `CREATE INDEX CONCURRENTLY`
-- Repeatable migrations (`R__*.sql`) for views, funksjoner og lignende
+- Repeterbare migreringer (`R__*.sql`) for views, funksjoner og lignende
 
 ## Sjekkliste
 
@@ -246,7 +246,7 @@ For Flyway-migrasjoner og SQL-konvensjoner, se `flyway-migration`-skillen. Nøkk
 - [ ] Ingen N+1-spørringer
 - [ ] SELECT bare kolonner som trengs
 - [ ] LIMIT på spørringer som kan returnere mange rader
-- [ ] Connection pool riktig dimensjonert
+- [ ] Tilkoblingspoolen er riktig dimensjonert
 - [ ] Migrasjoner er reversible der mulig
 - [ ] Ingen `SELECT *` i produksjonskode
 
@@ -260,7 +260,7 @@ For Flyway-migrasjoner og SQL-konvensjoner, se `flyway-migration`-skillen. Nøkk
 
 ### ⚠️ Spør først
 - Nye indekser på store tabeller i produksjon — bruk `CONCURRENTLY` ved behov
-- Endring av connection pool-størrelse
+- Endring av størrelse på tilkoblingspool
 - Partisjonering eller advisory locks i eksisterende løsninger
 
 ### 🚫 Aldri

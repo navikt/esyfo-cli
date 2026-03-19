@@ -36,7 +36,7 @@ management:
       show-details: never
 ```
 
-Hvis du trenger helseprober på main port, vurder også:
+Hvis du trenger helseprober på hovedporten, vurder også:
 
 ```properties
 management.endpoint.health.probes.add-additional-paths=true
@@ -136,7 +136,7 @@ class PayloadMetrics(registry: MeterRegistry) {
 }
 ```
 
-## Business metrics patterns
+## Mønstre for business metrics
 
 Velg målinger som viser om løsningen fungerer, ikke bare om JVM-en lever.
 
@@ -176,7 +176,7 @@ class PaymentMetrics(registry: MeterRegistry) {
 
 Mål mottatte events, vellykket behandling, feil, behandlingstid og consumer lag eller køstørrelse. Bruk labels som `event_type`, `result` eller `consumer_group`, men ikke message key eller payload-id.
 
-## Health endpoints
+## Health-endepunkter
 
 Tilpass alltid stiene til manifest og applikasjonsoppsett. I Spring Boot er Actuator ofte nok:
 
@@ -192,7 +192,7 @@ management:
         include: health,prometheus
 ```
 
-Hvis du implementerer egne prober, hold liveness enkel og readiness avhengig av faktiske integrasjoner.
+Hvis du lager egne prober, hold liveness enkel og la readiness avhenge av faktiske integrasjoner.
 
 ```kotlin
 import org.springframework.boot.actuate.health.Health

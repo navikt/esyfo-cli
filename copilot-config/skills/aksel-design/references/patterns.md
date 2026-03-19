@@ -1,8 +1,8 @@
-# Patterns
+# Mønstre
 
 Disse mønstrene er ment som startpunkter. Tilpass dem til eksisterende arkitektur og komponentmønstre i løsningen.
 
-## Page container
+## Sidecontainer
 
 Bruk `Box` + `VStack` som standard sidecontainer med responsiv padding.
 
@@ -24,7 +24,7 @@ export function PageContainer(): JSX.Element {
 }
 ```
 
-## Card pattern
+## Kortmønster
 
 Bruk `Box` som base for kort. Hold kortene rolige og konsekvente.
 
@@ -43,7 +43,7 @@ export function StatusCard(): JSX.Element {
 }
 ```
 
-## Form layout
+## Skjemalayout
 
 Bruk `VStack` for felt og `HStack` for handlingsraden.
 
@@ -65,7 +65,7 @@ export function ProfileForm(): JSX.Element {
 }
 ```
 
-## Dashboard grid
+## Dashboard-rutenett
 
 Bruk `HGrid` til kort og oversikter. La antall kolonner styres av breakpoints.
 
@@ -83,7 +83,7 @@ export function Dashboard(): JSX.Element {
 }
 ```
 
-## Two-column layout
+## Tospaltet layout
 
 Bruk `HGrid` eller `Stack direction` for tydelig hovedinnhold + sideinnhold.
 
@@ -103,9 +103,9 @@ export function TwoColumnLayout(): JSX.Element {
 }
 ```
 
-## Filter section pattern
+## Filterseksjon
 
-Samle filtre i en rolig seksjon med luft og tydelig groupering.
+Samle filtre i en rolig seksjon med luft og tydelig gruppering.
 
 ```tsx
 import { Button, HStack, Select, TextField, VStack } from "@navikt/ds-react";
@@ -128,9 +128,9 @@ export function FilterSection(): JSX.Element {
 }
 ```
 
-## Loading states
+## Lastertilstander
 
-Bruk eksplisitt loading-state i layouten. Hold høyde og rytme stabil.
+Bruk en eksplisitt lastetilstand i layouten. Hold høyde og rytme stabil.
 
 ```tsx
 import { BodyShort, Box, Loader, VStack } from "@navikt/ds-react";
@@ -147,7 +147,7 @@ export function LoadingPanel(): JSX.Element {
 }
 ```
 
-## Error handling
+## Feilhåndtering
 
 Vis tydelig feil med både oppsummering og lokal kontekst når skjemaet krever det.
 
@@ -187,7 +187,7 @@ export function FullWidthSection(): JSX.Element {
 }
 ```
 
-## Kvittering / receipt pattern
+## Kvitteringsmønster
 
 Bygg kvitteringer som en tydelig oppsummering med overskrift, nøkkelinformasjon og neste steg.
 
@@ -213,7 +213,7 @@ export function Receipt(): JSX.Element {
 }
 ```
 
-## Button row pattern
+## Knapprad
 
 Handlinger skal være enkle å skanne og fungere på små skjermer.
 
@@ -231,7 +231,7 @@ export function ButtonRow(): JSX.Element {
 }
 ```
 
-## Tags container
+## Tag-container
 
 Bruk `HStack` med `wrap` rundt `Tag` når innholdet kan bryte over flere linjer.
 
@@ -251,9 +251,9 @@ export function TagsContainer(): JSX.Element {
 
 ## Valg mellom mønstrene
 
-- Side eller seksjon → `Page container`
-- Oppsummering eller statusboks → `Card`
-- Skjema → `Form layout` + `Error handling`
-- Oversikter → `Dashboard grid` eller `Two-column layout`
+- Side eller seksjon → `Sidecontainer`
+- Oppsummering eller statusboks → `Kortmønster`
+- Skjema → `Skjemalayout` + `Feilhåndtering`
+- Oversikter → `Dashboard-rutenett` eller `Tospaltet layout`
 - Banner eller fremhevet stripe → `Bleed`
-- Ferdigstilt steg → `Receipt`
+- Ferdigstilt steg → `Kvitteringsmønster`

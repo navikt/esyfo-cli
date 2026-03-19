@@ -31,7 +31,7 @@ Bruk disse tokenene i Aksel-props som `gap`, `padding`, `paddingInline`, `paddin
 | `space-96` | 96px |
 | `space-128` | 128px |
 
-## Legacy token migration (pre-v8 → v8)
+## Migrering fra eldre tokens (pre-v8 → v8)
 
 Bruk denne tabellen når du rydder i eldre CSS-variabler. For komponent-props i Aksel-primitives bruker du fortsatt `space-*`/`radius-*`-tokenene i prop-API-et.
 
@@ -74,15 +74,15 @@ Brukes i `Box borderRadius` og andre APIs som tar radius-tokens.
 
 Merk: `Box borderRadius` bruker verdiene `"0"`, `"2"`, `"4"`, `"8"`, `"12"` og `"full"` i propen, mens CSS-variablene er `--a-radius-*`.
 
-## Breakpoints
+## Brytepunkter
 
 Aksel responsive props bygger på disse breakpointene:
 
 | Token | Verdi | Typisk bruk |
 |---|---:|---|
-| `xs` | 0px | Mobile default |
-| `sm` | 480px | Stor mobil / liten tablet |
-| `md` | 768px | Tablet / liten desktop |
+| `xs` | 0px | Mobil som standard |
+| `sm` | 480px | Stor mobil / lite nettbrett |
+| `md` | 768px | Nettbrett / liten desktop |
 | `lg` | 1024px | Desktop |
 | `xl` | 1280px | Bred desktop |
 
@@ -101,7 +101,7 @@ Disse er gode standardvalg for vanlige flater og tekst.
 | `text-default` | Standard tekstfarge | `rgba(35, 38, 42, 1)` |
 | `text-subtle` | Sekundær tekst | `rgba(1, 11, 24, 0.68)` |
 
-## CSS custom properties
+## CSS-variabler
 
 Når du må skrive CSS, bruk Aksel sine variabler direkte.
 
@@ -127,7 +127,7 @@ Når du må skrive CSS, bruk Aksel sine variabler direkte.
 - `var(--a-text-default)`
 - `var(--a-text-subtle)`
 
-### Breakpoints
+### Brytepunkter
 - `var(--a-breakpoint-sm)` → `480px`
 - `var(--a-breakpoint-md)` → `768px`
 - `var(--a-breakpoint-lg)` → `1024px`
