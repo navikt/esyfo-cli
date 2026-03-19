@@ -1,5 +1,5 @@
 ---
-description: PostgreSQL-gjennomgang — EXPLAIN-analyse, indeksstrategier, N+1-deteksjon og migrasjoner
+description: PostgreSQL-gjennomgang — EXPLAIN ANALYZE, indekser, N+1-deteksjon, ytelsesproblemer og Flyway-migrasjoner
 ---
 # PostgreSQL Review
 

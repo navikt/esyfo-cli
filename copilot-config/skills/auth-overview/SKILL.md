@@ -1,14 +1,14 @@
 ---
-description: Nav authentication overview — Azure AD, TokenX, ID-porten, Maskinporten configuration and best practices
+description: Sett opp autentisering i en Nav-applikasjon — Azure AD, TokenX, ID-porten, Maskinporten konfigurering og beste praksis
 ---
 
 # Authentication Overview — Nav
 
-Oversikt over autentiseringsmekanismer i NAV. Bruk denne som referanse ved oppsett av auth i nye eller eksisterende tjenester.
+Oversikt over autentiseringsmekanismer i Nav. Bruk denne som referanse ved oppsett av auth i nye eller eksisterende tjenester.
 
 ## Autentiseringstyper
 
-### 1. Azure AD / Entra ID (interne NAV-brukere)
+### 1. Azure AD / Entra ID (interne Nav-brukere)
 ```yaml
 azure:
   application:
@@ -46,6 +46,12 @@ maskinporten:
     consumes:
       - name: "nav:example/scope"
 ```
+
+### 5. Systembruker via Maskinporten (Altinn 3)
+
+Systembruker er en mekanisme i Altinn 3 der eksterne virksomheter oppretter en systembruker som gir tilgang til Nav-tjenester via Maskinporten. Brukes blant annet i syfo-dokumentporten.
+
+Se [Altinn 3 systembruker-dokumentasjon](https://docs.altinn.studio/authentication/what-do-you-get/systemuser/) for oppsett.
 
 ## Tilnærming
 

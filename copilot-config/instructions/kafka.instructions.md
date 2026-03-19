@@ -1,4 +1,5 @@
 ---
+description: 'Kafka consumer/producer-mønstre — idempotens, feilhåndtering, ytelse'
 applyTo: "**/*Kafka*.kt,**/*Consumer*.kt,**/*Producer*.kt,**/*Event*.kt"
 ---
 

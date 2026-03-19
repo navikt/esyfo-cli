@@ -1,27 +1,27 @@
 ---
-description: Create a Flyway database migration with proper conventions
+description: Opprett en Flyway-databasemigrering etter riktige konvensjoner
 ---
 
-# Flyway Migration
+# Flyway-migrering
 
-Create a new Flyway migration file following team-esyfo conventions.
+Opprett en ny Flyway-migreringsfil etter team-esyfos konvensjoner.
 
-## Steps
+## Steg
 
-1. Find the migration directory by searching for existing `V*__*.sql` files under `src/main/resources/db/` (or checking `flyway.locations` in application config), then list existing migrations to determine next version number
-2. Read the most recent migration to understand naming and style conventions
-3. Create the new migration file with proper naming: `V{next}__{description}.sql`
+1. Finn migreringsmappen ved å søke etter eksisterende `V*__*.sql`-filer under `src/main/resources/db/` (eller ved å sjekke `flyway.locations` i applikasjonskonfigurasjonen), og list deretter eksisterende migreringer for å finne neste versjonsnummer
+2. Les den nyeste migreringen for å forstå navngivings- og stilkonvensjonene
+3. Opprett den nye migreringsfilen med riktig navn: `V{next}__{description}.sql`
 
-## Conventions
+## Konvensjoner
 
-- Prefer fail-fast in versioned migrations — use `IF NOT EXISTS` / `IF EXISTS` only when idempotency is intentional
-- Use `TIMESTAMPTZ` for timestamps (with `DEFAULT NOW()`)
-- Use `UUID` with `gen_random_uuid()` for primary keys where appropriate
-- Use `TEXT` instead of `VARCHAR`
-- Add indexes for frequently queried columns
-- One focused change per migration
+- Foretrekk fail-fast i versjonerte migreringer — bruk `IF NOT EXISTS` / `IF EXISTS` bare når idempotency er bevisst
+- Bruk `TIMESTAMPTZ` for tidsstempler (med `DEFAULT NOW()`)
+- Bruk `UUID` med `gen_random_uuid()` for primærnøkler der det passer
+- Bruk `TEXT` i stedet for `VARCHAR`
+- Legg til indekser for kolonner det søkes ofte på
+- Én fokusert endring per migrering
 
-## Template
+## Mal
 
 ```sql
 -- V{number}__{description}.sql

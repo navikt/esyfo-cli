@@ -1,4 +1,5 @@
 ---
+description: 'Teststandarder for TypeScript — Vitest/Jest, React Testing Library, MSW'
 applyTo: "**/*.{test,spec}.{ts,tsx}"
 ---
 

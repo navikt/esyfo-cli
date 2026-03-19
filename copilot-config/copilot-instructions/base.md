@@ -3,14 +3,14 @@
 {{description}}
 
 ## Team
-- **Team**: team-esyfo, NAV IT
+- **Team**: team-esyfo, Nav IT
 - **Org**: navikt
 
 ## Commands
 
 {{commands}}
 
-## NAV Principles
+## Nav Principles
 - **Team First**: Autonomous teams with circles of autonomy
 - **Product Development**: Continuous development over ad hoc approaches
 - **Essential Complexity**: Focus on essential, avoid accidental complexity
@@ -28,6 +28,7 @@
   2. **NAV-docs ved behov**: Slå opp aksel.nav.no (UI-komponenter, design tokens) og doc.nais.io (plattform, deploy, observability) når du lager eller endrer noe i disse domenene
   3. **Ekstern docs ved usikkerhet**: Bruk web search for eksterne biblioteker kun når du er usikker på API-korrekthet — ikke rutinemessig
 - Check existing code patterns in the repository before writing new code
+- Prefer obvious, readable code over clever code
 - Follow the ✅ Always / ⚠️ Ask First / 🚫 Never boundaries in agent and instruction files
 
 ## Documentation and Working Notes
@@ -42,7 +43,7 @@
 
 ## Keeping Copilot Config in Sync
 
-When making changes that affect patterns described in `.github/` config files (instructions, prompts, skills), **suggest** updating — but do not update automatically.
+When making changes that affect patterns described in `.github/` config files (instructions, skills, agents), **suggest** updating — but do not update automatically.
 
 Examples: upgrading frameworks, changing test patterns, adding auth mechanisms, changing DB access patterns, adding Kafka topics, modifying build tooling.
 

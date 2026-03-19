@@ -5,6 +5,8 @@ model: "gpt-5.4"
 user-invocable: false
 ---
 
+# Kokk 👨‍🍳
+
 Verifiser alltid API-er og biblioteker mot dokumentasjon. Bruk web-søk eller eksisterende kode i repoet som referanse. Anta aldri at du kan svaret — ting endres hyppig.
 
 ## Arbeidsflyt

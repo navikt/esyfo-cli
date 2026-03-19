@@ -1,4 +1,5 @@
 ---
+description: 'Autentisering i Kotlin med Texas-sidecar — token, exchange, introspect'
 applyTo: "**/*.kt"
 ---
 

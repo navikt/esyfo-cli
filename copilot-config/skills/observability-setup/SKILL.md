@@ -1,22 +1,30 @@
 ---
-description: Set up observability (metrics, logging, tracing) for a NAV application
+description: Sett opp og vedlikehold observability — metrikker, navngivning, logging, tracing for Nav-applikasjoner
 ---
 
-# Observability Setup
+# Sett opp observability
 
-Configure metrics, structured logging, and tracing for a NAV application.
+Konfigurer metrikker, strukturert logging og tracing for en Nav-applikasjon.
 
-## Steps
+## Steg
 
-1. Read NAIS manifest to check current observability config and endpoint paths
-2. Check `build.gradle.kts` or `package.json` for existing observability dependencies
-3. Check existing code for metrics library patterns (Micrometer, prom-client, etc.).
-4. Search codebase for existing metric definitions, logging patterns, and health endpoints
+1. Les NAIS-manifestet for å sjekke gjeldende observability-konfigurasjon og endepunktstier.
+2. Sjekk `build.gradle.kts` eller `package.json` for eksisterende observability-avhengigheter.
+3. Sjekk eksisterende kode for mønstre i metrics-biblioteket (Micrometer, prom-client osv.).
+4. Søk i kodebasen etter eksisterende metrikkdefinisjoner, logging-mønstre og health-endepunkter.
+
+## Metrikk-navngivning
+
+- Bruk `snake_case`.
+- Bruk enhetssuffiks der det er relevant, for eksempel `_seconds`, `_bytes` og `_total`.
+- Countere skal ha suffikset `_total`.
+- Unngå labels med høy kardinalitet, som `user_id`, `email` og `transaction_id`.
+- Ikke bruk `camelCase` i metrikk-navn.
 
 ## Backend (Kotlin)
 
-### Health & Metrics Endpoints
-Check existing NAIS manifests and `application.yaml` for the actual paths — these vary per repo (e.g. `/isalive` vs `/internal/health/livenessState`, `/metrics` vs `/internal/prometheus`).
+### Endepunkter for health og metrics
+Sjekk eksisterende NAIS-manifester og `application.yaml` for de faktiske stiene — disse varierer fra repo til repo (for eksempel `/isalive` vs `/internal/health/livenessState`, `/metrics` vs `/internal/prometheus`).
 
 ### NAIS Auto-Instrumentation
 ```yaml
@@ -27,8 +35,8 @@ spec:
       runtime: java
 ```
 
-### Structured Logging
-Follow the existing logging pattern in the codebase (look for `kv()` helpers, MDC, or structured argument patterns):
+### Strukturert logging
+Følg det eksisterende logging-mønsteret i kodebasen (se etter `kv()`-hjelpere, MDC eller mønstre for strukturerte argumenter):
 ```kotlin
 logger.info("Processing event", kv("event_id", eventId))
 ```
@@ -44,10 +52,33 @@ spec:
       runtime: nodejs
 ```
 
-## Checklist
+## Logging
 
-- [ ] Health and metrics endpoints implemented (verify paths from NAIS manifest)
-- [ ] Auto-instrumentation enabled in NAIS manifest
-- [ ] Structured logging configured (JSON to stdout)
-- [ ] Custom business metrics defined where relevant
-- [ ] No sensitive data in logs or metric labels
+- Strukturert JSON til stdout/stderr.
+- Inkluder `trace_id` i alle logginnslag.
+- Følg eksisterende loggmønstre i kodebasen.
+- Aldri logg sensitive data som fødselsnummer, tokens eller passord.
+
+## Sjekkliste
+
+- [ ] Health- og metrics-endepunkter er implementert (verifiser stier fra NAIS-manifestet)
+- [ ] Auto-instrumentation er aktivert i NAIS-manifestet
+- [ ] Strukturert logging er konfigurert (JSON til stdout)
+- [ ] Egendefinerte business-metrics er definert der det er relevant
+- [ ] Ingen sensitive data i logger eller metric-labels
+
+## Boundaries
+
+### ✅ Always
+- Include `trace_id` in log entries
+- Use `snake_case` with unit suffix for metrics
+- Follow existing logging patterns
+
+### ⚠️ Ask First
+- New metric labels (cardinality impact)
+- Changing alert thresholds in production
+
+### 🚫 Never
+- High-cardinality labels
+- Log sensitive data (PII, tokens, passwords)
+- camelCase metric names

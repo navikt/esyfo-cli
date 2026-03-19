@@ -238,7 +238,7 @@ export async function copilotSync(options: { repo?: string; all?: boolean; dryRu
 
             // Create PR (optional — may already exist)
             const prBody =
-                'Automatisk sync av GitHub Copilot-konfigurasjon fra esyfo-cli.\n\nEndringer inkluderer agenter, instruksjoner, prompts og skills tilpasset dette repoets stack.'
+                'Automatisk sync av GitHub Copilot-konfigurasjon fra esyfo-cli.\n\nEndringer inkluderer agenter, instruksjoner og skills tilpasset dette repoets stack.'
             const prResult = Bun.spawnSync(
                 ['gh', 'pr', 'create', '--title', commitMessage, '--body', prBody, '--head', branchName],
                 { cwd: repoPath, stdio: ['pipe', 'pipe', 'pipe'] },

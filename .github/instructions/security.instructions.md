@@ -1,4 +1,5 @@
 ---
+description: 'Sikkerhetsstandarder — hemmeligheter, inputvalidering, accessPolicy, PII'
 applyTo: "**/*"
 ---
 

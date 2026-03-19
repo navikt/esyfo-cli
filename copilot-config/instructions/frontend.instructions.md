@@ -1,4 +1,5 @@
 ---
+description: 'Frontend-standarder — Aksel Design System, spacing, responsivt design'
 applyTo: "**/*.{ts,tsx,css}"
 ---
 

@@ -71,12 +71,11 @@ export async function assembleForRepo(
     const githubDir = path.join(repoPath, '.github')
     const agentsDir = path.join(githubDir, 'agents')
     const instructionsDir = path.join(githubDir, 'instructions')
-    const promptsDir = path.join(githubDir, 'prompts')
     const skillsDir = path.join(githubDir, 'skills')
     const issueTemplatesDir = path.join(githubDir, 'ISSUE_TEMPLATE')
 
     const hasAgents = files.agents.length > 0
-    const dirsToCreate = [instructionsDir, promptsDir, skillsDir]
+    const dirsToCreate = [instructionsDir, skillsDir]
     if (hasAgents) dirsToCreate.unshift(agentsDir)
     for (const dir of dirsToCreate) {
         fs.mkdirSync(dir, { recursive: true })
@@ -104,15 +103,7 @@ export async function assembleForRepo(
         await writeIfChanged(instructionPath, withManagedHeader(content), result)
     }
 
-    // 4. Copy prompts
-    for (const prompt of files.prompts) {
-        const promptPath = path.join(promptsDir, prompt)
-        managedFiles.add(promptPath)
-        const content = await readConfigFile('prompts', prompt)
-        await writeIfChanged(promptPath, withManagedHeader(content), result)
-    }
-
-    // 5. Copy skills (including references)
+    // 4. Copy skills (including references)
     for (const skill of files.skills) {
         const skillDir = path.join(skillsDir, skill)
         fs.mkdirSync(skillDir, { recursive: true })
@@ -179,10 +170,17 @@ export async function assembleForRepo(
 
     // 7. Clean up stale managed files (files we previously managed but no longer need)
     // NOTE: workflowsDir is intentionally NOT included — it contains repo-specific workflows we must not touch.
-    const dirsToClean = [instructionsDir, promptsDir, skillsDir]
+    const promptsDir = path.join(githubDir, 'prompts')
+    const dirsToClean = [instructionsDir, skillsDir]
+    if (fs.existsSync(promptsDir)) dirsToClean.push(promptsDir) // Legacy cleanup — prompts migrated to skills
     if (fs.existsSync(issueTemplatesDir)) dirsToClean.push(issueTemplatesDir)
     if (fs.existsSync(agentsDir)) dirsToClean.unshift(agentsDir)
     await cleanStaleManagedFiles(dirsToClean, managedFiles, result)
+
+    // Remove empty legacy prompts directory after cleanup
+    if (fs.existsSync(promptsDir) && fs.readdirSync(promptsDir).length === 0) {
+        fs.rmdirSync(promptsDir)
+    }
 
     // Clean stale PR template
     const prTemplatePath = path.join(githubDir, 'PULL_REQUEST_TEMPLATE.md')
@@ -200,10 +198,10 @@ export async function assembleForRepo(
 
 /**
  * Augment file lists with conditional files based on detected stack.
- * Handles framework-specific instructions, database/kafka-conditional prompts and skills.
+ * Handles framework-specific instructions, database/kafka-conditional skills.
  */
 export function resolveConditionalFiles(
-    files: { instructions: string[]; prompts: string[]; skills: string[] },
+    files: { instructions: string[]; skills: string[] },
     stack: RepoStackInfo,
 ): void {
     // Database-related
@@ -230,7 +228,7 @@ export function resolveConditionalFiles(
         } else {
             files.instructions.push('kafka.instructions.md')
         }
-        files.prompts.push('kafka-topic.prompt.md')
+        files.skills.push('kafka-topic')
     }
 }
 
