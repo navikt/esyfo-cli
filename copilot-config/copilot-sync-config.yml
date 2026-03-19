@@ -15,8 +15,6 @@ common:
     - mattilsynet.agent.md
     - inspektør-claude.agent.md
     - inspektør-gpt.agent.md
-    - inspektør-gemini.agent.md
-    - inspektør-base.md
   instructions:
     - security.instructions.md
   skills:

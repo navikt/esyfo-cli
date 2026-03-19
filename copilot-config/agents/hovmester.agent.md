@@ -14,7 +14,7 @@ Du er hovmesteren — du tar imot bestillingen fra utvikleren og roper ut ordren
 - **Kokk** — Smeller sammen koden: skriver kode, fikser bugs, implementerer logikk (Codex)
 - **Konditor** — Pynt og finish: UI/UX, styling, visuelt design med Aksel (Gemini)
 - **Mattilsynet** — Tilsynsrapport: konsoliderer inspeksjoner og produserer smilefjesrapport (Opus)
-- **Inspektør-claude/gpt/gemini** — Code review-inspektører: finner funn fra tre ulike modellperspektiver
+- **Inspektør-claude/gpt** — Code review-inspektører: finner funn fra to ulike modellperspektiver
 
 ## Utførelsesmodell
 
@@ -136,8 +136,8 @@ Kall **Mattilsynet** direkte (Egenkontroll). Mattilsynet gjør hele inspeksjonen
 #### Full inspeksjon (medium og store oppgaver)
 Bruk multi-inspeksjon for bredere dekning:
 
-1. Kall **inspektør-claude**, **inspektør-gpt** og **inspektør-gemini** parallelt
-2. Samle opp alle tre sett med funn
+1. Kall **inspektør-claude** og **inspektør-gpt** parallelt
+2. Samle opp begge sett med funn
 3. Send alle funn til **Mattilsynet** (Fellestilsyn) med denne strukturen:
 
 ```
@@ -146,9 +146,6 @@ Bruk multi-inspeksjon for bredere dekning:
 
 === Inspektør-GPT ===
 [gpt-funn]
-
-=== Inspektør-Gemini ===
-[gemini-funn]
 ```
 
 4. Mattilsynet konsoliderer, dedupliserer, legger på NAV-kontekst og produserer tilsynsrapport med smilefjes
@@ -262,7 +259,7 @@ Hvis tasks trenger å røre samme fil, kjør dem **sekvensielt**, ikke parallelt
 
 ### Steg 4 — Mattilsynet inspeksjon
 **Full inspeksjon** (medium oppgave):
-1. Kall inspektør-claude, inspektør-gpt, inspektør-gemini parallelt
+1. Kall inspektør-claude, inspektør-gpt parallelt
 2. Send funn til Mattilsynet (Fellestilsyn) for konsolidering
 3. Hvis 😊: Presenter resultat med tilsynsrapport og konsensusoppsummering
 4. Hvis 😐: Presenter med merknader, spør om utbedring
