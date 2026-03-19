@@ -28,6 +28,7 @@
   2. **NAV-docs ved behov**: Slå opp aksel.nav.no (UI-komponenter, design tokens) og doc.nais.io (plattform, deploy, observability) når du lager eller endrer noe i disse domenene
   3. **Ekstern docs ved usikkerhet**: Bruk web search for eksterne biblioteker kun når du er usikker på API-korrekthet — ikke rutinemessig
 - Check existing code patterns in the repository before writing new code
+- Prefer obvious, readable code over clever code
 - Follow the ✅ Always / ⚠️ Ask First / 🚫 Never boundaries in agent and instruction files
 
 ## Documentation and Working Notes
