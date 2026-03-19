@@ -184,7 +184,7 @@ For oppgaver vurdert som «Stor» i Steg 0, vurder resultatet mot disse 5 dimens
 
 1. **Korrekthet** — Oppfyller kravene?
 2. **Robusthet** — Håndterer edge cases?
-3. **Enkelhet** — Fri for over-engineering?
+3. **Enkelhet** — Fri for over-engineering? Foretrekk lesbar og åpenbar kode fremfor clever kode.
 4. **Vedlikeholdbarhet** — Lett å utvide og debugge?
 5. **Konsistens** — Følger prosjektets etablerte mønstre?
 

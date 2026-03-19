@@ -20,5 +20,5 @@ Bruk denne skillen når du skal sette opp en ny Kafka-topic-konfigurasjon og en 
 - [ ] Implementer idempotent behandling der det er nødvendig
 - [ ] Legg inn feilhåndtering og logging som er konsistent med eksisterende consumere
 - [ ] Legg til metrikker for antall prosesserte events og tidsbruk for prosessering
-- [ ] Bruk strukturert logging med relevante identifikatorer
+- [ ] Bruk strukturert logging med relevante identifikatorer — aldri logg sensitive data (fødselsnummer, tokens, personnavn)
 - [ ] Skriv tester etter eksisterende Kafka-testmønstre i repoet

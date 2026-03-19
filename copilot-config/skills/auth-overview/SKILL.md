@@ -47,6 +47,10 @@ maskinporten:
       - name: "nav:example/scope"
 ```
 
+### 5. Systembrukere (legacy)
+
+Systembrukere er en eldre autentiseringsmekanisme i Nav. For nye integrasjoner, bruk Maskinporten eller Azure AD i stedet. Eksisterende systembrukere vedlikeholdes, men skal ikke innføres i nye tjenester.
+
 ## Tilnærming
 
 1. Les NAIS-manifest for å identifisere hvilke auth-mekanismer som er konfigurert

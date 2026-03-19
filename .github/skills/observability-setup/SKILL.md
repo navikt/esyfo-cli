@@ -54,10 +54,10 @@ spec:
 
 ## Logging
 
-- Structured JSON to stdout/stderr.
-- Include `trace_id` in all log entries.
-- Follow existing logging patterns in the codebase.
-- Never log sensitive data such as PII, tokens or passwords.
+- Strukturert JSON til stdout/stderr.
+- Inkluder `trace_id` i alle logginnslag.
+- Følg eksisterende loggmønstre i kodebasen.
+- Aldri logg sensitive data som fødselsnummer, tokens eller passord.
 
 ## Sjekkliste
 
