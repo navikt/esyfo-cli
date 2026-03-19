@@ -38,6 +38,16 @@ CREATE INDEX idx_metadata_gin ON dokument USING gin (metadata);
 CREATE INDEX idx_vedtak_status ON vedtak (status); -- bare 3-4 verdier
 ```
 
+## CONCURRENT indexes i produksjon
+
+```sql
+-- ✅ Produksjon: bruk CONCURRENTLY (blokkerer ikke skriving)
+CREATE INDEX CONCURRENTLY idx_vedtak_bruker ON vedtak (bruker_id);
+-- Merk: kan ikke kjøre i transaksjon, bruk i egen Flyway-migrering
+```
+
+Bruk dette for store tabeller i produksjon. Legg migreringen alene, og verifiser Flyway-oppsettet før deploy.
+
 ## JSONB-mønstre
 
 ```sql
@@ -50,6 +60,111 @@ SELECT metadata->>'type' FROM dokument WHERE id = '...';
 -- ❌ Funksjonsbasert spørring uten indeks
 SELECT * FROM dokument WHERE metadata->>'type' = 'søknad';
 ```
+
+## Window functions
+
+```sql
+-- ✅ ROW_NUMBER for paginering/dedup
+SELECT * FROM (
+    SELECT *, ROW_NUMBER() OVER (PARTITION BY bruker_id ORDER BY opprettet DESC) AS rn
+    FROM vedtak
+) t WHERE rn = 1;
+
+-- ✅ LAG/LEAD for tidsserier
+SELECT dato, verdi, verdi - LAG(verdi) OVER (ORDER BY dato) AS endring
+FROM metrikk;
+
+-- ✅ Running total per bruker
+SELECT bruker_id, dato, belop,
+       SUM(belop) OVER (PARTITION BY bruker_id ORDER BY dato) AS running_total
+FROM utbetaling;
+```
+
+Bruk window functions når du trenger rangering, differanser eller akkumulerte verdier uten å falle tilbake til tunge subqueries i applikasjonslaget.
+
+## CTE (Common Table Expressions)
+
+```sql
+-- ✅ Del opp kompleks logikk i navngitte steg
+WITH aktive_vedtak AS (
+    SELECT id, bruker_id, opprettet
+    FROM vedtak
+    WHERE status = 'AKTIV'
+), siste_per_bruker AS (
+    SELECT bruker_id, MAX(opprettet) AS siste_opprettet
+    FROM aktive_vedtak
+    GROUP BY bruker_id
+)
+SELECT a.*
+FROM aktive_vedtak a
+JOIN siste_per_bruker s
+  ON s.bruker_id = a.bruker_id
+ AND s.siste_opprettet = a.opprettet;
+```
+
+Bruk CTE-er for lesbarhet og stegvis transformasjon. Verifiser med `EXPLAIN ANALYZE` hvis du bruker mange CTE-er i tunge spørringer.
+
+## Upsert / ON CONFLICT
+
+```sql
+-- ✅ Batch insert
+INSERT INTO hendelse (id, type, data)
+VALUES
+    (?, ?, ?),
+    (?, ?, ?),
+    (?, ?, ?);
+
+-- ✅ Upsert
+INSERT INTO bruker_innstilling (bruker_id, tema, verdi)
+VALUES (?, ?, ?)
+ON CONFLICT (bruker_id, tema) DO UPDATE SET verdi = EXCLUDED.verdi, updated_at = NOW();
+
+-- ✅ Insert ignore
+INSERT INTO hendelse (id, type, data) VALUES (?, ?, ?)
+ON CONFLICT (id) DO NOTHING;
+```
+
+Bruk `ON CONFLICT` når domenet tåler deterministisk deduplisering. Sørg for at konfliktmålet matcher en faktisk `UNIQUE`-constraint eller unik indeks.
+
+## CHECK og UNIQUE constraints
+
+```sql
+ALTER TABLE vedtak ADD CONSTRAINT chk_status CHECK (status IN ('AKTIV', 'AVSLUTTET', 'KANSELLERT'));
+ALTER TABLE bruker ADD CONSTRAINT unq_bruker_fnr UNIQUE (fnr);
+```
+
+Legg domeneregler i databasen når de alltid må gjelde. Constraints beskytter både applikasjonskode, batch-jobber og manuelle scripts.
+
+## Advisory locks
+
+```sql
+-- ✅ Prøv å ta en applås uten å blokkere
+SELECT pg_try_advisory_lock(42);
+
+-- ✅ Transaksjonsbundet lås
+BEGIN;
+SELECT pg_advisory_xact_lock(123456);
+UPDATE jobb SET status = 'RUNNING' WHERE id = ?;
+COMMIT;
+```
+
+Bruk advisory locks for koordinerte jobber, singleton-prosesser eller idempotente batcher. De erstatter ikke vanlige radlåser eller gode transaksjonsgrenser.
+
+## Partisjonering
+
+```sql
+-- ✅ Range partitioning for store tidsserier
+CREATE TABLE audit_log (
+    id UUID PRIMARY KEY,
+    created_at TIMESTAMPTZ NOT NULL,
+    payload JSONB NOT NULL
+) PARTITION BY RANGE (created_at);
+
+CREATE TABLE audit_log_2025_01 PARTITION OF audit_log
+FOR VALUES FROM ('2025-01-01') TO ('2025-02-01');
+```
+
+Bruk `RANGE` for tidsbaserte tabeller og `LIST` når data naturlig deles på for eksempel tenant eller type. Hold omtalen kort i review, og spør først før du introduserer partisjonering i et eksisterende skjema.
 
 ## Anti-mønstre
 
@@ -119,11 +234,15 @@ For Flyway-migrasjoner og SQL-konvensjoner, se `flyway-migration`-skillen. Nøkk
 - Bruk `TIMESTAMPTZ` (ikke `TIMESTAMP`) for alle tidsstempel-kolonner
 - Indekser på alle FK-kolonner
 - UUID primary keys med `gen_random_uuid()`
+- Egne migreringer for `CREATE INDEX CONCURRENTLY`
+- Repeatable migrations (`R__*.sql`) for views, funksjoner og lignende
 
 ## Sjekkliste
 
 - [ ] EXPLAIN ANALYZE kjørt på tunge spørringer
 - [ ] Indekser på alle FK-kolonner og hyppig brukte WHERE-kolonner
+- [ ] `CREATE INDEX CONCURRENTLY` vurdert for nye prod-indekser på store tabeller
+- [ ] CHECK/UNIQUE constraints brukt der domeneregler kan håndheves i databasen
 - [ ] Ingen N+1-spørringer
 - [ ] SELECT bare kolonner som trengs
 - [ ] LIMIT på spørringer som kan returnere mange rader
@@ -140,8 +259,9 @@ For Flyway-migrasjoner og SQL-konvensjoner, se `flyway-migration`-skillen. Nøkk
 - LIMIT på spørringer som kan returnere mange rader
 
 ### ⚠️ Spør først
-- Nye indekser på store tabeller (låsing i produksjon)
+- Nye indekser på store tabeller i produksjon — bruk `CONCURRENTLY` ved behov
 - Endring av connection pool-størrelse
+- Partisjonering eller advisory locks i eksisterende løsninger
 
 ### 🚫 Aldri
 - `SELECT *` i produksjonskode

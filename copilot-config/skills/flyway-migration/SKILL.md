@@ -33,3 +33,54 @@ CREATE TABLE table_name (
 
 CREATE INDEX idx_table_name_field ON table_name(field);
 ```
+
+## CONCURRENTLY-indekser
+
+Bruk egen migrering når du må opprette indeks på stor tabell i produksjon uten å blokkere skriving.
+
+```sql
+-- V5__add_index_concurrently.sql
+-- NB: CREATE INDEX CONCURRENTLY kan ikke kjøre i transaksjon
+-- Kjør denne migreringen alene og verifiser Flyway-oppsettet først
+-- flyway.transactional=false
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_vedtak_bruker ON vedtak (bruker_id);
+```
+
+Hvis prosjektet bruker rammeverk-konfig for Flyway, verifiser tilsvarende innstilling der i stedet for å gjette på globale properties.
+
+## Repeatable migrations
+
+`R__*.sql`-filer kjøres på nytt hver gang innholdet endres.
+
+Bruk dem for:
+- views
+- funksjoner
+- triggers
+- seed data
+
+Hold versionerte `V__`-migreringer immutable, og bruk repeatable migrations for objekter som naturlig regenereres.
+
+## Testcontainers-eksempel
+
+Bruk Testcontainers for å verifisere at migrasjoner faktisk kan kjøres mot en ekte PostgreSQL-instans i tester.
+
+```kotlin
+@Testcontainers
+class DatabaseTest {
+    companion object {
+        @Container
+        val postgres = PostgreSQLContainer("postgres:15-alpine")
+            .withDatabaseName("testdb")
+    }
+
+    @Test
+    fun `migrasjoner kjører uten feil`() {
+        Flyway.configure()
+            .dataSource(postgres.jdbcUrl, postgres.username, postgres.password)
+            .load()
+            .migrate()
+    }
+}
+```
+
+Dette gir rask feedback på at migrasjonsrekkefølge, SQL-syntaks og Flyway-konfig faktisk fungerer sammen.
