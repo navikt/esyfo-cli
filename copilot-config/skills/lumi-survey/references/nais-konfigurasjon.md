@@ -12,6 +12,7 @@ spec:
   env:
     - name: LUMI_API_HOST
       # Intern service-to-service trafikk i NAIS-clusteret bruker HTTP.
+      # Linkerd service mesh krypterer all trafikk mellom pods (mTLS).
       # HTTPS brukes kun for ekstern trafikk via ingress.
       value: http://lumi-api.team-esyfo
     - name: LUMI_AUDIENCE
