@@ -1,9 +1,9 @@
 ---
-description: Sikkerhetsgjennomgang før commit/push/PR — OWASP Top 10, Dependabot, Trivy, hemmeligheter, inputvalidering
+description: Sikkerhetsgjennomgang før commit/push/PR — OWASP Top 10, Dependabot, Trivy, hemmeligheter, inputvalidering og referanser for GDPR/API-sikkerhet
 ---
 # Security Review
 
-Pre-commit og pre-PR sikkerhetssjekk for Nav-applikasjoner. Dekker secret scanning, sårbarhetsskanning og OWASP Top 10.
+Pre-commit og pre-PR sikkerhetssjekk for Nav-applikasjoner. Dekker secret scanning, sårbarhetsskanning, OWASP Top 10, GDPR/privacy og API-sikkerhet. Hold hovedreglene korte; bruk `references/` for detaljer.
 
 ## Automatiserte skanninger
 
@@ -136,6 +136,24 @@ allowedOrigins = listOf("*")
 <div dangerouslySetInnerHTML={{ __html: userInput }} />
 ```
 
+## GDPR og personvern
+
+- Følg dataminimering, formålsbinding og innebygd personvern.
+- Dokumenter behandlingsgrunnlag før innsamling eller visning av personopplysninger.
+- Planlegg sletting, anonymisering og audit logging sammen med funksjonaliteten.
+- Samtykke skal være eksplisitt og lett å trekke tilbake når det er behandlingsgrunnlaget.
+
+Se `references/gdpr-privacy.md` for detaljer om PII-kategorisering, retention, anonymisering, CEF-auditlogging og samtykke-håndtering.
+
+## API-sikkerhet
+
+- Begrens eksponering med rate limiting, request size limits og eksplisitt CORS.
+- Bruk sikre headers, sikre cookies/sesjoner og `Nav-Call-Id`.
+- Vurder STRIDE før nye endepunkter, spesielt for sensitive operasjoner og integrasjoner.
+- Ha en enkel incident response-plan for funn som oppdages i review eller drift.
+
+Se `references/api-security.md` for Kotlin/Spring-eksempler og mer detaljerte mønstre.
+
 ## Filopplasting
 
 ```kotlin
@@ -167,9 +185,18 @@ npm audit fix
 - [ ] Secrets kun fra miljøvariabler
 - [ ] Nais accessPolicy er eksplisitt (ingen åpen inbound)
 - [ ] CORS begrenset til kjente domener
+- [ ] Rate limiting vurdert for sensitive eller publikt eksponerte endepunkter
+- [ ] Request size limits og payload-validering er på plass der store kall kan misbrukes
+- [ ] Security headers er satt for web/API-flater
+- [ ] Sesjoner/cookies er `Secure`, `HttpOnly` og har riktig `SameSite`
+- [ ] `Nav-Call-Id` brukes for korrelasjon mellom tjenester
 - [ ] Input validert og sanitert
 - [ ] Tilgangskontroll sjekker eierskap (ikke bare autentisering)
 - [ ] Filopplasting validerer type, størrelse og innhold
+- [ ] Behandlingsgrunnlag for persondata er dokumentert
+- [ ] Retention, sletting eller anonymisering er definert for lagret persondata
+- [ ] Samtykke lagres og kan trekkes tilbake når samtykke er behandlingsgrunnlaget
+- [ ] Audit logging er vurdert for visning av personopplysninger
 - [ ] Avhengigheter oppdatert og sårbarhetsskannet
 - [ ] `trivy repo .` uten HIGH/CRITICAL funn
 - [ ] `zizmor` godkjent for alle GitHub Actions workflows
@@ -181,3 +208,7 @@ npm audit fix
 |---------|-------------|
 | [sikkerhet.nav.no](https://sikkerhet.nav.no) | Navs Golden Path for sikkerhet |
 | auth-overview skill | JWT-validering, TokenX, ID-porten, Maskinporten |
+| `references/gdpr-privacy.md` | GDPR, personvern, retention, anonymisering og CEF-auditlogging |
+| `references/api-security.md` | API-sikkerhet, headers, CORS, cookies, STRIDE og incident response |
+
+For GDPR-detaljer, se `references/gdpr-privacy.md`. For API-sikkerhet, se `references/api-security.md`.
