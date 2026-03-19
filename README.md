@@ -96,7 +96,6 @@ Genereres og distribueres til hvert repo av `ecli copilot sync` basert på detek
 | *@konditor* 🎂 | *(internt)* Pynt og finish — UI/UX med Aksel | Gemini |
 | *@inspektør-claude* 🔬 | *(internt)* Inspeksjon med Claude-modell | Claude |
 | *@inspektør-gpt* 🔬 | *(internt)* Inspeksjon med GPT-modell | GPT |
-| *@inspektør-gemini* 🔬 | *(internt)* Inspeksjon med Gemini-modell | Gemini |
 
 > **Tips**: Bruk `@hovmester` for alle oppgaver — den koordinerer planlegging, implementasjon og code review automatisk via spesialiserte sub-agenter.
 
