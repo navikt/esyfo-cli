@@ -9,101 +9,46 @@ applyTo: "**/*.{ts,tsx,css}"
 - Use strict TypeScript — avoid `any` and type assertions where possible
 - Prefer `interface` over `type` for object shapes
 - Use `const` over `let`, never `var`
-- Follow framework conventions for exports (e.g. `export default` for Next.js pages/components, named exports elsewhere)
+- Follow framework conventions for exports
 
 ## NAV Aksel Design System
 - Components: `@navikt/ds-react`
 - Icons: `@navikt/aksel-icons`
-- Tokens: `@navikt/ds-tokens` (spacing, colors, typography)
+- Tokens: `@navikt/ds-tokens`
 - Documentation: [aksel.nav.no](https://aksel.nav.no)
+- For komplett Aksel-referanse (tokens, komponenter, patterns), bruk `aksel-design`-skillen.
 
 ### Key Principles
 - Use Aksel components for all standard UI elements
-- Use design tokens for spacing (`--a-spacing-*`), colors, typography
-- Follow Aksel's composition patterns (e.g., `<Table>`, `<Table.Header>`, `<Table.Row>`)
+- Use design tokens for spacing, colors, and typography
+- Follow Aksel composition patterns
 - Check aksel.nav.no for component API before implementing
 
-### Spacing (CRITICAL)
-
-**Prefer** Aksel spacing tokens over Tailwind padding/margin:
-
-```tsx
-// ✅ Preferred
-<Box paddingBlock={{ xs: "space-16", md: "space-24" }} paddingInline="space-16">
-  {children}
-</Box>
-
-// ⚠️ Avoid when Aksel spacing tokens are available
-<div className="p-4 md:p-6">
-```
-
-Available tokens: `space-0`, `space-1`, `space-2`, `space-4`, `space-6`, `space-8`, `space-12`, `space-16`, `space-20`, `space-24`, `space-28`, `space-32`, `space-36`, `space-40`, `space-44`, `space-48`, `space-56`, `space-64`, `space-72`, `space-80`, `space-96`, `space-128`
-
-All Aksel spacing props use the `space-` prefix — including `gap` on `VStack`/`HStack`/`HGrid` and `padding`/`margin` on `Box`.
-
-### Layout Components
-
-```tsx
-import { Box, VStack, HStack, HGrid } from "@navikt/ds-react";
-
-<VStack gap="space-4">          {/* Vertical stack */}
-<HStack gap="space-4" align="center">  {/* Horizontal stack */}
-<HGrid columns={{ xs: 1, md: 2, lg: 3 }} gap="space-4">  {/* Responsive grid */}
-```
-
-### Typography
-
-```tsx
-import { Heading, BodyShort, Label } from "@navikt/ds-react";
-
-<Heading size="large" level="2">Title</Heading>
-<BodyShort size="medium">Regular text</BodyShort>
-<BodyShort weight="semibold">Bold text</BodyShort>
-```
-
-### Responsive Design
-- Mobile-first with breakpoints: `xs` (0px), `sm` (480px), `md` (768px), `lg` (1024px), `xl` (1280px)
-- Use responsive props: `padding={{ xs: "space-16", md: "space-24" }}`
-
-### Number Formatting
-- Always use Norwegian locale (space as thousand separator)
-- Never use `toLocaleString()` without explicit locale
+### Key Rules
+- Prefer Aksel spacing tokens (`space-*`) over Tailwind padding/margin
+- Prefer Aksel layout primitives (`Box`, `VStack`, `HStack`, `HGrid`) before custom CSS
+- Mobile-first with responsive props
+- Norwegian number format (space as thousand separator)
+- For komplett spacing, layout, typografi og responsive mønstre, bruk `aksel-design`-skillen
 
 ## Accessibility (UU) — WCAG 2.1 AA
-- Follow WCAG 2.1 AA — use Aksel components which have built-in a11y
-- Use semantic HTML, keyboard navigation, proper ARIA
-- Detailed UU guidance available via the `accessibility` skill
+- Follow WCAG 2.1 AA — use Aksel components with built-in a11y support
+- Use semantic HTML, keyboard navigation, and proper ARIA
+- Detailed UU guidance is available via the `accessibility` skill
 
 ## React
 - Use functional components with hooks
-- Use Aksel components from `@navikt/ds-react` — check [aksel.nav.no](https://aksel.nav.no) for component API
 - Follow existing component patterns in the codebase
-- Co-locate related files (component, test, styles)
-
-## Server vs Client Components (Next.js only — skip if not using Next.js)
-
-```tsx
-// Server Component (default) — can use async/await
-export default async function Page() {
-  const data = await fetchData();
-  return <Box padding="space-24"><Heading size="large" level="1">{data.title}</Heading></Box>;
-}
-
-// Client Component — needs "use client" directive
-"use client";
-import { useState } from "react";
-```
+- Co-locate related files when the framework supports it
 
 ## Data Fetching
-- Check existing code for data fetching patterns (SWR, TanStack Query, server components, etc.) before making assumptions.
-- Check `package.json` for actual dependencies before suggesting libraries
+- Check existing patterns before making assumptions about libraries or architecture
 - Handle loading, error, and empty states explicitly
 
 ## Testing
-- Check existing test files for the project's test runner patterns (Vitest, Jest, etc.).
-- Use Testing Library — test user interactions, not implementation details
+- Check existing test files for the project's test runner patterns
+- Use Testing Library and test user interactions
 - Prefer `screen.getByRole()` over `getByTestId()`
-- Test keyboard navigation for interactive components
 
 ## Boundaries
 
@@ -112,24 +57,19 @@ import { useState } from "react";
 - Prefer Aksel spacing tokens with `space-` prefix
 - Use design tokens for styling
 - Follow WCAG 2.1 AA accessibility standards
-- Mobile-first responsive design
-- Norwegian number formatting
-- Explicit error handling
-- Check [aksel.nav.no](https://aksel.nav.no) for Aksel component API before using
+- Use mobile-first responsive design
 - Follow existing patterns in the codebase
 
 ### ⚠️ Ask First
 - Adding new dependencies
 - Adding custom Tailwind utilities
 - Deviating from Aksel patterns
-- Changing routing patterns
-- Changing data fetching strategy
+- Changing routing or data-fetching strategy
 - Introducing new state management solutions
 
 ### 🚫 Never
 - Use raw HTML for elements Aksel provides
 - Hardcode colors, spacing, or typography values
-- Use numeric spacing values without `space-` prefix — this applies to all Aksel spacing props including `gap`, `padding`, and `margin`
+- Use numeric spacing values without `space-` prefix for Aksel spacing props
 - Skip accessibility requirements
-- Skip responsive props
 - Import from `@navikt/ds-react` internals

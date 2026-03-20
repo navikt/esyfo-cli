@@ -7,7 +7,7 @@ Universell utforming er lovpålagt i Norge. All frontend-kode i Nav skal oppfyll
 
 ## Aksel-komponenter har innebygd UU
 
-Aksel-komponenter (`@navikt/ds-react`) håndterer mange a11y-krav automatisk: roller, aria-attributter, keyboard-navigasjon, fokushåndtering og fargekontrast.
+Aksel-komponenter (`@navikt/ds-react`) håndterer mange tilgjengelighetskrav automatisk: roller, ARIA-attributter, tastaturnavigasjon, fokushåndtering og fargekontrast.
 
 **Bruk alltid Aksel-komponenter fremfor egne `<div>`/`<button>`-løsninger.**
 
@@ -128,7 +128,7 @@ Bruk kun ARIA når HTML-semantikk ikke er tilstrekkelig:
 - Bruk Aksel semantiske farger — de oppfyller kontrastkrav automatisk
 - Aldri bruk farge alene for å formidle informasjon
 
-## Keyboard-navigasjon
+## Tastaturnavigasjon
 
 - `Tab` / `Shift+Tab`: Naviger mellom elementer
 - `Enter` / `Space`: Aktiver knapper og lenker
@@ -158,6 +158,38 @@ it("should have no accessibility violations", async () => {
 });
 ```
 
+## E2E-tilgjengelighetstesting
+
+### Playwright + axe-core
+
+```tsx
+import { test, expect } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
+
+test("side har ingen tilgjengelighetsfeil", async ({ page }) => {
+  await page.goto("/skjema");
+  const results = await new AxeBuilder({ page }).analyze();
+  expect(results.violations).toEqual([]);
+});
+
+test("skjema er brukbart med tastatur", async ({ page }) => {
+  await page.goto("/skjema");
+  await page.keyboard.press("Tab");
+  const focused = await page.evaluate(() => document.activeElement?.tagName);
+  expect(focused).toBe("INPUT");
+});
+```
+
+### Lighthouse CLI
+
+```bash
+# Kjør Lighthouse-tilgjengelighetssjekk
+npx lighthouse http://localhost:3000 --only-categories=accessibility --output=json --output-path=./a11y-report.json
+
+# Sjekk score i CI
+npx lighthouse http://localhost:3000 --only-categories=accessibility --budget-path=./lighthouse-budget.json
+```
+
 ## Sjekkliste
 
 - [ ] Heading-nivåer er logiske (h1 → h2 → h3, ingen hopp)
@@ -167,20 +199,20 @@ it("should have no accessibility violations", async () => {
 - [ ] Ingen informasjon formidles kun med farge
 - [ ] Siden er fullt brukbar med kun tastatur
 - [ ] Dynamisk innhold annonseres med `aria-live`
-- [ ] Feilmeldinger er koblet til rett felt og oppsummert
+- [ ] Feilmeldinger er koblet til rett felt og samlet i en oppsummering
 
 ## Grenser
 
 ### ✅ Alltid
-- Bruk Aksel-komponenter — de har innebygd a11y
+- Bruk Aksel-komponenter — de har innebygd tilgjengelighet
 - Test med tastatur (Tab gjennom hele siden)
 - Sjekk heading-hierarki
 
 ### ⚠️ Spør først
-- Custom ARIA-roller utover standard HTML-semantikk
+- Egendefinerte ARIA-roller utover standard HTML-semantikk
 - Avvik fra Aksel-mønster for tilgjengelighet
 
 ### 🚫 Aldri
 - `<div onClick>` uten `role="button"` og `tabIndex`
 - Ikonknapper uten tilgjengelig navn
-- Fjern fokus-indikator (`outline: none`) uten erstatning
+- Fjern fokusindikator (`outline: none`) uten erstatning
