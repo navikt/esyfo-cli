@@ -1,33 +1,32 @@
-import * as R from 'remeda'
-import { parseISO } from 'date-fns'
-import chalk from 'chalk'
-
+import chalk from "chalk";
+import { parseISO } from "date-fns";
+import * as R from "remeda";
+import { coloredTimestamp } from "../common/date-utils.ts";
+import { authorToColorAvatar } from "../common/format-utils.ts";
+import { log } from "../common/log.ts";
 import {
-    BaseRepoNodeFragment,
-    ghGqlQuery,
-    OrgTeamRepoResult,
-    removeIgnoredArchivedAndNonAdmin,
-} from '../common/octokit.ts'
-import { log } from '../common/log.ts'
-import { coloredTimestamp } from '../common/date-utils.ts'
-import { authorToColorAvatar } from '../common/format-utils.ts'
+  BaseRepoNodeFragment,
+  ghGqlQuery,
+  type OrgTeamRepoResult,
+  removeIgnoredArchivedAndNonAdmin,
+} from "../common/octokit.ts";
 
 type PrNode = {
-    title: string
-    updatedAt: string
-    permalink: string
-    isDraft: boolean
-    author: {
-        avatarUrl: string
-        login: string
-    }
-}
+  title: string;
+  updatedAt: string;
+  permalink: string;
+  isDraft: boolean;
+  author: {
+    avatarUrl: string;
+    login: string;
+  };
+};
 
 type PullRequestNode = {
-    pullRequests: {
-        nodes: PrNode[]
-    }
-}
+  pullRequests: {
+    nodes: PrNode[];
+  };
+};
 
 const reposQuery = /* GraphQL */ `
     query OurRepos($team: String!) {
@@ -56,76 +55,87 @@ const reposQuery = /* GraphQL */ `
     }
 
     ${BaseRepoNodeFragment}
-`
+`;
 
 async function getPrs(
-    team: string,
-    opts: { includeDrafts: boolean; noBot: boolean },
+  team: string,
+  opts: { includeDrafts: boolean; noBot: boolean },
 ): Promise<Record<string, PrNode[]>> {
-    log(
-        chalk.green(
-            `Getting all open prs for team ${team}${opts.includeDrafts ? ' (including drafts)' : ''}${
-                opts.noBot ? ' (without bots)' : ''
-            }`,
+  log(
+    chalk.green(
+      `Getting all open prs for team ${team}${opts.includeDrafts ? " (including drafts)" : ""}${
+        opts.noBot ? " (without bots)" : ""
+      }`,
+    ),
+  );
+
+  const queryResult = await ghGqlQuery<OrgTeamRepoResult<PullRequestNode>>(
+    reposQuery,
+    { team },
+  );
+
+  const openPrs = R.pipe(
+    queryResult.organization.team.repositories.nodes,
+    removeIgnoredArchivedAndNonAdmin,
+    R.flatMap((repo) =>
+      R.pipe(
+        repo.pullRequests.nodes,
+        R.map((pr): [string, PrNode] => [repo.name, pr]),
+        R.sortBy(([, pr]) => pr.updatedAt),
+        R.filter(([, pr]) => opts.includeDrafts || !pr.isDraft),
+        R.filter(
+          ([, pr]) => !opts.noBot || !pr.author.login.includes("dependabot"),
         ),
-    )
+      ),
+    ),
+    R.groupBy(([repo]) => repo),
+    R.mapValues((value) => value.map((it) => it[1])),
+  );
 
-    const queryResult = await ghGqlQuery<OrgTeamRepoResult<PullRequestNode>>(reposQuery, { team })
+  log(
+    `Found ${chalk.greenBright(Object.values(openPrs).flat().length)} open prs for team ${team}`,
+  );
+  log(
+    `Created by dependabot: ${chalk.greenBright(
+      Object.values(openPrs)
+        .flat()
+        .filter((pr) => pr.author.login.includes("dependabot")).length,
+    )}\n`,
+  );
 
-    const openPrs = R.pipe(
-        queryResult.organization.team.repositories.nodes,
-        removeIgnoredArchivedAndNonAdmin,
-        R.flatMap((repo) =>
-            R.pipe(
-                repo.pullRequests.nodes,
-                R.map((pr): [string, PrNode] => [repo.name, pr]),
-                R.sortBy(([, pr]) => pr.updatedAt),
-                R.filter(([, pr]) => opts.includeDrafts || !pr.isDraft),
-                R.filter(([, pr]) => !opts.noBot || !pr.author.login.includes('dependabot')),
-            ),
-        ),
-        R.groupBy(([repo]) => repo),
-        R.mapValues((value) => value.map((it) => it[1])),
-    )
-
-    log(`Found ${chalk.greenBright(Object.values(openPrs).flat().length)} open prs for team ${team}`)
-    log(
-        `Created by dependabot: ${chalk.greenBright(
-            Object.values(openPrs)
-                .flat()
-                .filter((pr) => pr.author.login.includes('dependabot')).length,
-        )}\n`,
-    )
-
-    return openPrs
+  return openPrs;
 }
 
-export async function openPrs(includeDrafts: boolean, noBot: boolean, listView: boolean): Promise<void> {
-    const openPrs = await getPrs('team-esyfo', { includeDrafts, noBot })
+export async function openPrs(
+  includeDrafts: boolean,
+  noBot: boolean,
+  listView: boolean,
+): Promise<void> {
+  const openPrs = await getPrs("team-esyfo", { includeDrafts, noBot });
 
-    R.pipe(
-        openPrs,
-        R.toPairs,
-        R.sortBy([([, prs]) => R.first(prs)?.updatedAt ?? '', 'desc']),
-        R.forEach(([repo, prs]) => {
-            log(chalk.greenBright(repo))
-            if (listView) {
-                prs.forEach((pr) => {
-                    log(
-                        `\t${pr.title} (${pr.permalink})\n\tBy ${authorToColorAvatar(pr.author.login)} ${
-                            pr.author.login
-                        } ${coloredTimestamp(parseISO(pr.updatedAt))} ago${pr.isDraft ? ' (draft)' : ''}`,
-                    )
-                })
-            } else {
-                log(
-                    `\tnot dependabot: ${
-                        prs.filter((pr) => !pr.author.login.includes('dependabot')).length
-                    }\t dependabot: ${prs.filter((pr) => pr.author.login.includes('dependabot')).length}${
-                        prs.some((pr) => pr.isDraft) ? '\t(some are drafts)' : ''
-                    }`,
-                )
-            }
-        }),
-    )
+  R.pipe(
+    openPrs,
+    R.toPairs,
+    R.sortBy([([, prs]) => R.first(prs)?.updatedAt ?? "", "desc"]),
+    R.forEach(([repo, prs]) => {
+      log(chalk.greenBright(repo));
+      if (listView) {
+        prs.forEach((pr) => {
+          log(
+            `\t${pr.title} (${pr.permalink})\n\tBy ${authorToColorAvatar(pr.author.login)} ${
+              pr.author.login
+            } ${coloredTimestamp(parseISO(pr.updatedAt))} ago${pr.isDraft ? " (draft)" : ""}`,
+          );
+        });
+      } else {
+        log(
+          `\tnot dependabot: ${
+            prs.filter((pr) => !pr.author.login.includes("dependabot")).length
+          }\t dependabot: ${prs.filter((pr) => pr.author.login.includes("dependabot")).length}${
+            prs.some((pr) => pr.isDraft) ? "\t(some are drafts)" : ""
+          }`,
+        );
+      }
+    }),
+  );
 }

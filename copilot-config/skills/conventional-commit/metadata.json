@@ -1,11 +1,6 @@
 {
   "domain": "general",
-  "tags": [
-    "git",
-    "commit",
-    "conventional-commits",
-    "changelog"
-  ],
+  "tags": ["git", "commit", "conventional-commits", "changelog"],
   "examples": [
     {
       "scenario": "Commit-melding",

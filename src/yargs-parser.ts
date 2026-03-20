@@ -1,189 +1,213 @@
 /* eslint-disable no-console */
 
-import yargs, { Argv } from 'yargs'
-import { hideBin } from 'yargs/helpers'
-
-import { verifiserRepoer, verifiserRepoet } from './actions/verifiser'
-import { printLogo } from './actions/logo'
-import { openPrs } from './actions/prs'
-import { ourRepos } from './actions/repos'
-import { cloneTeamRepos } from './actions/clone-team-repos'
-import { syncFilesAcrossRepos } from './actions/sync-file.ts'
-import { copilotSync } from './actions/copilot-sync.ts'
-import { copilotSetup } from './actions/copilot-setup.ts'
-import { copilotStatus } from './actions/copilot-status.ts'
+import yargs, { type Argv } from "yargs";
+import { hideBin } from "yargs/helpers";
+import { cloneTeamRepos } from "./actions/clone-team-repos";
+import { copilotSetup } from "./actions/copilot-setup.ts";
+import { copilotStatus } from "./actions/copilot-status.ts";
+import { copilotSync } from "./actions/copilot-sync.ts";
+import { printLogo } from "./actions/logo";
+import { openPrs } from "./actions/prs";
+import { ourRepos } from "./actions/repos";
+import { syncFilesAcrossRepos } from "./actions/sync-file.ts";
+import { verifiserRepoer, verifiserRepoet } from "./actions/verifiser";
 
 export const getYargsParser = (argv: string[]): Argv =>
-    yargs(hideBin(argv))
-        .scriptName('ecli')
-        .middleware(() => printLogo())
-        .command(
-            'verifiser',
-            'Verifiserer at repo har riktig innstillinger i GitHub',
+  yargs(hideBin(argv))
+    .scriptName("ecli")
+    .middleware(() => printLogo())
+    .command(
+      "verifiser",
+      "Verifiserer at repo har riktig innstillinger i GitHub",
+      (yargs) =>
+        yargs
+          .option("repo", {
+            alias: "r",
+            description: "Repo som skal sjekkes",
+            type: "string",
+            requiresArg: true,
+          })
+          .option("all", {
+            alias: "a",
+            description: "Utfører kommandoen på alle konfigurerte repositories",
+            type: "boolean",
+          })
+          .option("patch", {
+            alias: "p",
+            description: "Oppdaterer repo med riktig settings",
+            type: "boolean",
+          })
+          .conflicts("all", "repo")
+          .check((argv) => {
+            if (argv.all || argv.repo) {
+              return true; // tell Yargs that the arguments passed the check
+            } else {
+              throw new Error("Must specify -a or -r option");
+            }
+          }),
+      (argv) =>
+        argv.all
+          ? verifiserRepoer(!!argv.patch)
+          : verifiserRepoet(argv.repo ? argv.repo : "", !!argv.patch),
+    )
+    .command(
+      "prs",
+      "Vis åpne pull requests på tvers av teamets repos",
+      (yargs) =>
+        yargs
+          .option("skip-bots", {
+            type: "boolean",
+            alias: "b",
+            describe: "don't include bot pull requests",
+          })
+          .option("list-view", {
+            type: "boolean",
+            defauilt: false,
+            alias: "l",
+            describe:
+              "list all the pull requests instead of just counting them",
+          })
+          .positional("drafts", {
+            type: "boolean",
+            default: false,
+            describe: "include draft pull requests",
+          }),
+      async (args) =>
+        openPrs(args.drafts, args.skipBots ?? false, args.listView ?? false),
+    )
+    .command(
+      "sync-file <query>",
+      "Kopier filer på tvers av repos (oppretter branch, commit og PR)",
+      (yargs) =>
+        yargs.positional("query", {
+          type: "string",
+          demandOption: true,
+          describe:
+            "execute this bash command in all repos and return all repos that give the error code 0",
+        }),
+      async (args) => syncFilesAcrossRepos(args.query),
+    )
+    .command(
+      "repos",
+      "List alle ikke-arkiverte repos for team-esyfo",
+      (yargs) =>
+        yargs
+          .option("useMarkdown", {
+            type: "boolean",
+            alias: "b",
+            describe: "write output in Markdown format",
+          })
+          .option("output", {
+            alias: "o",
+            description: "Output file path for file with repositories",
+            type: "string",
+            default: "repos.json",
+          }),
+      async (args) => ourRepos(args.output, args.useMarkdown ?? false),
+    )
+    .command(
+      "clone-team-repos",
+      "Klon alle repos eid av teamet til en lokal mappe",
+      (yargs) =>
+        yargs
+          .option("team", {
+            alias: "t",
+            description: "GitHub team to clone repositories for",
+            type: "string",
+            default: "team-esyfo",
+          })
+          .option("destination", {
+            alias: "d",
+            description: "Destination file path for cloned repositories",
+            type: "string",
+            demandOption: true,
+          })
+          .option("use-sub-folders", {
+            alias: "s",
+            description:
+              "Spread repos over subfolders by type (backend, frontend, etc.)",
+            type: "boolean",
+            default: false,
+          }),
+      async (args) =>
+        cloneTeamRepos(args.team, args.destination, args.useSubFolders),
+    )
+    .command(
+      "copilot",
+      "Administrer GitHub Copilot-oppsett for teamets repos",
+      (yargs) =>
+        yargs
+          .command(
+            "sync",
+            "Generer og distribuer Copilot-instruksjoner og skills til repos basert på detektert stack",
             (yargs) =>
-                yargs
-                    .option('repo', {
-                        alias: 'r',
-                        description: 'Repo som skal sjekkes',
-                        type: 'string',
-                        requiresArg: true,
-                    })
-                    .option('all', {
-                        alias: 'a',
-                        description: 'Utfører kommandoen på alle konfigurerte repositories',
-                        type: 'boolean',
-                    })
-                    .option('patch', {
-                        alias: 'p',
-                        description: 'Oppdaterer repo med riktig settings',
-                        type: 'boolean',
-                    })
-                    .conflicts('all', 'repo')
-                    .check((argv) => {
-                        if (argv.all || argv.repo) {
-                            return true // tell Yargs that the arguments passed the check
-                        } else {
-                            throw new Error('Must specify -a or -r option')
-                        }
-                    }),
-            (argv) =>
-                argv.all ? verifiserRepoer(!!argv.patch) : verifiserRepoet(argv.repo ? argv.repo : '', !!argv.patch),
-        )
-        .command(
-            'prs',
-            'Vis åpne pull requests på tvers av teamets repos',
-            (yargs) =>
-                yargs
-                    .option('skip-bots', { type: 'boolean', alias: 'b', describe: "don't include bot pull requests" })
-                    .option('list-view', {
-                        type: 'boolean',
-                        defauilt: false,
-                        alias: 'l',
-                        describe: 'list all the pull requests instead of just counting them',
-                    })
-                    .positional('drafts', { type: 'boolean', default: false, describe: 'include draft pull requests' }),
-            async (args) => openPrs(args.drafts, args.skipBots ?? false, args.listView ?? false),
-        )
-        .command(
-            'sync-file <query>',
-            'Kopier filer på tvers av repos (oppretter branch, commit og PR)',
-            (yargs) =>
-                yargs.positional('query', {
-                    type: 'string',
-                    demandOption: true,
-                    describe: 'execute this bash command in all repos and return all repos that give the error code 0',
+              yargs
+                .option("repo", {
+                  alias: "r",
+                  description: "Spesifikt repo å synkronisere",
+                  type: "string",
+                })
+                .option("all", {
+                  alias: "a",
+                  description: "Synkroniser alle konfigurerte repos",
+                  type: "boolean",
+                  default: false,
+                })
+                .option("dry-run", {
+                  alias: "d",
+                  description:
+                    "Vis hva som ville endret seg (ingen faktiske endringer)",
+                  type: "boolean",
+                  default: false,
+                })
+                .check((argv) => {
+                  if (argv.all && argv.repo) {
+                    throw new Error(
+                      "Bruk enten --all eller --repo, ikke begge.",
+                    );
+                  }
+                  return true;
                 }),
-            async (args) => syncFilesAcrossRepos(args.query),
-        )
-        .command(
-            'repos',
-            'List alle ikke-arkiverte repos for team-esyfo',
-            (yargs) =>
-                yargs
-                    .option('useMarkdown', { type: 'boolean', alias: 'b', describe: 'write output in Markdown format' })
-                    .option('output', {
-                        alias: 'o',
-                        description: 'Output file path for file with repositories',
-                        type: 'string',
-                        default: 'repos.json',
-                    }),
-            async (args) => ourRepos(args.output, args.useMarkdown ?? false),
-        )
-        .command(
-            'clone-team-repos',
-            'Klon alle repos eid av teamet til en lokal mappe',
-            (yargs) =>
-                yargs
-                    .option('team', {
-                        alias: 't',
-                        description: 'GitHub team to clone repositories for',
-                        type: 'string',
-                        default: 'team-esyfo',
-                    })
-                    .option('destination', {
-                        alias: 'd',
-                        description: 'Destination file path for cloned repositories',
-                        type: 'string',
-                        demandOption: true,
-                    })
-                    .option('use-sub-folders', {
-                        alias: 's',
-                        description: 'Spread repos over subfolders by type (backend, frontend, etc.)',
-                        type: 'boolean',
-                        default: false,
-                    }),
-            async (args) => cloneTeamRepos(args.team, args.destination, args.useSubFolders),
-        )
-        .command(
-            'copilot',
-            'Administrer GitHub Copilot-oppsett for teamets repos',
-            (yargs) =>
-                yargs
-                    .command(
-                        'sync',
-                        'Generer og distribuer Copilot-instruksjoner og skills til repos basert på detektert stack',
-                        (yargs) =>
-                            yargs
-                                .option('repo', {
-                                    alias: 'r',
-                                    description: 'Spesifikt repo å synkronisere',
-                                    type: 'string',
-                                })
-                                .option('all', {
-                                    alias: 'a',
-                                    description: 'Synkroniser alle konfigurerte repos',
-                                    type: 'boolean',
-                                    default: false,
-                                })
-                                .option('dry-run', {
-                                    alias: 'd',
-                                    description: 'Vis hva som ville endret seg (ingen faktiske endringer)',
-                                    type: 'boolean',
-                                    default: false,
-                                })
-                                .check((argv) => {
-                                    if (argv.all && argv.repo) {
-                                        throw new Error('Bruk enten --all eller --repo, ikke begge.')
-                                    }
-                                    return true
-                                }),
-                        async (args) =>
-                            copilotSync({
-                                repo: args.repo,
-                                all: args.all,
-                                dryRun: args.dryRun,
-                            }),
-                    )
-                    .command(
-                        'setup',
-                        '[DEPRECATED] Bruk «copilot sync» i stedet',
-                        () => {},
-                        async () => copilotSetup(),
-                    )
-                    .hide('setup')
-                    .command(
-                        'status',
-                        'Sjekk hvilke repos som mangler eller har utdatert Copilot-konfigurasjon',
-                        (yargs) =>
-                            yargs.option('repo', {
-                                alias: 'r',
-                                description: 'Sjekk et spesifikt repo',
-                                type: 'string',
-                            }),
-                        async (args) => copilotStatus({ repo: args.repo }),
-                    )
-                    .demandCommand(1, 'Vennligst spesifiser en subkommando: sync eller status')
-                    .epilog(
-                        [
-                            'Eksempler:',
-                            '  ecli copilot status              Sjekk status for alle repos',
-                            '  ecli copilot status -r mitt-repo Sjekk ett spesifikt repo',
-                            '  ecli copilot sync -r mitt-repo   Synkroniser ett repo',
-                            '  ecli copilot sync --all          Synkroniser alle repos',
-                            '  ecli copilot sync --dry-run      Forhåndsvis endringer uten å pushe',
-                            '',
-                            'Tips: Bruk <kommando> --help for flere detaljer, f.eks. ecli copilot sync --help',
-                        ].join('\n'),
-                    ),
+            async (args) =>
+              copilotSync({
+                repo: args.repo,
+                all: args.all,
+                dryRun: args.dryRun,
+              }),
+          )
+          .command(
+            "setup",
+            "[DEPRECATED] Bruk «copilot sync» i stedet",
             () => {},
-        )
+            async () => copilotSetup(),
+          )
+          .hide("setup")
+          .command(
+            "status",
+            "Sjekk hvilke repos som mangler eller har utdatert Copilot-konfigurasjon",
+            (yargs) =>
+              yargs.option("repo", {
+                alias: "r",
+                description: "Sjekk et spesifikt repo",
+                type: "string",
+              }),
+            async (args) => copilotStatus({ repo: args.repo }),
+          )
+          .demandCommand(
+            1,
+            "Vennligst spesifiser en subkommando: sync eller status",
+          )
+          .epilog(
+            [
+              "Eksempler:",
+              "  ecli copilot status              Sjekk status for alle repos",
+              "  ecli copilot status -r mitt-repo Sjekk ett spesifikt repo",
+              "  ecli copilot sync -r mitt-repo   Synkroniser ett repo",
+              "  ecli copilot sync --all          Synkroniser alle repos",
+              "  ecli copilot sync --dry-run      Forhåndsvis endringer uten å pushe",
+              "",
+              "Tips: Bruk <kommando> --help for flere detaljer, f.eks. ecli copilot sync --help",
+            ].join("\n"),
+          ),
+      () => {},
+    );

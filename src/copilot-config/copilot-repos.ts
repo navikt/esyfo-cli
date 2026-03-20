@@ -1,27 +1,31 @@
-import { BaseRepoNode, ghGqlQuery, removeIgnoredArchivedAndNonAdmin } from '../common/octokit.ts'
+import {
+  type BaseRepoNode,
+  ghGqlQuery,
+  removeIgnoredArchivedAndNonAdmin,
+} from "../common/octokit.ts";
 
-import { blacklisted as copilotBlacklisted } from './copilot-blacklist.ts'
+import { blacklisted as copilotBlacklisted } from "./copilot-blacklist.ts";
 
-export const TEAM = 'team-esyfo'
+export const TEAM = "team-esyfo";
 
 export interface RepoNode {
-    name: string
-    description?: string
-    defaultBranch: string
+  name: string;
+  description?: string;
+  defaultBranch: string;
 }
 
 interface OrgTeamRepoPageResult {
-    organization: {
-        team: {
-            repositories: {
-                nodes: BaseRepoNode<Record<string, never>>[]
-                pageInfo: {
-                    hasNextPage: boolean
-                    endCursor: string | null
-                }
-            }
-        }
-    }
+  organization: {
+    team: {
+      repositories: {
+        nodes: BaseRepoNode<Record<string, never>>[];
+        pageInfo: {
+          hasNextPage: boolean;
+          endCursor: string | null;
+        };
+      };
+    };
+  };
 }
 
 const teamReposQuery = /* GraphQL */ `
@@ -48,37 +52,44 @@ const teamReposQuery = /* GraphQL */ `
             }
         }
     }
-`
+`;
 
-async function fetchAllTeamRepoNodes(): Promise<BaseRepoNode<Record<string, never>>[]> {
-    const allRepoNodes: BaseRepoNode<Record<string, never>>[] = []
-    let cursor: string | null = null
-    let hasNextPage = true
+async function fetchAllTeamRepoNodes(): Promise<
+  BaseRepoNode<Record<string, never>>[]
+> {
+  const allRepoNodes: BaseRepoNode<Record<string, never>>[] = [];
+  let cursor: string | null = null;
+  let hasNextPage = true;
 
-    while (hasNextPage) {
-        const result: OrgTeamRepoPageResult = await ghGqlQuery(teamReposQuery, { team: TEAM, cursor })
-        allRepoNodes.push(...result.organization.team.repositories.nodes)
+  while (hasNextPage) {
+    const result: OrgTeamRepoPageResult = await ghGqlQuery(teamReposQuery, {
+      team: TEAM,
+      cursor,
+    });
+    allRepoNodes.push(...result.organization.team.repositories.nodes);
 
-        hasNextPage = result.organization.team.repositories.pageInfo.hasNextPage
-        cursor = result.organization.team.repositories.pageInfo.endCursor
-    }
+    hasNextPage = result.organization.team.repositories.pageInfo.hasNextPage;
+    cursor = result.organization.team.repositories.pageInfo.endCursor;
+  }
 
-    return allRepoNodes
+  return allRepoNodes;
 }
 
-export async function fetchCopilotRepos(repoFilter?: string): Promise<RepoNode[]> {
-    const repos = removeIgnoredArchivedAndNonAdmin(await fetchAllTeamRepoNodes())
-        .filter(copilotBlacklisted)
-        .filter((repo) => repo.defaultBranchRef != null)
-        .map((repo) => ({
-            name: repo.name,
-            description: repo.description,
-            defaultBranch: repo.defaultBranchRef.name,
-        }))
+export async function fetchCopilotRepos(
+  repoFilter?: string,
+): Promise<RepoNode[]> {
+  const repos = removeIgnoredArchivedAndNonAdmin(await fetchAllTeamRepoNodes())
+    .filter(copilotBlacklisted)
+    .filter((repo) => repo.defaultBranchRef != null)
+    .map((repo) => ({
+      name: repo.name,
+      description: repo.description,
+      defaultBranch: repo.defaultBranchRef.name,
+    }));
 
-    if (repoFilter) {
-        return repos.filter((repo) => repo.name === repoFilter)
-    }
+  if (repoFilter) {
+    return repos.filter((repo) => repo.name === repoFilter);
+  }
 
-    return repos
+  return repos;
 }
