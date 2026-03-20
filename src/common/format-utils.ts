@@ -1,13 +1,17 @@
 import chalk, { backgroundColorNames } from "chalk";
-import crypto from "crypto";
+
+function stringHash(value: string): number {
+  let hash = 0;
+
+  for (const character of value) {
+    hash = Math.imul(hash, 31) + character.charCodeAt(0);
+  }
+
+  return hash >>> 0;
+}
 
 export function authorToColorAvatar(username: string): string {
-  const hash = crypto
-    .createHash("md5")
-    .update(username)
-    .digest("hex")
-    .slice(-6);
-  const index = parseInt(hash, 16) % backgroundColorNames.length;
+  const index = stringHash(username) % backgroundColorNames.length;
 
   return chalk[backgroundColorNames[index]]("  ");
 }
