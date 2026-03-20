@@ -231,21 +231,21 @@ async function copyFilesToRepos(
 ): Promise<void> {
   const gitter = new Gitter("cache");
 
-  filesToSync.forEach((file) => {
+  for (const file of filesToSync) {
     const sourceFile = Bun.file(path.join(GIT_CACHE_DIR, sourceRepo, file));
 
-    targetRepos.forEach((it) => {
+    for (const it of targetRepos) {
       log(
         `Copying ${chalk.yellow(`${it.name}/${file}`)} from ${chalk.yellow(sourceRepo)}`,
       );
       const targetFile = Bun.file(path.join(GIT_CACHE_DIR, it.name, file));
-      Bun.write(targetFile, sourceFile);
+      await Bun.write(targetFile, sourceFile);
 
       log(`${chalk.green(`Copied file to repo ${it.name}`)}`);
 
-      gitter.createRepoGitClient(it.name).add(file);
-    });
-  });
+      await gitter.createRepoGitClient(it.name).add(file);
+    }
+  }
 
   await branchCommitPush(true);
 }

@@ -62,7 +62,7 @@ export const getYargsParser = (argv: string[]): Argv =>
           })
           .option("list-view", {
             type: "boolean",
-            defauilt: false,
+            default: false,
             alias: "l",
             describe:
               "list all the pull requests instead of just counting them",

@@ -42,7 +42,7 @@ export async function cloneTeamRepos(
 ): Promise<void> {
   log(
     chalk.green(
-      `Preparing to clone git repostories for ${team} to ${destination}...`,
+      `Preparing to clone git repositories for ${team} to ${destination}...`,
     ),
   );
   await cloneAllRepos(destination, team, useSubFolders);
