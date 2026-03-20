@@ -35,7 +35,7 @@ export async function verifiserRepoer(patch: boolean) {
 export async function verifiserRepoet(repo: string, patch: boolean) {
   log(chalk.blueBright.underline(`\n\nVerifiserer innstillinger for ${repo}`));
 
-  const repoConfig = config.repos.find((value) => value.name == repo);
+  const repoConfig = config.repos.find((value) => value.name === repo);
   await verifiserRepo({ name: repo, patch: patch, checks: repoConfig?.checks });
 
   log("\n\nFerdig");

@@ -11,7 +11,7 @@ async function hentRepo(r: RepoConfig) {
       owner: config.owner,
       repo: r.name,
     });
-  } catch (e: any) {
+  } catch {
     log(chalk.red(`Repo ${r.name} finnes ikke`));
     process.exit(1);
   }

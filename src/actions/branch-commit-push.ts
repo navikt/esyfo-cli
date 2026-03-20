@@ -45,7 +45,7 @@ export async function branchCommitPushAuto(
   const repoerMedEndringer: string[] = [];
   for (const r of repoer) {
     log(r);
-    if (r == "esyfo-cli") {
+    if (r === "esyfo-cli") {
       // skipper dette repoet
     } else {
       let endringer = false;
@@ -55,7 +55,7 @@ export async function branchCommitPushAuto(
         execSync("git diff-index --quiet HEAD", {
           cwd: cwd,
         });
-      } catch (e: any) {
+      } catch {
         endringer = true;
       }
       if (endringer) {
@@ -79,7 +79,7 @@ export async function branchCommitPushAuto(
     }
   }
 
-  if (repoerMedEndringer.length == 0) {
+  if (repoerMedEndringer.length === 0) {
     log("No changes to make PR of");
     process.exit(1);
   }
@@ -114,7 +114,7 @@ export async function branchCommitPushAuto(
       execSync(`git checkout main`, {
         cwd: cwd,
       });
-    } catch (e: any) {
+    } catch {
       log("retry in 10 seconds");
       await sleep(10000);
       await lagPR(repo);
@@ -146,7 +146,7 @@ export async function branchCommitPushAuto(
       execSync("gh pr merge --auto -s", {
         cwd: cwd,
       });
-    } catch (e: any) {
+    } catch {
       log("retry in 10 seconds");
       await sleep(10000);
       await automergePr(r);

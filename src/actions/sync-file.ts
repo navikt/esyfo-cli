@@ -234,7 +234,7 @@ async function copyFilesToRepos(
   filesToSync.forEach((file) => {
     const sourceFile = Bun.file(path.join(GIT_CACHE_DIR, sourceRepo, file));
 
-    targetRepos.map((it) => {
+    targetRepos.forEach((it) => {
       log(
         `Copying ${chalk.yellow(`${it.name}/${file}`)} from ${chalk.yellow(sourceRepo)}`,
       );

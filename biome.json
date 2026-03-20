@@ -13,13 +13,8 @@
       "complexity": {
         "useLiteralKeys": "off"
       },
-      "correctness": {
-        "noUnusedVariables": "off"
-      },
       "suspicious": {
-        "noDoubleEquals": "off",
-        "noExplicitAny": "off",
-        "useIterableCallbackReturn": "off"
+        "noExplicitAny": "off"
       },
       "style": {
         "noNonNullAssertion": "off",
