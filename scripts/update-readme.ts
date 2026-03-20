@@ -1,26 +1,29 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment,no-console */
 
-import path from 'node:path'
+import path from "node:path";
 
-import { getYargsParser } from '../src/yargs-parser'
+import { getYargsParser } from "../src/yargs-parser";
 
 const availableCommands = await Promise.all(
-    (await getYargsParser(['foo', 'bar']).getCompletion([]))
-        .map((it) => it.split(/:(.+)/))
-        .map(async ([name, description]) => [name, description]),
-)
+  (await getYargsParser(["foo", "bar"]).getCompletion([]))
+    .map((it) => it.split(/:(.+)/))
+    .map(async ([name, description]) => [name, description]),
+);
 
 const readmeMarkersRegex =
-    /<!-- COMPUTER SAYS DON'T TOUCH THIS START -->[\s\S]*?<!-- COMPUTER SAYS DON'T TOUCH THIS END -->/g
+  /<!-- COMPUTER SAYS DON'T TOUCH THIS START -->[\s\S]*?<!-- COMPUTER SAYS DON'T TOUCH THIS END -->/g;
 
-const readmeFile = Bun.file(path.join(process.cwd(), 'README.md'))
-const originalFileContent = await readmeFile.text()
+const readmeFile = Bun.file(path.join(process.cwd(), "README.md"));
+const originalFileContent = await readmeFile.text();
 const newContent = `<!-- COMPUTER SAYS DON'T TOUCH THIS START -->
 
-${availableCommands.map(([name, description]) => `* \`${name}\` - ${description}`).join('\n')}
+${availableCommands.map(([name, description]) => `* \`${name}\` - ${description}`).join("\n")}
 
-<!-- COMPUTER SAYS DON'T TOUCH THIS END -->`
+<!-- COMPUTER SAYS DON'T TOUCH THIS END -->`;
 
-await Bun.write(readmeFile, originalFileContent.replace(readmeMarkersRegex, newContent))
+await Bun.write(
+  readmeFile,
+  originalFileContent.replace(readmeMarkersRegex, newContent),
+);
 
-console.log('Updated README.md with --help output')
+console.log("Updated README.md with --help output");

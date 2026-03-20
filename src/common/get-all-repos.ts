@@ -1,33 +1,44 @@
-import chalk from 'chalk'
+import chalk from "chalk";
+import { log } from "./log.ts";
+import {
+  type BaseRepoNode,
+  ghGqlQuery,
+  type OrgTeamRepoResult,
+  removeIgnoredAndArchived,
+} from "./octokit.ts";
 
-import { BaseRepoNode, ghGqlQuery, OrgTeamRepoResult, removeIgnoredAndArchived } from './octokit.ts'
-import { log } from './log.ts'
+export type RepoType =
+  | "backend"
+  | "frontend"
+  | "microfrontend"
+  | "monorepo"
+  | "other";
 
-export type RepoType = 'backend' | 'frontend' | 'microfrontend' | 'monorepo' | 'other'
-
-export function extractTypeFromTopics(repo: BaseRepoNode<RepoWithBranchAndTopics>): RepoType {
-    const topics = repo.repositoryTopics.nodes.map((it) => it.topic.name)
-    return resolveTypeFromTopics(topics)
+export function extractTypeFromTopics(
+  repo: BaseRepoNode<RepoWithBranchAndTopics>,
+): RepoType {
+  const topics = repo.repositoryTopics.nodes.map((it) => it.topic.name);
+  return resolveTypeFromTopics(topics);
 }
 
 export function resolveTypeFromTopics(topics: string[]): RepoType {
-    if (topics.includes('monorepo')) return 'monorepo'
-    if (topics.includes('backend')) return 'backend'
-    if (topics.includes('frontend')) return 'frontend'
-    if (topics.includes('microfrontend')) return 'microfrontend'
-    return 'other'
+  if (topics.includes("monorepo")) return "monorepo";
+  if (topics.includes("backend")) return "backend";
+  if (topics.includes("frontend")) return "frontend";
+  if (topics.includes("microfrontend")) return "microfrontend";
+  return "other";
 }
 
 export type RepoWithBranchAndTopics = {
-    defaultBranchRef: { name: string }
-    repositoryTopics: {
-        nodes: {
-            topic: {
-                name: string
-            }
-        }[]
-    }
-}
+  defaultBranchRef: { name: string };
+  repositoryTopics: {
+    nodes: {
+      topic: {
+        name: string;
+      };
+    }[];
+  };
+};
 
 const reposQuery = /* GraphQL */ `
     query ($team: String!) {
@@ -56,14 +67,17 @@ const reposQuery = /* GraphQL */ `
             }
         }
     }
-`
+`;
 
-export async function getAllRepos(team: string = 'team-esyfo') {
-    log(chalk.green(`Getting all active repositories for ${team}...`))
+export async function getAllRepos(team: string = "team-esyfo") {
+  log(chalk.green(`Getting all active repositories for ${team}...`));
 
-    const result = await ghGqlQuery<OrgTeamRepoResult<RepoWithBranchAndTopics>>(reposQuery, {
-        team: team,
-    })
+  const result = await ghGqlQuery<OrgTeamRepoResult<RepoWithBranchAndTopics>>(
+    reposQuery,
+    {
+      team: team,
+    },
+  );
 
-    return removeIgnoredAndArchived(result.organization.team.repositories.nodes)
+  return removeIgnoredAndArchived(result.organization.team.repositories.nodes);
 }

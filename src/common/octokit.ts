@@ -1,48 +1,54 @@
-import { Octokit } from 'octokit'
-import { GraphQlResponse } from '@octokit/graphql/dist-types/types'
-import chalk from 'chalk'
-import * as R from 'remeda'
+import type { GraphQlResponse } from "@octokit/graphql/dist-types/types";
+import chalk from "chalk";
+import { Octokit } from "octokit";
+import * as R from "remeda";
 
-import { log } from './log.ts'
-import { blacklisted } from './repoBlacklist.ts'
+import { log } from "./log.ts";
+import { blacklisted } from "./repoBlacklist.ts";
 
-let octokit: Octokit | null = null
-export function getOctokitClient(auth: 'cli' | 'package' = 'cli'): Octokit {
-    if (octokit === null) {
-        octokit = new Octokit({ auth: auth === 'cli' ? getGithubCliToken() : Bun.env.NPM_AUTH_TOKEN })
-    }
+let octokit: Octokit | null = null;
+export function getOctokitClient(auth: "cli" | "package" = "cli"): Octokit {
+  if (octokit === null) {
+    octokit = new Octokit({
+      auth: auth === "cli" ? getGithubCliToken() : Bun.env.NPM_AUTH_TOKEN,
+    });
+  }
 
-    return octokit
+  return octokit;
 }
 
 /**
  * Wrapper to enforce types
  */
 export async function ghGqlQuery<Result = never>(
-    query: string,
-    variables?: Record<string, unknown>,
+  query: string,
+  variables?: Record<string, unknown>,
 ): GraphQLResponse<Result> {
-    return getOctokitClient().graphql<GraphQLResponse<Result>>(query, variables)
+  return getOctokitClient().graphql<GraphQLResponse<Result>>(query, variables);
 }
 
 export function getGithubCliToken(): string {
-    const subProcess = Bun.spawnSync('gh auth status --show-token'.split(' '))
-    const stdout = subProcess.stdout.toString()
-    const stderr = subProcess.stderr.toString()
+  const subProcess = Bun.spawnSync("gh auth status --show-token".split(" "));
+  const stdout = subProcess.stdout.toString();
+  const stderr = subProcess.stderr.toString();
 
-    // gh-cli puts the token on stderr, probably because security, but only on linux??? Lol
-    const output = stdout.includes('Logged in to github.com') ? stdout : stderr
-    const data: string | null = output.match(/Token: (.*)/)?.[1] ?? null
+  // gh-cli puts the token on stderr, probably because security, but only on linux??? Lol
+  const output = stdout.includes("Logged in to github.com") ? stdout : stderr;
+  const data: string | null = output.match(/Token: (.*)/)?.[1] ?? null;
 
-    if (!data?.trim()) {
-        log(chalk.red(`Could not get github cli token. Please run 'gh auth login' and try again.`))
-        process.exit(1)
-    }
+  if (!data?.trim()) {
+    log(
+      chalk.red(
+        `Could not get github cli token. Please run 'gh auth login' and try again.`,
+      ),
+    );
+    process.exit(1);
+  }
 
-    return data
+  return data;
 }
 
-export type GraphQLResponse<Data> = GraphQlResponse<Data>
+export type GraphQLResponse<Data> = GraphQlResponse<Data>;
 
 export const BaseRepoNodeFragment = /* GraphQL */ `
     fragment BaseRepoNode on Repository {
@@ -54,43 +60,43 @@ export const BaseRepoNodeFragment = /* GraphQL */ `
             name
         }
     }
-`
+`;
 
 export type BaseRepoNode<AdditionalRepoProps> = {
-    name: string
-    description?: string
-    isArchived: boolean
-    pushedAt: string
-    url: string
-    defaultBranchRef: {
-        name: string
-    }
-    viewerPermission: string
-} & AdditionalRepoProps
+  name: string;
+  description?: string;
+  isArchived: boolean;
+  pushedAt: string;
+  url: string;
+  defaultBranchRef: {
+    name: string;
+  };
+  viewerPermission: string;
+} & AdditionalRepoProps;
 
 export type OrgTeamResult<Result> = {
-    organization: {
-        team: Result
-    }
-}
+  organization: {
+    team: Result;
+  };
+};
 
 export type OrgTeamRepoResult<AdditionalRepoProps> = OrgTeamResult<{
-    repositories: {
-        nodes: BaseRepoNode<AdditionalRepoProps>[]
-    }
-}>
+  repositories: {
+    nodes: BaseRepoNode<AdditionalRepoProps>[];
+  };
+}>;
 
 export const removeIgnoredAndArchived: <AdditionalRepoProps>(
-    nodes: BaseRepoNode<AdditionalRepoProps>[],
+  nodes: BaseRepoNode<AdditionalRepoProps>[],
 ) => BaseRepoNode<AdditionalRepoProps>[] = R.createPipe(
-    R.filter((it) => !it.isArchived),
-    R.filter(blacklisted),
-)
+  R.filter((it) => !it.isArchived),
+  R.filter(blacklisted),
+);
 
 export const removeIgnoredArchivedAndNonAdmin: <AdditionalRepoProps>(
-    nodes: BaseRepoNode<AdditionalRepoProps>[],
+  nodes: BaseRepoNode<AdditionalRepoProps>[],
 ) => BaseRepoNode<AdditionalRepoProps>[] = R.createPipe(
-    R.filter((it) => !it.isArchived),
-    R.filter((it) => it.viewerPermission === 'ADMIN'),
-    R.filter(blacklisted),
-)
+  R.filter((it) => !it.isArchived),
+  R.filter((it) => it.viewerPermission === "ADMIN"),
+  R.filter(blacklisted),
+);
