@@ -42,7 +42,7 @@ Bruk egen migrering når du må opprette indeks på stor tabell i produksjon ute
 -- V5__add_index_concurrently.sql
 -- NB: CREATE INDEX CONCURRENTLY kan ikke kjøre i transaksjon
 -- Kjør denne migreringen alene og verifiser Flyway-oppsettet først
--- flyway.transactional=false
+-- migration:executeInTransaction=false
 CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_vedtak_bruker ON vedtak (bruker_id);
 ```
 

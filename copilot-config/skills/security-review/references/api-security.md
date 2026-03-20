@@ -98,12 +98,10 @@ fun apiSecurity(http: HttpSecurity): SecurityFilterChain {
     // ✅ Stateless API med Bearer token — ingen cookies/sesjoner
     http {
         sessionManagement {
-            sessionFixation {
-                newSession()
-            }
+            sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         }
         csrf {
-            disable()  // Trygt: ingen cookie-basert auth
+            disable()  // Trygt i denne konfigen: ingen cookie-basert auth, kun Bearer token
         }
         // ...
     }

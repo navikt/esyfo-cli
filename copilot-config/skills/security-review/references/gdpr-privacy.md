@@ -12,14 +12,14 @@ Be om dokumentasjon på behandlingsgrunnlag per formål. Vanlige grunnlag er lov
 
 ```kotlin
 // ✅ Good - collect only what the feature needs
-data class UserProfile(
+data class UserProfileMinimal(
     val id: String,
     val email: String,
     val displayName: String,
 )
 
 // ❌ Bad - collects more personal data than the feature needs
-data class UserProfile(
+data class UserProfileVerbose(
     val id: String,
     val email: String,
     val displayName: String,
