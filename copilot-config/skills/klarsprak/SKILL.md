@@ -144,10 +144,9 @@ Bruk bindestrek: `image-bygg`, `CI-pipeline`, `deploy-steg`, `Kafka-topicet`, `G
 |-----------|------|------|
 | ADR | Nøytral, teknisk | Kontekst → Beslutning → Konsekvenser. Ingen salgssnakk. |
 | README | Direkte, vennlig | Start med hva appen gjør, deretter oppsett. |
-| Commit-melding | Imperativ, kort | "Legg til", ikke "La til". Maks 72 tegn. |
-| PR-beskrivelse | Konkret | Hva, hvorfor, hvordan. Link til issue. |
 | UI-tekst | Enkel, handlingsrettet | Korte setninger. Brukeren er "du". |
-| Blogg | Kollegial | Skriv som for en kaffeprat med en utvikler. |
+
+For commit-meldinger, se `conventional-commit`-skillen. For PR-beskrivelser, se `pull-request`-skillen.
 
 ## Tegnsetting
 
@@ -195,18 +194,6 @@ Bruk bindestrek: `image-bygg`, `CI-pipeline`, `deploy-steg`, `Kafka-topicet`, `G
 
 ✅ Behandler søknader om foreldrepenger. Bygget med Kotlin/Ktor,
    deployes til Nais.
-```
-
-### PR-beskrivelse → konkret
-
-```
-❌ Denne PR-en adresserer behovet for å implementere en mer
-   robust og helhetlig løsning for autentisering som
-   tilrettelegger for en sømløs brukeropplevelse.
-
-✅ Bytter fra manuell token-validering til @navikt/oasis.
-   Forenkler auth-flyten og fikser bug der utløpte tokens
-   ikke ble refreshet.
 ```
 
 ### Unødvendig oppsummering → kutt

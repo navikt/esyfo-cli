@@ -24,30 +24,12 @@ applyTo: "**/*.{ts,tsx,css}"
 - Follow Aksel composition patterns
 - Check aksel.nav.no for component API before implementing
 
-### Spacing (CRITICAL)
-- Prefer Aksel spacing tokens over Tailwind padding/margin when Aksel tokens are available
-- Use `space-*` tokens in Aksel props like `gap`, `padding`, and `margin`
-- Prefer directional spacing with `paddingBlock`, `paddingInline`, `marginBlock`, and `marginInline`
-
-### Layout Components
-- Prefer `Box` for padding, background, border, and radius
-- Prefer `VStack` / `HStack` for linear layout and action rows
-- Prefer `HGrid` for responsive columns and dashboard-like sections
-- Keep layout in Aksel primitives before custom CSS
-
-### Typography
-- Prefer `Heading` for titles and section headings
-- Prefer `BodyShort` for short supporting copy
-- Prefer `BodyLong` for longer explanatory text
-
-### Responsive Design
-- Mobile-first with breakpoints: `xs` (0px), `sm` (480px), `md` (768px), `lg` (1024px), `xl` (1280px)
-- Use responsive props: `padding={{ xs: "space-16", md: "space-24" }}`
-- Use `Show` / `Hide` when content should differ by breakpoint
-
-### Number Formatting
-- Always use Norwegian locale (space as thousand separator)
-- Never use `toLocaleString()` without explicit locale
+### Key Rules
+- Prefer Aksel spacing tokens (`space-*`) over Tailwind padding/margin
+- Prefer Aksel layout primitives (`Box`, `VStack`, `HStack`, `HGrid`) before custom CSS
+- Mobile-first with responsive props
+- Norwegian number format (space as thousand separator)
+- For komplett spacing, layout, typografi og responsive mønstre, bruk `aksel-design`-skillen
 
 ## Accessibility (UU) — WCAG 2.1 AA
 - Follow WCAG 2.1 AA — use Aksel components with built-in a11y support

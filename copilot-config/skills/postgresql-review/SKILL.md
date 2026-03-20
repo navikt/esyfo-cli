@@ -40,13 +40,7 @@ CREATE INDEX idx_vedtak_status ON vedtak (status); -- bare 3-4 verdier
 
 ## CONCURRENT-indekser i produksjon
 
-```sql
--- ✅ Produksjon: bruk CONCURRENTLY (blokkerer ikke skriving)
-CREATE INDEX CONCURRENTLY idx_vedtak_bruker ON vedtak (bruker_id);
--- Merk: kan ikke kjøre i transaksjon, bruk i egen Flyway-migrering
-```
-
-Bruk dette for store tabeller i produksjon. Legg migreringen alene, og verifiser Flyway-oppsettet før deploy.
+For `CREATE INDEX CONCURRENTLY` i produksjon, se `flyway-migration`-skillen. Kort oppsummert: bruk egen migrering utenfor transaksjon for å unngå å blokkere skriving.
 
 ## JSONB-mønstre
 
