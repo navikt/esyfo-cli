@@ -9,7 +9,7 @@ esyfo-cli (`ecli`) is an internal CLI toolbox for NAV's #team-esyfo. It manages 
 ```bash
 bun install                # Install dependencies
 bun run tsc                # Type-check
-bun run lint               # ESLint on src/**/*.ts
+bun run lint               # Biome check across the repo
 bun run build              # Full build: clean → compile → sanity-check
 bun run build-cli          # Compile only (runs src/build.ts)
 bun run src/index.ts       # Run CLI directly during development (no build needed)
@@ -54,7 +54,7 @@ There are no tests in this project.
 - **Imports**: Use `.ts` extensions in import paths (e.g., `'./common/log.ts'`)
 - **Console output**: Use `log` from `src/common/log.ts` (re-export of `console.log`) and `chalk` for colored output
 - **Functional utilities**: Uses `remeda` (imported as `R`) for functional data transformations
-- **ESLint**: Extends `@navikt/eslint-config-teamsykmelding` with `no-explicit-any` and `explicit-function-return-type` turned off
+- **Lint/format**: Uses Biome with 2-space indentation; `noExplicitAny` and `noNonNullAssertion` are turned off
 - **GraphQL**: Inline queries use the `/* GraphQL */` tagged template comment for syntax highlighting
 - **Bun APIs**: Prefer `Bun.file()`, `Bun.write()`, `Bun.spawnSync()`, `Bun.env` over Node.js equivalents where practical
 - **CI skip**: Commit messages containing `[docs]` skip the CI build; `[skip ci]` skips entirely
