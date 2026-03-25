@@ -31,6 +31,11 @@ There are no tests in this project.
 
 `config.yml` (root) defines the team's repositories, their expected CI checks, and the org owner. Parsed via `src/config/config.ts` into typed `Config`/`RepoConfig` objects. `skip-enforce-admins.yml` lists repos exempt from admin enforcement rules.
 
+`copilot-config/` contains the source-of-truth template files for Copilot agents, instructions, skills, and workflows.
+The `copilot sync` command assembles and syncs those templates into `.github/` across the team's repositories.
+`esyfo-cli` itself is blacklisted from that sync, so its local `.github/` copy must be updated manually here.
+When changing shared Copilot config, update `copilot-config/` first and then mirror the relevant changes into `.github/`.
+
 ### GitHub API access
 
 `src/common/octokit.ts` — Authenticates via `gh auth status --show-token` (GitHub CLI) for interactive use, or `NPM_AUTH_TOKEN` for package operations. Uses both REST (Octokit) and GraphQL APIs. Helper types like `OrgTeamRepoResult` and `BaseRepoNode` standardize GraphQL response shapes.
