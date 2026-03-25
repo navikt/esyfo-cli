@@ -6,6 +6,7 @@ import { authorToColorAvatar } from "../common/format-utils.ts";
 import { log } from "../common/log.ts";
 import {
   BaseRepoNodeFragment,
+  getTeamRepositoriesOrThrow,
   ghGqlQuery,
   type OrgTeamRepoResult,
   removeIgnoredArchivedAndNonAdmin,
@@ -73,9 +74,10 @@ async function getPrs(
     reposQuery,
     { team },
   );
+  const repositories = getTeamRepositoriesOrThrow(queryResult, team);
 
   const openPrs = R.pipe(
-    queryResult.organization.team.repositories.nodes,
+    repositories.nodes,
     removeIgnoredArchivedAndNonAdmin,
     R.flatMap((repo) =>
       R.pipe(

@@ -2,6 +2,7 @@ import chalk from "chalk";
 import { log } from "./log.ts";
 import {
   type BaseRepoNode,
+  getTeamRepositoriesOrThrow,
   ghGqlQuery,
   type OrgTeamRepoResult,
   removeIgnoredAndArchived,
@@ -79,5 +80,7 @@ export async function getAllRepos(team: string = "team-esyfo") {
     },
   );
 
-  return removeIgnoredAndArchived(result.organization.team.repositories.nodes);
+  return removeIgnoredAndArchived(
+    getTeamRepositoriesOrThrow(result, team).nodes,
+  );
 }

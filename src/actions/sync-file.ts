@@ -8,6 +8,7 @@ import { log } from "../common/log.ts";
 import {
   type BaseRepoNode,
   BaseRepoNodeFragment,
+  getTeamRepositoriesOrThrow,
   ghGqlQuery,
   type OrgTeamRepoResult,
   removeIgnoredAndArchived,
@@ -42,7 +43,9 @@ async function getAllRepos(): Promise<BaseRepoNode<unknown>[]> {
     team: "team-esyfo",
   });
 
-  return removeIgnoredAndArchived(result.organization.team.repositories.nodes);
+  return removeIgnoredAndArchived(
+    getTeamRepositoriesOrThrow(result, "team-esyfo").nodes,
+  );
 }
 
 async function cloneAllRepos(): Promise<BaseRepoNode<unknown>[]> {

@@ -1,6 +1,8 @@
 import {
   type BaseRepoNode,
+  getTeamRepositoriesOrThrow,
   ghGqlQuery,
+  type OrgTeamResult,
   removeIgnoredArchivedAndNonAdmin,
 } from "../common/octokit.ts";
 
@@ -14,19 +16,15 @@ export interface RepoNode {
   defaultBranch: string;
 }
 
-interface OrgTeamRepoPageResult {
-  organization: {
-    team: {
-      repositories: {
-        nodes: BaseRepoNode<Record<string, never>>[];
-        pageInfo: {
-          hasNextPage: boolean;
-          endCursor: string | null;
-        };
-      };
+type OrgTeamRepoPageResult = OrgTeamResult<{
+  repositories: {
+    nodes: BaseRepoNode<Record<string, never>>[];
+    pageInfo: {
+      hasNextPage: boolean;
+      endCursor: string | null;
     };
   };
-}
+}>;
 
 const teamReposQuery = /* GraphQL */ `
     query ($team: String!, $cursor: String) {
@@ -66,10 +64,11 @@ async function fetchAllTeamRepoNodes(): Promise<
       team: TEAM,
       cursor,
     });
-    allRepoNodes.push(...result.organization.team.repositories.nodes);
+    const repositories = getTeamRepositoriesOrThrow(result, TEAM);
+    allRepoNodes.push(...repositories.nodes);
 
-    hasNextPage = result.organization.team.repositories.pageInfo.hasNextPage;
-    cursor = result.organization.team.repositories.pageInfo.endCursor;
+    hasNextPage = repositories.pageInfo.hasNextPage;
+    cursor = repositories.pageInfo.endCursor;
   }
 
   return allRepoNodes;

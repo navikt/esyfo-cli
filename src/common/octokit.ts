@@ -76,7 +76,7 @@ export type BaseRepoNode<AdditionalRepoProps> = {
 
 export type OrgTeamResult<Result> = {
   organization: {
-    team: Result;
+    team: Result | null;
   };
 };
 
@@ -85,6 +85,20 @@ export type OrgTeamRepoResult<AdditionalRepoProps> = OrgTeamResult<{
     nodes: BaseRepoNode<AdditionalRepoProps>[];
   };
 }>;
+
+export function getTeamRepositoriesOrThrow<Repositories>(
+  result: OrgTeamResult<{ repositories: Repositories }>,
+  team: string,
+): Repositories {
+  const repositories = result.organization.team?.repositories;
+  if (repositories == null) {
+    const message = `Could not access team '${team}' in organization 'navikt'. Check that the team exists and you have permission to view it. Run 'gh auth status' to verify your authentication.`;
+    log(chalk.red(message));
+    throw new Error(message);
+  }
+
+  return repositories;
+}
 
 export const removeIgnoredAndArchived: <AdditionalRepoProps>(
   nodes: BaseRepoNode<AdditionalRepoProps>[],
