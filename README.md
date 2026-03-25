@@ -90,8 +90,8 @@ Genereres og distribueres til hvert repo av `ecli copilot sync` basert på detek
 | Agent | Rolle | Modell |
 |-------|-------|--------|
 | **@hovmester** 🍽️ | Tar imot bestillingen og delegerer til kjøkkenet | Opus |
-| **@kokk** 🔪 | Smeller sammen koden — rask, brutal og effektiv | Codex |
-| **@mattilsynet** 🔍 | Uanmeldt inspeksjon — code review og kvalitetssikring | Sonnet |
+| **@kokk** 🔪 | Smeller sammen koden — rask, brutal og effektiv | GPT |
+| **@mattilsynet** 🔍 | Uanmeldt inspeksjon — code review og kvalitetssikring | GPT |
 | *@souschef* 📋 | *(internt)* Planlegger menyen — brukes via hovmester | Opus |
 | *@konditor* 🎂 | *(internt)* Pynt og finish — UI/UX med Aksel | Gemini |
 | *@inspektør-claude* 🔬 | *(internt)* Inspeksjon med Claude-modell | Claude |
