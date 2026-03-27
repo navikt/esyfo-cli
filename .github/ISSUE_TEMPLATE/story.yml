@@ -1,6 +1,5 @@
 name: Story
 description: Brukerhistorie eller use case
-title: "[Story]: "
 type: Story
 projects: ["navikt/157"]
 body:
@@ -10,7 +9,7 @@ body:
       label: Brukerhistorie
       description: "Som [rolle] ønsker jeg [funksjon] slik at [verdi]"
       placeholder: |
-        Som saksbehandler ønsker jeg å se sykmeldingshistorikk slik at jeg kan vurdere oppfølgingsbehov.
+        Som arbeidsgiver ønsker jeg å se status på oppfølgingsplanen slik at jeg vet hva neste steg er for den sykmeldte.
     validations:
       required: true
   - type: textarea
