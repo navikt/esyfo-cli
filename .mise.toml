@@ -5,15 +5,15 @@ node = "24"
 [tasks.clone-repos]
 description = "Clone all team repos into a destination directory"
 usage = '''
-flag "-d --destination <destination>" help="Destination directory for cloned repos"
+flag "--destination <destination>" help="Destination directory for cloned repos"
 '''
 run = 'bun run src/index.ts clone-team-repos --destination=${usage_destination?} --use-sub-folders=true'
 
 [tasks.prs]
 description = "Show open pull requests across team repos"
 usage = '''
-flag "-b --skip-bots" help="Exclude pull requests opened by bots"
-flag "-l --list-view" help="Show pull requests instead of only totals"
+flag "--skip-bots" help="Exclude pull requests opened by bots"
+flag "--list-view" help="Show pull requests instead of only totals"
 arg "[drafts]" help="Pass true to include draft pull requests"
 '''
 run = 'bun run src/index.ts prs ${usage_skip_bots:+--skip-bots} ${usage_list_view:+--list-view} ${usage_drafts:+$usage_drafts}'
@@ -35,23 +35,23 @@ run = 'bun run src/index.ts repos --output=${usage_file} --useMarkdown=true'
 [tasks.copilot-sync]
 description = "Sync Copilot config to repos"
 usage = '''
-flag "-r --repo <name>" help="Sync a single repo"
-flag "-a --all" help="Sync all repos"
-flag "-d --dry-run" help="Preview changes without writing files"
+flag "--repo <name>" help="Sync a single repo"
+flag "--all" help="Sync all repos"
+flag "--dry-run" help="Preview changes without writing files"
 '''
 run = 'bun run src/index.ts copilot sync ${usage_repo:+--repo $usage_repo} ${usage_all:+--all} ${usage_dry_run:+--dry-run}'
 
 [tasks.copilot-setup]
 description = "Set up local agents and MCP servers"
 usage = '''
-flag "-f --force" help="Overwrite existing files"
+flag "--force" help="Overwrite existing files"
 '''
 run = 'bun run src/index.ts copilot setup ${usage_force:+--force}'
 
 [tasks.copilot-status]
 description = "Check Copilot sync status across repos"
 usage = '''
-flag "-r --repo <name>" help="Check a single repo"
+flag "--repo <name>" help="Check a single repo"
 '''
 run = 'bun run src/index.ts copilot status ${usage_repo:+--repo $usage_repo}'
 
