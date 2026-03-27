@@ -27,23 +27,21 @@ Kartlegg alle funn til standard severity: 🔴 BLOCKER / 🟡 WARNING / 🔵 SUG
 
 ### 2. Dedupliser og vekt
 
-Sammenlign funn på tvers av alle 3 inspektører:
+Sammenlign funn på tvers av begge inspektører:
 
-- **Samme problem fra flere inspektører** → Slå sammen med konsensusscore
+- **Samme problem fra begge inspektører** → Slå sammen med konsensusscore
 - **Lignende men distinkte observasjoner** → Behold separat, noter sammenhengen
-- **Unikt funn (kun én inspektør)** → Behold med 1/3 score, vurder grundig
+- **Unikt funn (kun én inspektør)** → Behold med 1/2 score, vurder grundig
 
 Konsensusscoring:
-- `[3/3]` — Alle enige → **Høy tillit**, definitivt adresser
-- `[2/3]` — Flertall enig → **Medium tillit**, sannsynlig reelt
-- `[1/3]` — Kun én inspektør → **Lav tillit**, vurder nøye (MEN: sikkerhetsfunn med konkret exploit = medium tillit uansett)
+- `[2/2]` — Begge enige → **Høy tillit**, definitivt adresser
+- `[1/2]` — Kun én inspektør → **Medium tillit**, vurder nøye (MEN: sikkerhetsfunn med konkret exploit = høy tillit uansett)
 
 ### 3. Løs konflikter
 
 Når inspektørene er uenige om severity:
 - **Sikkerhetsproblemer**: Høyeste severity vinner
-- **Øvrige**: Flertallet vinner
-- **3-veis uenighet**: Du avgjør med begrunnelse
+- **Øvrige**: Konsensus vinner, ved uenighet avgjør du med begrunnelse
 
 ### 4. Legg på Nav-kontekst
 
@@ -144,20 +142,20 @@ Når du konsoliderer fra inspektørene, inkluder denne tabellen ETTER tilsynsrap
 ```
 ## Konsensus
 
-| Severity | 3/3 | 2/3 | 1/3 | Totalt |
-|----------|-----|-----|-----|--------|
-| Blocker  |  X  |  X  |  X  |   X    |
-| Warning  |  X  |  X  |  X  |   X    |
-| Suggest. |  X  |  X  |  X  |   X    |
+| Severity | 2/2 | 1/2 | Totalt |
+|----------|-----|-----|--------|
+| Blocker  |  X  |  X  |   X    |
+| Warning  |  X  |  X  |   X    |
+| Suggest. |  X  |  X  |   X    |
 
-Inspektører: Claude Opus 4.6, GPT-5.3-Codex, Gemini 3 Pro
+Inspektører: Inspektør-Claude, Inspektør-GPT
 ```
 
 Og noter eventuelle uenigheter mellom inspektørene:
 
 ```
 ### Uenigheter
-- [Fil:Linje]: Claude flagget [problem], GPT og Gemini flagget ikke
+- [Fil:Linje]: Claude flagget [problem], GPT flagget ikke
   → Vurdering: [Din avgjørelse]
 ```
 

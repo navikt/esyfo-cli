@@ -32,7 +32,7 @@ Hvert steg i planen MÅ ha en **Agent**-tildeling. Bruk disse kriteriene:
 | Visuell design, loading/error/tom-state presentasjon | **Konditor** |
 | Forretningslogikk, API, database, services | **Kokk** |
 | State management, hooks, testing, konfigurasjon | **Kokk** |
-| Blanding av logikk og UI | **Kokk** (noter at Konditor-output bør brukes som referanse) |
+| UI-komponent med design + logikk | **Konditor FØRST** (design/layout/states), **deretter Kokk** (hooks/state/logic) |
 
 **Hovedregel**: *Hvordan det ser ut/føles* → Konditor. *Hvordan det fungerer* → Kokk.
 

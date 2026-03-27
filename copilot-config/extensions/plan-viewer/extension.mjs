@@ -4,11 +4,20 @@ import { join } from "node:path";
 import { joinSession } from "@github/copilot-sdk/extension";
 
 function openInEditor(filePath) {
-  const editor = process.env.VISUAL || process.env.EDITOR || "code";
+  const editorEnv = process.env.VISUAL || process.env.EDITOR || "code";
+  const parts = editorEnv.split(/\s+/);
+  const editor = parts[0];
+  const editorArgs = [...parts.slice(1), filePath];
   const isTerminalEditor = /^(vim|nvim|nano|emacs|vi)$/i.test(editor);
   if (isTerminalEditor) return false;
-  execFile(editor, [filePath], () => {});
-  return true;
+  try {
+    execFile(editor, editorArgs, (err) => {
+      if (err) session.log(`⚠️ Kunne ikke åpne editor: ${err.message}`);
+    });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 const session = await joinSession({

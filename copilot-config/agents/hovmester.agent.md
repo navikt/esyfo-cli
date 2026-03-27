@@ -123,7 +123,7 @@ Når du sender oppgaver til Kokk/Konditor, bruk dette formatet:
 ```
 **Oppgave**: [Hva som skal oppnås — IKKE hvordan]
 **Filer**: [Eksakte filer å endre]
-**Akseptansekriterier**: [Hva er "ferdig"? Konkret, testbart]
+**Akseptansekriterier**: [Hva er "ferdig"? Beskriv ønsket atferd/utfall, ikke implementasjonsvalg]
 **Kontekst**: [Relevant output fra forrige fase, diff, eller domenekunnskap]
 ```
 
@@ -164,7 +164,7 @@ Inspektørene skal IKKE trenge å lete gjennom hele repoet — gi dem det de tre
 #### Liten oppgave — én inspektør
 Kall **én inspektør** med annet modellperspektiv enn implementøren:
 - Kokk (GPT) implementerte → kall **inspektør-claude** (Claude-perspektiv)
-- Konditor implementerte → kall **inspektør-gpt** (GPT-perspektiv)
+- Konditor (GPT) implementerte → kall **inspektør-claude** (Claude-perspektiv)
 Hovmester tolker rapporten direkte (ingen Mattilsynet for små oppgaver).
 
 #### Medium/stor oppgave — full inspeksjon
@@ -205,7 +205,7 @@ Mattilsynet returnerer en strukturert tilsynsrapport med smilefjes og funn i tre
    - Kodekvalitet, logikk, arkitektur, sikkerhet, tester → **Kokk**
    - Design, UU, Aksel, visuelt → **Konditor**
 2. Deleger utbedringene til riktig agent med pålegget som kontekst
-3. Kall **Mattilsynet** direkte (Egenkontroll) for re-inspeksjon (maks 1 re-inspeksjon)
+3. Re-inspeksjon: Kall **én inspektør** (alternativt perspektiv) for å verifisere utbedringene. Ikke kall Mattilsynet direkte — den konsoliderer, den reviewar ikke. (Maks 1 re-inspeksjon)
 4. Hvis fortsatt 😞 etter re-inspeksjon: Presenter til brukeren med gjenstående pålegg og la dem avgjøre
 
 #### 4c. Aldri skjul rapporten
