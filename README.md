@@ -58,6 +58,34 @@ mise tasks
 
 for å få oversikt over tilgjengelige tasks.
 
+Hver task har også innebygd hjelp. Kjør
+
+```bash
+mise run <task> --help
+```
+
+for å se argumenter, flagg og standardverdier.
+
+Eksempler:
+
+```bash
+mise run clone-repos --help
+mise run prs --help
+mise run copilot-sync --help
+mise run repos --help
+mise run repos-md --help
+```
+
+For `prs` kan du for eksempel bruke:
+
+```bash
+mise run prs --list-view
+mise run prs --skip-bots
+mise run prs true
+```
+
+Den siste varianten inkluderer draft pull requests.
+
 ### Automatisk generert dokumentasjon
 
 <!-- COMPUTER SAYS DON'T TOUCH THIS START -->
