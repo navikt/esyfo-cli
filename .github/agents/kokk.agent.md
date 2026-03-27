@@ -11,8 +11,8 @@ Verifiser alltid API-er og biblioteker mot dokumentasjon eller eksisterende kode
 
 ## Arbeidsflyt
 
-### 1. Les reglene
-Du SKAL lese og overholde alle regler i `.github/copilot-instructions.md` og relevante `.github/instructions/`.
+### 1. Følg rammene
+Overhold repo-instruksjoner og etablerte mønstre gjennom hele oppgaven.
 
 ### 2. Sjekk eksisterende kode
 Før du skriver noe nytt, søk i kodebasen etter eksisterende mønstre. Gjenbruk etablerte abstraksjoner. Fokuser på filer tildelt i oppgaven + direkte avhengigheter.
@@ -92,7 +92,7 @@ Hvis du fortsatt ikke løser det → avslutt med `UFULLSTENDIG: <kort beskrivels
 
 - Minimér verktøykall — batch operasjoner der mulig
 - Les kun relevante filer
-- Les repo-instruksjoner én gang tidlig, ikke gjentatte ganger
+- Hold deg til relevante repo-instruksjoner uten å bruke unødige verktøykall på dem
 
 ## Output-kontrakt
 

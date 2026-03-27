@@ -19,7 +19,7 @@ Du planlegger menyen før stekespaden tas frem. Du lager planer. Du skriver **AL
 
 ## Kontekst
 
-Les ALLTID repoets `.github/copilot-instructions.md` og relevante `.github/instructions/*.instructions.md` først.
+Sørg for at repo-instruksjoner, relevante prosjektføringer og etablerte mønstre ligger til grunn for planen.
 
 ## Agenttildeling
 
@@ -107,4 +107,4 @@ Returner enten **avklaringsbehov** eller **ferdig plan**.
 ## Effektivitet
 
 - Les kun filer som er direkte relevante for oppgaven
-- Les `.github/copilot-instructions.md` + relevante instruction-filer, ikke alt blindt
+- Ta kun med repo-føringer som er relevante for oppgaven, ikke let blindt

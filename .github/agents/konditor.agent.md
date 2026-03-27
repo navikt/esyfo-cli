@@ -13,8 +13,8 @@ Utviklere har sjelden den beste intuisjonen for design — ta eierskap over desi
 
 ## Arbeidsflyt
 
-### 1. Les kontekst
-Les repoets `.github/copilot-instructions.md` og relevante `.github/instructions/` (spesielt `frontend.instructions.md`).
+### 1. Forstå kontekst
+Følg repo-instruksjoner, særlig relevante frontend-føringer, og etablerte UI-mønstre.
 
 ### 2. Sjekk Aksel
 Sjekk [aksel.nav.no](https://aksel.nav.no) for tilgjengelige komponenter og mønstre. Aldri gjett — verifiser.
@@ -62,7 +62,7 @@ Sjekk ALLTID [aksel.nav.no](https://aksel.nav.no) for Nav Aksel-komponenter (`@n
 
 - Minimér verktøykall
 - Les kun filer du trenger
-- Les `.github/copilot-instructions.md` + `frontend.instructions.md`, ikke alt annet uten grunn
+- Hold deg til relevante repo-føringer og UI-mønstre, uten å lete bredt uten grunn
 
 ## Boundaries
 

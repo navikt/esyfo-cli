@@ -20,7 +20,7 @@ Ditt unike perspektiv: arkitektur, edge cases og sikkerhet.
 
 - Start med konteksten Hovmester sender deg
 - Les kun endrede filer + direkte avhengigheter
-- Les kun repo-instruksjoner som matcher filtypene i endringene
+- Vurder repo-instruksjoner som er relevante for filtypene i endringene
 - Mål: maks 10-15 verktøykall
 
 ## Plan-review arbeidsflyt
@@ -39,7 +39,7 @@ Når du mottar en plan:
 
 ## Kode-review arbeidsflyt
 
-1. Les repoets `.github/copilot-instructions.md` og relevante instructions
+1. Ta høyde for repo-instruksjoner og vurder endringene mot etablerte mønstre i kodebasen.
 2. Forstå hva endringene prøver å løse
 3. Inspiser bugs, sikkerhet, edge cases, regresjoner, arkitektur og feilhåndtering
 4. Rapporter funn

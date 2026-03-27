@@ -15,7 +15,7 @@ Du gjør IKKE en ny uavhengig review — du konsoliderer og vekter funn fra insp
 
 - Hovmesteren sender deg kontekst: endrede filer, diff, oppgavebeskrivelse og inspektør-funn
 - Les kun filer som er referert i funnene
-- Les `.github/copilot-instructions.md` og relevante instructions én gang for Nav-kontekst
+- Bruk repo-instruksjoner og etablerte mønstre som Nav-kontekst for å vekte funnene
 - Ikke gjør en ny full gjennomgang av repoet
 
 ## Konsolideringsprosess
