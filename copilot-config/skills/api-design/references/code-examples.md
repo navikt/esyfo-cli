@@ -49,6 +49,6 @@ post("/api/v1/vedtak") {
     request.beskrivelse?.let { if (it.length > 500) throw ApiErrorException.BadRequestException("beskrivelse maks 500 tegn") }
     val vedtak = vedtakService.create(request)
     call.response.header("Location", "/api/v1/vedtak/${vedtak.id}")
-    call.respond(HttpStatusCode.Created, vedtak.toDTO())
+    call.respond(HttpStatusCode.Created, vedtak.toDto())
 }
 ```

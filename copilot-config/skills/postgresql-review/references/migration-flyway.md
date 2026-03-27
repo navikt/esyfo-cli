@@ -27,7 +27,7 @@ ON vedtak (bruker_id, status);
 -- ✅ Alltid TIMESTAMPTZ
 CREATE TABLE vedtak (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    bruker_id TEXT NOT NULL,
+    bruker_id UUID NOT NULL,
     status TEXT NOT NULL,
     opprettet TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     oppdatert TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -46,7 +46,7 @@ CREATE TABLE vedtak (
 CREATE TABLE vedtak (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     sak_id UUID NOT NULL REFERENCES sak(id),
-    bruker_id TEXT NOT NULL
+    bruker_id UUID NOT NULL
 );
 
 CREATE INDEX idx_vedtak_sak_id ON vedtak (sak_id);
