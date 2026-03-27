@@ -3,17 +3,17 @@ bun = "1.3.9"
 node = "24"
 
 [tasks.clone-repos]
-description = "Clone all team repos into a destination folder"
+description = "Clone all team repos into a destination directory"
 usage = '''
-flag "-d --destination <destination>" help="Pre-existing folder to clone all repositories in"
+flag "-d --destination <destination>" help="Destination directory for cloned repos"
 '''
 run = 'bun run src/index.ts clone-team-repos --destination=${usage_destination?} --use-sub-folders=true'
 
 [tasks.prs]
-description = "Get prs for team"
+description = "Show open pull requests across team repos"
 usage = '''
-flag "-b --skip-bots" help="Do not include pull requests opened by bots"
-flag "-l --list-view" help="List pull requests instead of only showing totals"
+flag "-b --skip-bots" help="Exclude pull requests opened by bots"
+flag "-l --list-view" help="Show pull requests instead of only totals"
 arg "[drafts]" help="Pass true to include draft pull requests"
 '''
 run = 'bun run src/index.ts prs ${usage_skip_bots:+--skip-bots} ${usage_list_view:+--list-view} ${usage_drafts:+$usage_drafts}'
@@ -21,37 +21,37 @@ run = 'bun run src/index.ts prs ${usage_skip_bots:+--skip-bots} ${usage_list_vie
 [tasks.repos]
 description = "Export non-archived team repos as JSON"
 usage = '''
-arg "<file>" help="The file to output list of repositories as json to" default="repos.json"
+arg "<file>" help="Output file for the JSON repo list" default="repos.json"
 '''
 run = 'bun run src/index.ts repos --output=${usage_file}'
 
 [tasks.repos-md]
 description = "Export non-archived team repos as Markdown"
 usage = '''
-arg "<file>" help="The file to output the repoisitories to in markdown representation" default="repos.md"
+arg "<file>" help="Output file for the Markdown repo list" default="repos.md"
 '''
 run = 'bun run src/index.ts repos --output=${usage_file} --useMarkdown=true'
 
 [tasks.copilot-sync]
-description = "Synkroniser copilot-konfig til repos"
+description = "Sync Copilot config to repos"
 usage = '''
-flag "-r --repo <name>" help="Synk ett spesifikt repo"
-flag "-a --all" help="Synk alle repos"
-flag "-d --dry-run" help="Vis hva som ville endret seg"
+flag "-r --repo <name>" help="Sync a single repo"
+flag "-a --all" help="Sync all repos"
+flag "-d --dry-run" help="Preview changes without writing files"
 '''
 run = 'bun run src/index.ts copilot sync ${usage_repo:+--repo $usage_repo} ${usage_all:+--all} ${usage_dry_run:+--dry-run}'
 
 [tasks.copilot-setup]
-description = "Sett opp lokal maskin med agenter og MCP-servere"
+description = "Set up local agents and MCP servers"
 usage = '''
-flag "-f --force" help="Overskriv eksisterende filer"
+flag "-f --force" help="Overwrite existing files"
 '''
 run = 'bun run src/index.ts copilot setup ${usage_force:+--force}'
 
 [tasks.copilot-status]
-description = "Sjekk sync-status på repos"
+description = "Check Copilot sync status across repos"
 usage = '''
-flag "-r --repo <name>" help="Sjekk ett spesifikt repo"
+flag "-r --repo <name>" help="Check a single repo"
 '''
 run = 'bun run src/index.ts copilot status ${usage_repo:+--repo $usage_repo}'
 
