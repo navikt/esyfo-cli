@@ -1,16 +1,24 @@
 import { execFile } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { basename, join } from "node:path";
 import { joinSession } from "@github/copilot-sdk/extension";
 
 let hasAutoOpenedPlan = false;
 
 function getEditorCommand() {
-  return process.env.VISUAL || process.env.EDITOR || "code";
+  return (process.env.VISUAL || process.env.EDITOR || "code").trim() || "code";
 }
 
 function getEditorLabel() {
-  return process.env.VISUAL || process.env.EDITOR || "standard editor";
+  const editorCommand = getEditorCommand();
+  const editor = editorCommand.split(/\s+/)[0];
+  const editorName = basename(editor);
+
+  if (/^code(?:-insiders)?(?:\.cmd)?$/i.test(editorName)) {
+    return "VS Code";
+  }
+
+  return editorName;
 }
 
 function openInEditor(filePath) {

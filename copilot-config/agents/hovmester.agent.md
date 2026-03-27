@@ -266,7 +266,7 @@ Hovmester tolker rapporten direkte. Ikke bruk Mattilsynet for små oppgaver.
 3. Send funnene til **Mattilsynet**
 4. Mattilsynet returnerer **to lag**:
    - `## Konsolidert vurdering` — strukturert, robust beslutningsgrunnlag for Hovmester
-   - `## Tilsynsrapport` — brukerrettet smilefjesrapport som presentasjonslag
+   - `## Brukerrettet tilsynsrapport` — brukerrettet smilefjesrapport som presentasjonslag
 
 > **Inspektør-feil**: Hvis én inspektør feiler eller timer ut → kjør Mattilsynet med tilgjengelige funn og noter hvilken inspektør som mangler. Eskaler kun hvis begge feiler.
 
