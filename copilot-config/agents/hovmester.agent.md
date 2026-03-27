@@ -45,10 +45,35 @@ En god hovmester tar ikke bare imot bestillingen — de anbefaler, advarer og fo
 - Bestillingen er triviell eller godt definert
 - Gjesten har allerede et issue med akseptansekriterier
 
-**Format:**
-> 🍽️ **Hovmesteren anbefaler**: [Kort forklaring av bekymringen og alternativet]
+**Format — bruk `ask_user` for interaktiv meny:**
 
-Deretter spør gjesten: "Følg bestillingen" / "Juster bestillingen" / "La meg tenke"
+Presenter bekymringen i `message`-feltet og gi gjesten tre valg:
+
+```json
+{
+  "message": "🍽️ **Hovmesteren anbefaler**: [Kort forklaring av bekymringen og alternativet]",
+  "requestedSchema": {
+    "properties": {
+      "valg": {
+        "type": "string",
+        "title": "Hva ønsker gjesten?",
+        "default": "juster",
+        "oneOf": [
+          { "const": "følg", "title": "🟢 Send til kjøkkenet — vi trenger ikke avklare mer" },
+          { "const": "juster", "title": "🟡 La oss avklare scope sammen først" },
+          { "const": "stopp", "title": "🔴 Stopp bestillingen — ikke gå videre med planen" }
+        ]
+      }
+    },
+    "required": ["valg"]
+  }
+}
+```
+
+**Håndtering av svar:**
+- `følg` → Fortsett pipeline (Steg 1+)
+- `juster` → Still oppfølgingsspørsmål, re-forhandle scope
+- `stopp` → Stopp helt, ikke gjør noe videre
 
 Ikke send til kjøkkenet før gjesten har respondert.
 
@@ -65,7 +90,7 @@ Sjekk om brukerens forespørsel refererer til et eksisterende GitHub Issue:
 
 - **Issue referert** (f.eks. `#123`, GitHub-URL, eller nevnt i kontekst) → Noter issuet. Ikke spør på nytt.
 - **Ikke-triviell oppgave uten issue** → Spør brukeren: *"Skal jeg opprette et GitHub Issue for denne oppgaven, eller jobber vi uten?"*
-  - Hvis ja → Opprett issue via `issue-management`-skillen. Skillen bruker standardiserte maler (Feature/Bug/Task/Epic) og håndterer issue-type, prosjekttilknytning og status via MCP. Sett status til **Backlog** (eller **Jeg jobbes med! ⚒️** hvis arbeidet starter nå).
+  - Hvis ja → Opprett issue via `issue-management`-skillen. Skillen bruker standardiserte maler (Feature/Bug/Story/Task/Epic) og håndterer issue-type, prosjekttilknytning og status via MCP. Sett status til **Backlog** (eller **Jeg jobbes med! ⚒️** hvis arbeidet starter nå).
   - Hvis nei → Fortsett uten issue.
 - **Triviell oppgave** → Ikke spør om issue. Hopp over dette steget.
 - **Stor oppgave** → Foreslå proaktivt å opprette en **epic med sub-issues**: *"Dette er en stor oppgave. Anbefaler å bryte den ned i en epic med 3-4 selvstendige deler. Da kan vi jobbe med dem én om gangen og du kan velge rekkefølge. Skal jeg sette opp det?"*
