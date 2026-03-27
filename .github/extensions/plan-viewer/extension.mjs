@@ -3,8 +3,18 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { joinSession } from "@github/copilot-sdk/extension";
 
+let hasAutoOpenedPlan = false;
+
+function getEditorCommand() {
+  return process.env.VISUAL || process.env.EDITOR || "code";
+}
+
+function getEditorLabel() {
+  return process.env.VISUAL || process.env.EDITOR || "standard editor";
+}
+
 function openInEditor(filePath) {
-  const editorEnv = process.env.VISUAL || process.env.EDITOR || "code";
+  const editorEnv = getEditorCommand();
   const parts = editorEnv.split(/\s+/);
   const editor = parts[0];
   const editorArgs = [...parts.slice(1), filePath];
@@ -20,20 +30,65 @@ function openInEditor(filePath) {
   }
 }
 
+function resolvePlanPath(input, workspacePath) {
+  const directPath = String(input.toolArgs?.path || "");
+  if (directPath.endsWith("plan.md")) return directPath;
+
+  const argsText =
+    typeof input.toolArgs === "string"
+      ? input.toolArgs
+      : typeof input.toolArgs?.patch === "string"
+        ? input.toolArgs.patch
+        : JSON.stringify(input.toolArgs || "");
+
+  const match = argsText.match(/\*\*\* (?:Add|Update) File: (.+plan\.md)/);
+  if (match) {
+    const rawPath = match[1].trim();
+    if (rawPath === "plan.md" && workspacePath)
+      return join(workspacePath, rawPath);
+    return rawPath;
+  }
+
+  if (argsText.includes("plan.md") && workspacePath) {
+    return join(workspacePath, "plan.md");
+  }
+
+  return "";
+}
+
+async function handlePlanWrite(filePath) {
+  if (!filePath.endsWith("plan.md")) return;
+
+  if (!hasAutoOpenedPlan) {
+    hasAutoOpenedPlan = true;
+    const opened = openInEditor(filePath);
+    const editorLabel = getEditorLabel();
+
+    if (opened) {
+      await session.log(
+        `📋 Detaljert plan åpnet i ${editorLabel} — si "vis plan" for å åpne den igjen senere`,
+      );
+      return;
+    }
+
+    await session.log(
+      `📋 Plan klar — si "vis plan" for å åpne den: ${filePath}`,
+    );
+    return;
+  }
+
+  await session.log('📋 Plan oppdatert — si "vis plan" for å åpne den igjen');
+}
+
 const session = await joinSession({
   hooks: {
     onPostToolUse: async (input) => {
-      const filePath = String(input.toolArgs?.path || "");
-      if (!filePath.endsWith("plan.md")) return;
-      if (input.toolName !== "create") return;
+      if (!["create", "edit", "apply_patch"].includes(input.toolName)) return;
 
-      const opened = openInEditor(filePath);
-      const editorName = process.env.VISUAL || process.env.EDITOR || "VS Code";
-      if (opened) {
-        await session.log(
-          `📋 Detaljert plan åpnet i ${editorName} — følg fremdriften der`,
-        );
-      }
+      const filePath = resolvePlanPath(input, session.workspacePath);
+      if (!filePath) return;
+
+      await handlePlanWrite(filePath);
     },
   },
   tools: [
@@ -65,14 +120,14 @@ const session = await joinSession({
         const content = readFileSync(planPath, "utf-8");
         const lines = content.split("\n").length;
         const opened = openInEditor(planPath);
-        const editorName =
-          process.env.VISUAL || process.env.EDITOR || "VS Code";
+        const editorLabel = getEditorLabel();
 
         if (opened) {
+          hasAutoOpenedPlan = true;
           await session.log(
-            `📋 Detaljert plan åpnet i ${editorName} — følg fremdriften der`,
+            `📋 Detaljert plan åpnet i ${editorLabel} — følg fremdriften der`,
           );
-          return `Plan åpnet i ${editorName} (${lines} linjer).`;
+          return `Plan åpnet i ${editorLabel} (${lines} linjer).`;
         }
         return `Plan klar (${lines} linjer). Åpne manuelt: ${planPath}`;
       },

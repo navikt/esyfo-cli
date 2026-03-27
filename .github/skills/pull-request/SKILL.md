@@ -15,15 +15,17 @@ type(scope): kort beskrivelse
 ```
 
 - **Typer:** `feat`, `fix`, `refactor`, `chore`, `docs`, `test`, `style`
-- **Scope:** Modul eller domene som endres (f.eks. `auth`, `api`, `sykmelding`)
-- **Eksempler:**
-  - `feat(oppfolgingsplan): add approval workflow`
-  - `fix(api): handle null response from syfoperson`
-  - `refactor(db): simplify migration rollback logic`
+- **Scope:** Modul eller domene som endres
 
 ## PR-body
 
 Repoet har en PR-template i `.github/PULL_REQUEST_TEMPLATE.md` som automatisk pre-fyller body når du oppretter en PR. Fyll inn seksjonene i templaten.
+
+For ikke-trivielle endringer bør bodyen kort oppsummere:
+- hva som ble endret
+- issue-kobling
+- hva som ble verifisert (build/typecheck/test/lint)
+- eventuelle merknader fra review/inspeksjon
 
 ## Issue-kobling
 
@@ -38,7 +40,7 @@ Repoet har en PR-template i `.github/PULL_REQUEST_TEMPLATE.md` som automatisk pr
 
 ### MCP (foretrukket)
 
-Bruk `create_pull_request` MCP-verktøyet. Fyll inn title og body.
+Bruk tilgjengelig PR-verktøy for å opprette PR med title og body.
 
 ### Fallback (gh CLI)
 
