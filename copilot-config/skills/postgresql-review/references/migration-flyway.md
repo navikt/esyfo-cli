@@ -2,7 +2,7 @@
 
 Migrasjonsmønstre for PostgreSQL i Nav-applikasjoner. Se [SKILL.md](../SKILL.md) for prinsipper og sjekkliste.
 
-## CONCURRENT-indekser i produksjon
+## CONCURRENTLY-indekser i produksjon
 
 For `CREATE INDEX CONCURRENTLY` i produksjon, se `flyway-migration`-skillen. Kort oppsummert: bruk egen migrering utenfor transaksjon for å unngå å blokkere skriving.
 

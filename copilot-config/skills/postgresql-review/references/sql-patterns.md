@@ -93,17 +93,17 @@ JOIN siste_per_bruker s
 -- ✅ Batch insert
 INSERT INTO hendelse (id, type, data)
 VALUES
-    (?, ?, ?),
-    (?, ?, ?),
-    (?, ?, ?);
+    ($1, $2, $3),
+    ($4, $5, $6),
+    ($7, $8, $9);
 
 -- ✅ Upsert
 INSERT INTO bruker_innstilling (bruker_id, tema, verdi)
-VALUES (?, ?, ?)
+VALUES ($1, $2, $3)
 ON CONFLICT (bruker_id, tema) DO UPDATE SET verdi = EXCLUDED.verdi, updated_at = NOW();
 
 -- ✅ Insert ignore
-INSERT INTO hendelse (id, type, data) VALUES (?, ?, ?)
+INSERT INTO hendelse (id, type, data) VALUES ($1, $2, $3)
 ON CONFLICT (id) DO NOTHING;
 ```
 

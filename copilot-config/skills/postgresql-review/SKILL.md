@@ -19,7 +19,7 @@ Opprett indekser på kolonner brukt i WHERE, JOIN og ORDER BY. Bruk partial inde
 
 Se [references/sql-patterns.md](references/sql-patterns.md) for indekseksempler.
 
-## CONCURRENT-indekser i produksjon
+## CONCURRENTLY-indekser i produksjon
 
 For `CREATE INDEX CONCURRENTLY` i produksjon, se `flyway-migration`-skillen. Kort oppsummert: bruk egen migrering utenfor transaksjon for å unngå å blokkere skriving.
 

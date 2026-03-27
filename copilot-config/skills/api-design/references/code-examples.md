@@ -17,7 +17,7 @@ data class PaginatedResponse<T>(
 get("/api/v1/vedtak") {
     val side = call.queryParameters["side"]?.toIntOrNull() ?: 0
     val antall = call.queryParameters["antall"]?.toIntOrNull() ?: 20
-    require(antall <= 100) { "Maks 100 per side" }
+    if (antall > 100) throw BadRequestException("Maks 100 per side")
     val result = vedtakService.findAll(offset = side * antall, limit = antall)
     call.respond(result)
 }
