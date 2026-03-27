@@ -40,7 +40,7 @@ const session = await joinSession({
     {
       name: "view_plan",
       description:
-        "Åpner implementasjonsplanen (plan.md) i VS Code for detaljert visning. Bruk denne etter at en plan er opprettet for å la brukeren se den formatert.",
+        "Åpner implementasjonsplanen (plan.md) i standard editor for detaljert visning. Bruk denne etter at en plan er opprettet for å la brukeren se den formatert.",
       parameters: {
         type: "object",
         properties: {},
