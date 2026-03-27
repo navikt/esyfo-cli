@@ -1,6 +1,6 @@
 ---
 description: 'Autentisering i TypeScript med Oasis — token-validering og on-behalf-of'
-applyTo: "**/*.{ts,tsx}"
+applyTo: "src/**/*.{ts,tsx}"
 ---
 
 # Authentication — TypeScript (Oasis)
