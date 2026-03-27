@@ -35,146 +35,32 @@ DELETE /api/v1/vedtak/{id}         → Slett vedtak
 | 500 | Intern feil |
 
 ## Feilhåndtering — Ktor StatusPages
-```kotlin
-open class ApiError(
-    val status: HttpStatusCode,
-    val type: ErrorType,
-    open val message: String,
-    open val path: String? = null,
-    val timestamp: Instant = Instant.now(),
-)
 
-enum class ErrorType { AUTHENTICATION_ERROR, AUTHORIZATION_ERROR, NOT_FOUND, INTERNAL_SERVER_ERROR, BAD_REQUEST, INVALID_FORMAT, CONFLICT }
+Bruk `StatusPages`-pluginen med en `sealed class ApiErrorException`-hierarki for strukturert feilhåndtering.
+Alle exceptions kastet i routes fanges automatisk og mappes til en `ApiError`-respons med riktig HTTP-statuskode.
 
-sealed class ApiErrorException(message: String, val type: ErrorType, cause: Throwable?) : RuntimeException(message, cause) {
-    abstract fun toApiError(path: String): ApiError
-    class ForbiddenException(val errorMessage: String = "Forbidden", cause: Throwable? = null, type: ErrorType = ErrorType.AUTHORIZATION_ERROR) : ApiErrorException(errorMessage, type, cause) {
-        override fun toApiError(path: String) = ApiError(HttpStatusCode.Forbidden, type, errorMessage, path)
-    }
-    class BadRequestException(val errorMessage: String = "Bad Request", cause: Throwable? = null, type: ErrorType = ErrorType.BAD_REQUEST) : ApiErrorException(errorMessage, type, cause) {
-        override fun toApiError(path: String) = ApiError(HttpStatusCode.BadRequest, type, errorMessage, path)
-    }
-    class NotFoundException(val errorMessage: String = "Not Found", cause: Throwable? = null, type: ErrorType = ErrorType.NOT_FOUND) : ApiErrorException(errorMessage, type, cause) {
-        override fun toApiError(path: String) = ApiError(HttpStatusCode.NotFound, type, errorMessage, path)
-    }
-    class InternalServerErrorException(val errorMessage: String = "Internal Server Error", cause: Throwable? = null, type: ErrorType = ErrorType.INTERNAL_SERVER_ERROR) : ApiErrorException(errorMessage, type, cause) {
-        override fun toApiError(path: String) = ApiError(HttpStatusCode.InternalServerError, type, errorMessage, path)
-    }
-    class UnauthorizedException(val errorMessage: String = "Unauthorized", cause: Throwable? = null, type: ErrorType = ErrorType.AUTHORIZATION_ERROR) : ApiErrorException(errorMessage, type, cause) {
-        override fun toApiError(path: String) = ApiError(HttpStatusCode.Unauthorized, type, errorMessage, path)
-    }
-}
+Nøkkelkomponenter:
+- `ApiError` — Strukturert feilrespons med `status`, `type`, `message`, `path` og `timestamp`
+- `ErrorType` enum — Kategoriserer feil (`NOT_FOUND`, `BAD_REQUEST`, `CONFLICT`, osv.)
+- `ApiErrorException` sealed class — Subklasser for `ForbiddenException`, `BadRequestException`, `NotFoundException`, osv.
+- `installStatusPages()` — Logger og responderer med riktig `ApiError`
+- `determineApiError()` — Mapper Ktor-exceptions og egne exceptions til `ApiError`
 
-fun Application.installStatusPages() {
-    install(StatusPages) {
-        exception<Throwable> { call, cause ->
-            logException(call, cause)
-            val apiError = determineApiError(cause, call.request.path())
-            call.respond(apiError.status, apiError)
-        }
-    }
-}
-
-fun determineApiError(cause: Throwable, path: String): ApiError = when (cause) {
-    is BadRequestException -> cause.toApiError(path)
-    is NotFoundException -> cause.toApiError(path)
-    is ApiErrorException -> cause.toApiError(path)
-    else -> ApiError(HttpStatusCode.InternalServerError, ErrorType.INTERNAL_SERVER_ERROR, cause.message ?: "Internal server error", path)
-}
-
-fun BadRequestException.toApiError(path: String?): ApiError {
-    val rootCause = this.rootCause()
-    return if (rootCause is MissingFieldException) {
-        ApiErrorException.BadRequestException("Invalid request body. Missing required field: ${rootCause.fieldName}", type = ErrorType.INVALID_FORMAT).toApiError(path ?: "")
-    } else {
-        ApiError(status = HttpStatusCode.BadRequest, type = ErrorType.BAD_REQUEST, message = this.message ?: "Bad request", path = path)
-    }
-}
-
-fun NotFoundException.toApiError(path: String?): ApiError = ApiError(
-    status = HttpStatusCode.NotFound, type = ErrorType.NOT_FOUND, message = this.message ?: "Not found", path = path,
-)
-
-fun Throwable.rootCause(): Throwable {
-    var root: Throwable = this
-    while (root.cause != null && root.cause != root) root = root.cause!!
-    return root
-}
-
-private fun logException(call: ApplicationCall, cause: Throwable) {
-    val callId = call.callId
-    val logMessage = "Caught exception, callId=$callId"
-    val log = call.application.log
-    when (cause) {
-        is ApiErrorException -> log.warn(logMessage, cause)
-        else -> log.error(logMessage, cause)
-    }
-}
-
-fun Application.apiModule() {
-    installCallId()
-    installContentNegotiation()
-    installStatusPages()
-    // ... routing
-}
-```
-
-```json
-{
-  "status": 404,
-  "type": "NOT_FOUND",
-  "message": "Vedtak med id 550e8400 finnes ikke",
-  "path": "/api/v1/vedtak/550e8400",
-  "timestamp": "2025-01-15T10:30:00Z"
-}
-```
+Se [references/error-handling.md](references/error-handling.md) for komplett implementasjon.
 
 ## Paginering
 
-```kotlin
-@Serializable
-data class PaginatedResponse<T>(
-    val innhold: List<T>,
-    val side: Int,
-    val antallPerSide: Int,
-    val totaltAntall: Long,
-    val totaltAntallSider: Int,
-)
+Bruk `PaginatedResponse<T>` med `innhold`, `side`, `antallPerSide`, `totaltAntall` og `totaltAntallSider`.
+Maks 100 elementer per side. Default er 20.
 
-get("/api/v1/vedtak") {
-    val side = call.queryParameters["side"]?.toIntOrNull() ?: 0
-    val antall = call.queryParameters["antall"]?.toIntOrNull() ?: 20
-    require(antall <= 100) { "Maks 100 per side" }
-    val result = vedtakService.findAll(offset = side * antall, limit = antall)
-    call.respond(result)
-}
-```
-
-```json
-{
-  "innhold": [...],
-  "side": 0,
-  "antallPerSide": 20,
-  "totaltAntall": 142,
-  "totaltAntallSider": 8
-}
-```
+Se [references/code-examples.md](references/code-examples.md) for implementasjon og responseksempel.
 
 ## Input-validering
 
-```kotlin
-@Serializable
-data class CreateVedtakRequest(val brukerId: String, val beskrivelse: String? = null, val type: VedtakType)
+Valider all input tidlig i route-handleren. Kast `ApiErrorException.BadRequestException` ved ugyldig input.
+Bruk `@Serializable` data classes for request-bodies med eksplisitte valideringsregler.
 
-post("/api/v1/vedtak") {
-    val request = call.receive<CreateVedtakRequest>()
-    if (request.brukerId.isBlank()) throw ApiErrorException.BadRequestException("brukerId kan ikke være tom")
-    request.beskrivelse?.let { if (it.length > 500) throw ApiErrorException.BadRequestException("beskrivelse maks 500 tegn") }
-    val vedtak = vedtakService.create(request)
-    call.response.header("Location", "/api/v1/vedtak/${vedtak.id}")
-    call.respond(HttpStatusCode.Created, vedtak.toDTO())
-}
-```
+Se [references/code-examples.md](references/code-examples.md) for eksempel med `CreateVedtakRequest`.
 
 ## Versjonering
 
@@ -202,3 +88,8 @@ post("/api/v1/vedtak") {
 - 200 med feilmelding i body
 - Ukonsistent navngiving mellom endepunkter
 - Kaste exceptions som ikke fanges av StatusPages uten bevisst valg
+
+## Referansefiler
+
+- [references/error-handling.md](references/error-handling.md) — Komplett Ktor StatusPages-implementasjon (ApiError, ApiErrorException, installStatusPages, determineApiError)
+- [references/code-examples.md](references/code-examples.md) — Pagineringsrespons og input-valideringseksempler

@@ -5,222 +5,86 @@ description: PostgreSQL-gjennomgang — EXPLAIN ANALYZE, indekser, N+1-deteksjon
 
 Gjennomgang av PostgreSQL-bruk i Nav-applikasjoner. Dekker spørringsoptimalisering, indeksering, anti-mønstre og migrasjoner.
 
+Se [references/sql-patterns.md](references/sql-patterns.md) for alle kodeeksempler.
+
 ## EXPLAIN-analyse
 
-```sql
--- Alltid kjør EXPLAIN ANALYZE på tunge spørringer
-EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT)
-SELECT * FROM vedtak WHERE bruker_id = '...' AND status = 'AKTIV';
+Kjør alltid `EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT)` på tunge spørringer. Se etter Seq Scan på store tabeller, Nested Loop med høye rader (N+1), Sort med external merge, og høy «Buffers shared read».
 
--- Se etter:
--- • Seq Scan på store tabeller → mangler indeks
--- • Nested Loop med høye rader → N+1-problem
--- • Sort med external merge → mangler minne eller indeks
--- • Buffers shared read høy → data ikke i cache
-```
+Se [references/sql-patterns.md](references/sql-patterns.md) for EXPLAIN-eksempler.
 
 ## Indeksstrategier
 
-```sql
--- ✅ Indeks på kolonner brukt i WHERE, JOIN, ORDER BY
-CREATE INDEX idx_vedtak_bruker_status ON vedtak (bruker_id, status);
+Opprett indekser på kolonner brukt i WHERE, JOIN og ORDER BY. Bruk partial indexes for vanlige filtre, covering indexes for å unngå table lookup, og GIN-indekser for JSONB. Unngå indekser på kolonner med lav kardinalitet.
 
--- ✅ Partial index for vanlige filtre
-CREATE INDEX idx_vedtak_aktiv ON vedtak (bruker_id) WHERE status = 'AKTIV';
-
--- ✅ Covering index (unngår table lookup)
-CREATE INDEX idx_vedtak_covering ON vedtak (bruker_id) INCLUDE (opprettet, status);
-
--- ✅ GIN-indeks for JSONB
-CREATE INDEX idx_metadata_gin ON dokument USING gin (metadata);
-
--- ❌ Indeks på kolonner med lav kardinalitet
-CREATE INDEX idx_vedtak_status ON vedtak (status); -- bare 3-4 verdier
-```
+Se [references/sql-patterns.md](references/sql-patterns.md) for indekseksempler.
 
 ## CONCURRENT-indekser i produksjon
 
 For `CREATE INDEX CONCURRENTLY` i produksjon, se `flyway-migration`-skillen. Kort oppsummert: bruk egen migrering utenfor transaksjon for å unngå å blokkere skriving.
 
+Se [references/migration-flyway.md](references/migration-flyway.md) for CONCURRENTLY-eksempler.
+
 ## JSONB-mønstre
 
-```sql
--- ✅ Spørringer mot JSONB med GIN-indeks
-SELECT * FROM dokument WHERE metadata @> '{"type": "søknad"}';
+Bruk `@>` containment-operator med GIN-indeks for JSONB-spørringer. Bruk `->>`-operator for spesifikke nøkkeloppslag. Unngå funksjonsbaserte spørringer uten dedikert indeks.
 
--- ✅ Spesifikk nøkkeloppslag
-SELECT metadata->>'type' FROM dokument WHERE id = '...';
-
--- ❌ Funksjonsbasert spørring uten indeks
-SELECT * FROM dokument WHERE metadata->>'type' = 'søknad';
-```
+Se [references/sql-patterns.md](references/sql-patterns.md) for JSONB-eksempler.
 
 ## Vindusfunksjoner
 
-```sql
--- ✅ ROW_NUMBER for paginering/dedup
-SELECT * FROM (
-    SELECT *, ROW_NUMBER() OVER (PARTITION BY bruker_id ORDER BY opprettet DESC) AS rn
-    FROM vedtak
-) t WHERE rn = 1;
+Bruk window functions (ROW_NUMBER, LAG/LEAD, SUM OVER) for rangering, differanser og akkumulerte verdier uten å falle tilbake til tunge subqueries i applikasjonslaget.
 
--- ✅ LAG/LEAD for tidsserier
-SELECT dato, verdi, verdi - LAG(verdi) OVER (ORDER BY dato) AS endring
-FROM metrikk;
-
--- ✅ Running total per bruker
-SELECT bruker_id, dato, belop,
-       SUM(belop) OVER (PARTITION BY bruker_id ORDER BY dato) AS running_total
-FROM utbetaling;
-```
-
-Bruk window functions når du trenger rangering, differanser eller akkumulerte verdier uten å falle tilbake til tunge subqueries i applikasjonslaget.
+Se [references/sql-patterns.md](references/sql-patterns.md) for vindusfunksjonseksempler.
 
 ## CTE (Common Table Expressions)
 
-```sql
--- ✅ Del opp kompleks logikk i navngitte steg
-WITH aktive_vedtak AS (
-    SELECT id, bruker_id, opprettet
-    FROM vedtak
-    WHERE status = 'AKTIV'
-), siste_per_bruker AS (
-    SELECT bruker_id, MAX(opprettet) AS siste_opprettet
-    FROM aktive_vedtak
-    GROUP BY bruker_id
-)
-SELECT a.*
-FROM aktive_vedtak a
-JOIN siste_per_bruker s
-  ON s.bruker_id = a.bruker_id
- AND s.siste_opprettet = a.opprettet;
-```
+Bruk CTE-er for lesbarhet og stegvis transformasjon av kompleks logikk. Verifiser med `EXPLAIN ANALYZE` hvis du bruker mange CTE-er i tunge spørringer.
 
-Bruk CTE-er for lesbarhet og stegvis transformasjon. Verifiser med `EXPLAIN ANALYZE` hvis du bruker mange CTE-er i tunge spørringer.
+Se [references/sql-patterns.md](references/sql-patterns.md) for CTE-eksempler.
 
 ## Upsert / ON CONFLICT
 
-```sql
--- ✅ Batch insert
-INSERT INTO hendelse (id, type, data)
-VALUES
-    (?, ?, ?),
-    (?, ?, ?),
-    (?, ?, ?);
+Bruk `ON CONFLICT` når domenet tåler deterministisk deduplisering. Kontroller at konfliktmålet samsvarer med en faktisk `UNIQUE`-constraint eller unik indeks. Bruk batch inserts der mulig.
 
--- ✅ Upsert
-INSERT INTO bruker_innstilling (bruker_id, tema, verdi)
-VALUES (?, ?, ?)
-ON CONFLICT (bruker_id, tema) DO UPDATE SET verdi = EXCLUDED.verdi, updated_at = NOW();
-
--- ✅ Insert ignore
-INSERT INTO hendelse (id, type, data) VALUES (?, ?, ?)
-ON CONFLICT (id) DO NOTHING;
-```
-
-Bruk `ON CONFLICT` når domenet tåler deterministisk deduplisering. Kontroller at konfliktmålet samsvarer med en faktisk `UNIQUE`-constraint eller unik indeks.
+Se [references/sql-patterns.md](references/sql-patterns.md) for upsert-eksempler.
 
 ## CHECK og UNIQUE constraints
 
-```sql
-ALTER TABLE vedtak ADD CONSTRAINT chk_status CHECK (status IN ('AKTIV', 'AVSLUTTET', 'KANSELLERT'));
-ALTER TABLE bruker ADD CONSTRAINT unq_bruker_fnr UNIQUE (fnr);
-```
-
 Legg domeneregler i databasen når de alltid må gjelde. Constraints beskytter både applikasjonskode, batch-jobber og manuelle scripts.
+
+Se [references/sql-patterns.md](references/sql-patterns.md) for constraint-eksempler.
 
 ## Advisory locks
 
-```sql
--- ✅ Prøv å ta en applås uten å blokkere
-SELECT pg_try_advisory_lock(42);
-
--- ✅ Transaksjonsbundet lås
-BEGIN;
-SELECT pg_advisory_xact_lock(123456);
-UPDATE jobb SET status = 'RUNNING' WHERE id = ?;
-COMMIT;
-```
-
 Bruk advisory locks for koordinerte jobber, singleton-prosesser eller idempotente batcher. De erstatter ikke vanlige radlåser eller gode transaksjonsgrenser.
+
+Se [references/sql-patterns.md](references/sql-patterns.md) for advisory lock-eksempler.
 
 ## Partisjonering
 
-```sql
--- ✅ Range partitioning for store tidsserier
-CREATE TABLE audit_log (
-    id UUID PRIMARY KEY,
-    created_at TIMESTAMPTZ NOT NULL,
-    payload JSONB NOT NULL
-) PARTITION BY RANGE (created_at);
-
-CREATE TABLE audit_log_2025_01 PARTITION OF audit_log
-FOR VALUES FROM ('2025-01-01') TO ('2025-02-01');
-```
-
 Bruk `RANGE` for tidsbaserte tabeller og `LIST` når data naturlig deles på for eksempel tenant eller type. Hold omtalen kort i gjennomgangen, og spør først før du introduserer partisjonering i et eksisterende skjema.
+
+Se [references/sql-patterns.md](references/sql-patterns.md) for partisjoneringseksempler.
 
 ## Anti-mønstre
 
 ### N+1-spørringer
-
-```kotlin
-// ❌ N+1: én spørring per vedtak
-val saker = sakRepository.findAll()
-saker.forEach { sak ->
-    val vedtak = vedtakRepository.findBySakId(sak.id) // N ekstra spørringer
-}
-
-// ✅ Batch-henting
-val saker = sakRepository.findAll()
-val vedtakBySakId = vedtakRepository.findBySakIdIn(saker.map { it.id })
-    .groupBy { it.sakId }
-```
+Unngå N+1 ved å bruke batch-henting (`findBySakIdIn`) i stedet for én spørring per rad.
 
 ### SELECT *
-
-```sql
--- ❌ Henter alle kolonner
-SELECT * FROM vedtak WHERE bruker_id = '...';
-
--- ✅ Hent kun det du trenger
-SELECT id, status, opprettet FROM vedtak WHERE bruker_id = '...';
-```
+Hent kun kolonnene du trenger — unngå `SELECT *` i produksjonskode.
 
 ### Manglende LIMIT
+Begrens resultatsett med `LIMIT` på spørringer som kan returnere mange rader.
 
-```sql
--- ❌ Kan returnere millioner av rader
-SELECT * FROM hendelse WHERE type = 'SYKMELDING';
-
--- ✅ Begrens resultatsettet
-SELECT * FROM hendelse WHERE type = 'SYKMELDING'
-ORDER BY opprettet DESC LIMIT 100;
-```
+Se [references/sql-patterns.md](references/sql-patterns.md) for anti-mønster-eksempler.
 
 ## Tilkoblingspool
 
-```yaml
-# Nais — HikariCP-konfigurasjon
-spec:
-  gcp:
-    sqlInstances:
-      - type: POSTGRES_15
-        databases:
-          - name: myapp-db
-            envVarPrefix: DB
-```
+Konfigurer HikariCP med lav `maximumPoolSize` (start med 5) og juster ved behov. Sett opp SQL-instans via Nais-manifest.
 
-```kotlin
-// ✅ HikariCP-defaults for Nav
-HikariConfig().apply {
-    maximumPoolSize = 5  // Start lavt, øk ved behov
-    minimumIdle = 2
-    connectionTimeout = 10_000
-    idleTimeout = 300_000
-    maxLifetime = 600_000
-}
-```
+Se [references/sql-patterns.md](references/sql-patterns.md) for tilkoblingspool-eksempler.
 
 ## Migrasjoner
 
@@ -230,6 +94,8 @@ For Flyway-migrasjoner og SQL-konvensjoner, se `flyway-migration`-skillen. Nøkk
 - UUID-primærnøkler med `gen_random_uuid()`
 - Egne migreringer for `CREATE INDEX CONCURRENTLY`
 - Repeterbare migreringer (`R__*.sql`) for views, funksjoner og lignende
+
+Se [references/migration-flyway.md](references/migration-flyway.md) for migrasjonseksempler.
 
 ## Sjekkliste
 
@@ -262,3 +128,10 @@ For Flyway-migrasjoner og SQL-konvensjoner, se `flyway-migration`-skillen. Nøkk
 - N+1-spørringer
 - `DROP TABLE` i produksjon uten backup-plan
 - `TIMESTAMP` uten tidssone (bruk `TIMESTAMPTZ`)
+
+## Referansefiler
+
+| Fil | Innhold |
+|-----|---------|
+| [references/sql-patterns.md](references/sql-patterns.md) | SQL-eksempler: EXPLAIN, indekser, JSONB, vindusfunksjoner, CTE, upsert, advisory locks, partisjonering, anti-mønstre, tilkoblingspool |
+| [references/migration-flyway.md](references/migration-flyway.md) | Migrasjonsmønstre: TIMESTAMPTZ, FK-indekser, UUID, CONCURRENTLY, repeterbare migreringer |
