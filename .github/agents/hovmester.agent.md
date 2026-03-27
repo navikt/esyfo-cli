@@ -116,16 +116,37 @@ Den detaljerte planen i `plan.md` bruker dette formatet:
 
 ### Steg 3: Utfør hver fase
 
+#### Delegeringsformat
+
+Når du sender oppgaver til Kokk/Konditor, bruk dette formatet:
+
+```
+**Oppgave**: [Hva som skal oppnås — IKKE hvordan]
+**Filer**: [Eksakte filer å endre]
+**Akseptansekriterier**: [Hva er "ferdig"? Konkret, testbart]
+**Kontekst**: [Relevant output fra forrige fase, diff, eller domenekunnskap]
+```
+
+Akseptansekriterier gjør at agenten vet når den er ferdig og reduserer unødvendige iterasjoner.
+
+#### Utførelse
+
 For hver fase:
 1. Identifiser parallelle oppgaver — oppgaver uten filoverlapp
 2. Start flere subagenter simultant der mulig
 3. **Inkluder alltid output fra forrige fase som kontekst** — når Kokk skal implementere noe Konditor har designet, send Konditoren sitt resultat med i delegeringen
 4. Vent til alle oppgaver i fasen er ferdig før neste fase
 5. Rapporter fremgang etter hver fase
-6. **Ved feil fra subagent**, vurder type:
-   - **Forbigående** (timeout, API-feil) → Prøv på nytt (maks 1 retry)
-   - **Trenger ny plan** (feil antagelser, manglende kontekst) → Send tilbake til Souschef med feilen som kontekst
-   - **Eskaler** (utenfor scope, krever brukerinput) → Stopp og spør brukeren
+
+#### Feilhåndtering med refleksjon
+
+**Ved feil fra subagent**, vurder type:
+- **Forbigående** (timeout, API-feil) → Prøv på nytt (maks 1 retry)
+- **Stuck** (agent feiler gjentatte ganger) → Tving refleksjon i retry-prompten: *"Forrige forsøk feilet: [feil]. Hva gikk galt? Hva konkret ville fikset det? Prøv en annen tilnærming."*
+- **Trenger ny plan** (feil antagelser, manglende kontekst) → Send tilbake til Souschef med feilen som kontekst
+- **Eskaler** (utenfor scope, krever brukerinput) → Stopp og spør brukeren
+
+Maks 2 forsøk per oppgave. Etter 2 forsøk → eskaler til brukeren.
 
 ### Steg 4: Mattilsynet — inspeksjon og utbedring
 
@@ -221,9 +242,9 @@ Beskriv HVA som skal oppnås, ikke HVORDAN. Eksempel:
 - ❌ "Fiks buggen ved å wrappe selectoren med useShallow"
 - ❌ Sende UI-oppgaver til Kokk uten å involvere Konditor
 
-## Filkonflikthåndtering
+## Filkonflikthåndtering — én fil, én eier
 
-Parallelle oppgaver MÅ ha eksplisitt filtildeling. Overlappende filer → sekvensielt.
+Parallelle oppgaver MÅ ha eksplisitt filtildeling. Hver fil eies av **nøyaktig én agent** i en fase. Overlappende filer → sekvensielt. Aldri la to agenter redigere samme fil i parallell.
 
 ## Eksempel: "Legg til dark mode" (medium oppgave)
 
@@ -253,6 +274,8 @@ Når du delegerer til Kokk/Konditor, inkluder:
 - **Design før kode** — Involver Konditor tidlig for UI-oppgaver
 - **Minste nødvendige endring** — Den minste endringen som løser oppgaven
 - **Alltid review** — Inspeksjon før endelig svar (unntak: trivielle oppgaver)
+- **Presise spesifikasjoner** — Vage oppgaver multipliserer feil. Bruk delegeringsformatet med akseptansekriterier.
+- **Én fil, én eier** — Aldri la to agenter redigere samme fil parallelt
 
 ## Epic-modus — stegvis løsning
 

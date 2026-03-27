@@ -58,12 +58,14 @@ Kokk skal ALDRI designe UI-komponent fra scratch — det er Konditor sin oppgave
 - **Agent**: Konditor / Kokk
 - **Filer**: src/path/File.tsx, src/path/Other.tsx
 - **Endring**: [Hva skal endres]
+- **Ferdig når**: [Konkret, testbart akseptansekriterie]
 - **Risiko**: 🟢/🟡/🔴
 
 ### Steg 2: [Beskrivelse]
 - **Agent**: Kokk
 - **Filer**: src/path/Service.kt
 - **Endring**: [Hva skal endres]
+- **Ferdig når**: [Konkret, testbart akseptansekriterie]
 - **Risiko**: 🟢/🟡/🔴
 - **Avhenger av**: Steg 1
 

@@ -79,6 +79,15 @@ Bruk disse skillene når oppgaven berører deres domene:
 - **Aldri** ignorer repo-instruksjoner eller etablerte mønstre
 - **Aldri** hopp over feilhåndtering
 
+## Når du sitter fast
+
+Hvis samme tilnærming feiler to ganger: stopp og reflekter.
+1. Hva feilet konkret? (feilmelding, uventet oppførsel)
+2. Hva er rotårsaken — ikke symptomet?
+3. Prøv en *annen* tilnærming, ikke gjenta den samme.
+
+Hvis du fortsatt ikke løser det → avslutt med `UFULLSTENDIG: <kort beskrivelse av hva som feilet og hva du har prøvd>`
+
 ## Effektivitet
 
 - **Minimér verktøykall**: Hvert kall vises som en linje i brukerens terminal. Batch operasjoner der mulig.

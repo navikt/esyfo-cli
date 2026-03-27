@@ -69,6 +69,15 @@ Sjekk ALLTID [aksel.nav.no](https://aksel.nav.no) for Nav Aksel-komponenter (`@n
 - **Aldri** hopp over tilgjengelighet
 - **Aldri** ignorer eksisterende UI-mønstre i kodebasen
 
+## Når du sitter fast
+
+Hvis samme tilnærming feiler to ganger: stopp og reflekter.
+1. Hva feilet konkret?
+2. Finnes det en annen Aksel-komponent eller et annet mønster som løser dette bedre?
+3. Prøv en *annen* tilnærming, ikke gjenta den samme.
+
+Hvis du fortsatt ikke løser det → avslutt med `UFULLSTENDIG: <kort beskrivelse av hva som feilet og hva du har prøvd>`
+
 ## Output-kontrakt
 
 Avslutt alltid med en kort rapport som inkluderer:
