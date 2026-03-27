@@ -13,112 +13,27 @@ Aksel-komponenter (`@navikt/ds-react`) håndterer mange tilgjengelighetskrav aut
 
 ## Semantisk HTML
 
-```tsx
-// ✅ Semantiske elementer
-<main>
-  <nav aria-label="Hovednavigasjon">...</nav>
-  <article>
-    <Heading size="large" level="1">Tittel</Heading>
-    <section aria-labelledby="seksjon-id">...</section>
-  </article>
-</main>
-
-// ❌ Div-suppe uten semantikk
-<div className="main">
-  <div className="nav">...</div>
-  <div className="content">
-    <div className="title">Tittel</div>
-  </div>
-</div>
-```
+Bruk `<main>`, `<nav>`, `<article>`, `<section>` — ikke generiske `<div>`-er. Se [references/code-examples.md](references/code-examples.md) for mønstre.
 
 ## Heading-hierarki
 
-Overskriftsnivåer skal være logiske og uten hopp:
-
-```tsx
-// ✅ Sammenhengende nivåer
-<Heading size="large" level="1">Sidetittel</Heading>
-  <Heading size="medium" level="2">Seksjon</Heading>
-    <Heading size="small" level="3">Underseksjon</Heading>
-
-// ❌ Hopper fra h1 til h3
-<Heading size="large" level="1">Sidetittel</Heading>
-  <Heading size="small" level="3">Underseksjon</Heading>
-```
+Overskriftsnivåer skal være logiske og uten hopp (h1 → h2 → h3). Se [references/code-examples.md](references/code-examples.md) for mønstre.
 
 ## Skjemaer
 
-```tsx
-import { TextField, Select, ErrorSummary } from "@navikt/ds-react";
-
-// ✅ Aksel-skjemaelementer har innebygd label-kobling
-<TextField
-  label="Fødselsnummer"
-  description="11 siffer"
-  error={errors.fnr}
-  autoComplete="off"
-/>
-
-// ✅ Feiloppsummering øverst i skjemaet
-<ErrorSummary heading="Du må rette disse feilene før du kan sende inn">
-  <ErrorSummary.Item href="#fnr">Fødselsnummer er påkrevd</ErrorSummary.Item>
-</ErrorSummary>
-```
+Bruk Aksel-skjemaelementer (`TextField`, `Select`) — de har innebygd label-kobling. Vis `ErrorSummary` øverst ved feil. Se [references/code-examples.md](references/code-examples.md) for mønstre.
 
 ## Bilder og ikoner
 
-```tsx
-// ✅ Meningsbærende bilder
-<img src="/chart.png" alt="Bruksstatistikk siste 30 dager: 450 aktive brukere" />
-
-// ✅ Dekorative bilder
-<img src="/decoration.svg" alt="" />
-
-// ✅ Ikoner med mening
-<Button variant="tertiary" icon={<TrashIcon title="Slett element" />} />
-
-// ❌ Ikonknapp uten tilgjengelig navn
-<Button variant="tertiary" icon={<TrashIcon />} />
-```
+Meningsbærende bilder trenger beskrivende `alt`-tekst, dekorative bilder får `alt=""`. Ikonknapper må ha tilgjengelig navn via `title`-prop. Se [references/code-examples.md](references/code-examples.md) for mønstre.
 
 ## Interaktive elementer
 
-```tsx
-// ✅ Synlig fokusindikator, tilgjengelig navn
-<Button variant="primary">Send inn</Button>
-
-// ✅ Lenkebeskrivelse med kontekst
-<Link href={`/sak/${id}`}>Se detaljer for sak {saksnummer}</Link>
-
-// ❌ Generisk lenketekst
-<Link href={`/sak/${id}`}>Klikk her</Link>
-
-// ❌ onClick på div uten rolle/keyboard
-<div onClick={handleClick}>Klikk meg</div>
-```
+Alle klikkbare elementer trenger synlig fokusindikator og tilgjengelig navn. Bruk beskrivende lenketekst, aldri «Klikk her». Se [references/code-examples.md](references/code-examples.md) for mønstre.
 
 ## ARIA-attributter
 
-Bruk kun ARIA når HTML-semantikk ikke er tilstrekkelig:
-
-```tsx
-// ✅ Navigasjonslandemerker
-<nav aria-label="Brødsmulesti">...</nav>
-
-// ✅ Live-regioner for dynamisk innhold
-<Alert variant="success" role="status">Skjemaet ble sendt inn</Alert>
-
-// ✅ Expanding/collapsing
-<Button aria-expanded={isOpen} aria-controls="panel-id" onClick={() => setIsOpen(!isOpen)}>
-  Vis detaljer
-</Button>
-
-// ✅ Loading-tilstander
-<div aria-busy={isLoading} aria-live="polite">
-  {isLoading ? <Loader title="Laster" /> : <DataTable data={data} />}
-</div>
-```
+Bruk kun ARIA når HTML-semantikk ikke er tilstrekkelig. Relevante mønstre: `aria-label` for landemerker, `aria-live` for dynamisk innhold, `aria-expanded` for utvidbare paneler, `aria-busy` for lastestatus. Se [references/code-examples.md](references/code-examples.md) for mønstre.
 
 ## Fargekontrast
 
@@ -135,60 +50,11 @@ Bruk kun ARIA når HTML-semantikk ikke er tilstrekkelig:
 - `Escape`: Lukk modaler og menyer
 - `Arrow keys`: Naviger i lister, tabs og menyer
 
-```tsx
-// ✅ Fokusfelle i modal — Aksel Modal håndterer dette
-<Modal open={isOpen} onClose={() => setIsOpen(false)} header={{ heading: "Bekreft sletting" }}>
-  <Modal.Body>Er du sikker?</Modal.Body>
-  <Modal.Footer>
-    <Button onClick={handleDelete}>Slett</Button>
-    <Button variant="secondary" onClick={() => setIsOpen(false)}>Avbryt</Button>
-  </Modal.Footer>
-</Modal>
-```
+Aksel Modal håndterer fokusfelle automatisk. Se [references/code-examples.md](references/code-examples.md) for modal-mønster.
 
 ## Testing
 
-```tsx
-import { axe, toHaveNoViolations } from "jest-axe";
-expect.extend(toHaveNoViolations);
-
-it("should have no accessibility violations", async () => {
-  const { container } = render(<MyComponent />);
-  expect(await axe(container)).toHaveNoViolations();
-});
-```
-
-## E2E-tilgjengelighetstesting
-
-### Playwright + axe-core
-
-```tsx
-import { test, expect } from "@playwright/test";
-import AxeBuilder from "@axe-core/playwright";
-
-test("side har ingen tilgjengelighetsfeil", async ({ page }) => {
-  await page.goto("/skjema");
-  const results = await new AxeBuilder({ page }).analyze();
-  expect(results.violations).toEqual([]);
-});
-
-test("skjema er brukbart med tastatur", async ({ page }) => {
-  await page.goto("/skjema");
-  await page.keyboard.press("Tab");
-  const focused = await page.evaluate(() => document.activeElement?.tagName);
-  expect(focused).toBe("INPUT");
-});
-```
-
-### Lighthouse CLI
-
-```bash
-# Kjør Lighthouse-tilgjengelighetssjekk
-npx lighthouse http://localhost:3000 --only-categories=accessibility --output=json --output-path=./a11y-report.json
-
-# Sjekk score i CI
-npx lighthouse http://localhost:3000 --only-categories=accessibility --budget-path=./lighthouse-budget.json
-```
+Bruk `jest-axe` for enhetstesting, Playwright + `@axe-core/playwright` for E2E, og Lighthouse CLI for CI-sjekker. Se [references/testing.md](references/testing.md) for oppsett og eksempler.
 
 ## Sjekkliste
 
@@ -216,3 +82,8 @@ npx lighthouse http://localhost:3000 --only-categories=accessibility --budget-pa
 - `<div onClick>` uten `role="button"` og `tabIndex`
 - Ikonknapper uten tilgjengelig navn
 - Fjern fokusindikator (`outline: none`) uten erstatning
+
+## Referansefiler
+
+- [references/code-examples.md](references/code-examples.md) — TSX-mønstre for semantisk HTML, heading, skjema, bilder, ARIA og modal
+- [references/testing.md](references/testing.md) — Oppsett for jest-axe, Playwright + axe-core og Lighthouse CLI

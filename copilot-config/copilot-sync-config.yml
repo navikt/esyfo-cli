@@ -31,6 +31,7 @@ common:
   issue_templates:
     - feature.yml
     - bug.yml
+    - story.yml
     - task.yml
     - epic.yml
     - config.yml
