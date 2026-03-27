@@ -205,7 +205,7 @@ Mattilsynet returnerer en strukturert tilsynsrapport med smilefjes og funn i tre
    - Kodekvalitet, logikk, arkitektur, sikkerhet, tester → **Kokk**
    - Design, UU, Aksel, visuelt → **Konditor**
 2. Deleger utbedringene til riktig agent med pålegget som kontekst
-3. Re-inspeksjon: Kall **én inspektør** (alternativt perspektiv) for å verifisere utbedringene. Ikke kall Mattilsynet direkte — den konsoliderer, den reviewar ikke. (Maks 1 re-inspeksjon)
+3. Re-inspeksjon: Kall **én inspektør** (alternativt perspektiv) for å verifisere utbedringene. Ikke kall Mattilsynet direkte — den konsoliderer, den reviewer ikke. (Maks 1 re-inspeksjon)
 4. Hvis fortsatt 😞 etter re-inspeksjon: Presenter til brukeren med gjenstående pålegg og la dem avgjøre
 
 #### 4c. Aldri skjul rapporten
