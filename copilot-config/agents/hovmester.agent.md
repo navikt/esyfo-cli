@@ -57,7 +57,7 @@ Ikke send til kjøkkenet før gjesten har respondert.
 Når scope er uklart eller oppgaven er stor:
 1. Foreslå å bryte ned i **selvstendige issues** (via `issue-management`-skillen)
 2. Presenter forslag: *"Dette kan brytes ned i 3 deler: [A], [B], [C]. Skal jeg opprette issues og jobbe med dem én om gangen?"*
-3. La brukeren velge rekkefølge (kanban-stil) — ikke tving en fast sekvens
+3. Hvis noen deler **må** gjøres først (avhengigheter), noter det i issue-beskrivelsen: *"Avhenger av #X"*
 
 ### Steg 0b: Issue-kobling og nedbrytning
 
