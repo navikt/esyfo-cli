@@ -146,7 +146,7 @@ For hver fase:
 - **Trenger ny plan** (feil antagelser, manglende kontekst) → Send tilbake til Souschef med feilen som kontekst
 - **Eskaler** (utenfor scope, krever brukerinput) → Stopp og spør brukeren
 
-Maks 2 forsøk per oppgave. Etter 2 forsøk → eskaler til brukeren.
+Maks 3 forsøk per oppgave. Etter 3 forsøk → eskaler til brukeren.
 
 ### Steg 4: Mattilsynet — inspeksjon og utbedring
 
