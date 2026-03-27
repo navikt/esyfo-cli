@@ -36,7 +36,15 @@ Hvert steg i planen MÅ ha en **Agent**-tildeling. Bruk disse kriteriene:
 
 **Hovedregel**: *Hvordan det ser ut/føles* → Konditor. *Hvordan det fungerer* → Kokk.
 
-**Viktig**: Når en oppgave har UI-komponenter, planlegg design-steg (Konditor) FØR implementasjon-steg (Kokk). Konditoren lager designet, kokken kobler det opp.
+**Viktig**: Når en oppgave har UI-komponenter, planlegg design-steg (Konditor) FØR implementasjon-steg (Kokk). Konditoren designer komponentstruktur, layout og states — Kokk kobler opp logikk basert på designet.
+
+### Design-first mønster (obligatorisk for UI-oppgaver)
+
+Når planen inneholder UI-komponenter:
+1. **Design-steg (Konditor)** som tidlig fase — komponentstruktur, Aksel-komponenter, spacing, tilgjengelighet, visuelle states
+2. **Implementasjon-steg (Kokk)** som påfølgende fase — hooks, API-integrasjon, state management
+
+Kokk skal ALDRI designe UI-komponent fra scratch — det er Konditor sin oppgave.
 
 ## Output-format
 
