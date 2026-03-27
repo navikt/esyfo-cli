@@ -12,7 +12,7 @@ run = 'bun run src/index.ts clone-team-repos --destination=${usage_destination?}
 [tasks.prs]
 description = "Show open pull requests across team repos"
 usage = '''
-flag "--skip-bots" help="Exclude pull requests opened by bots"
+flag "--skip-bots" help="Exclude pull requests opened by Dependabot"
 flag "--list-view" help="Show pull requests instead of only totals"
 arg "[drafts]" help="Pass true to include draft pull requests"
 '''
