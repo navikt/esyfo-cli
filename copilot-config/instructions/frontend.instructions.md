@@ -1,6 +1,6 @@
 ---
 description: 'Frontend-standarder — Aksel Design System, spacing, responsivt design'
-applyTo: "src/**/*.{ts,tsx,css}"
+applyTo: "**/*.{ts,tsx,css}"
 ---
 
 # Frontend — Aksel Design System
