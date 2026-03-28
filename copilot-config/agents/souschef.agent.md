@@ -45,7 +45,7 @@ Når planen inneholder UI-komponenter:
 
 ## Output-format
 
-Returner enten **avklaringsbehov** eller **ferdig plan**.
+Returner ett av tre utfall: **avklaringsbehov**, **tilnærminger** (for ikke-trivielle oppgaver uten forutgående brainstorm), eller **ferdig plan**.
 
 ### A. Hvis noe må avklares først
 
@@ -64,7 +64,29 @@ Returner enten **avklaringsbehov** eller **ferdig plan**.
 - [Hva du ville anbefalt hvis vi måtte valgt nå]
 ```
 
-### B. Når du kan planlegge
+### B. Når tilnærmingen ikke er opplagt (og brainstorm ikke er kjørt)
+
+Foreslå 2-3 tilnærminger med trade-offs. Led med anbefalingen.
+
+```markdown
+## Tilnærminger
+
+### A: [Navn] ⭐ anbefalt
+- **Fordeler**: ...
+- **Ulemper**: ...
+- **Risiko**: 🟢/🟡/🔴
+
+### B: [Navn]
+- **Fordeler**: ...
+- **Ulemper**: ...
+- **Risiko**: 🟢/🟡/🔴
+
+**Anbefaling:** A, fordi [begrunnelse].
+```
+
+Hovmester presenterer dette til gjesten. Når tilnærming er valgt, returner ferdig plan basert på valget.
+
+### C. Når du kan planlegge (tilnærming er klar)
 
 ```markdown
 ## Plan: [Oppgavetittel]
