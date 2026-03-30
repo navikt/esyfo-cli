@@ -129,7 +129,6 @@ async function getPrs(
       pullsUrl: `${repo.url}/pulls`,
       prs: R.pipe(
         repo.pullRequests.nodes,
-        R.sortBy((pr) => pr.updatedAt),
         R.filter((pr) => opts.includeDrafts || !pr.isDraft),
         R.filter((pr) => !opts.noBot || !isDependabotPr(pr)),
       ),
