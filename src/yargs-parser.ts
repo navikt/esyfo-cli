@@ -76,6 +76,7 @@ export const getYargsParser = (argv: string[]): Argv =>
           .option("topics", {
             type: "boolean",
             default: false,
+            alias: "t",
             describe: "show repository topics in table view",
           })
           .positional("drafts", {
