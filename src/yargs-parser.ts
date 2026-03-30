@@ -67,13 +67,31 @@ export const getYargsParser = (argv: string[]): Argv =>
             describe:
               "list all the pull requests instead of just counting them",
           })
+          .option("urls", {
+            type: "boolean",
+            default: false,
+            alias: "u",
+            describe: "show repository /pulls URLs in table view",
+          })
+          .option("topics", {
+            type: "boolean",
+            default: false,
+            alias: "t",
+            describe: "show repository topics in table view",
+          })
           .positional("drafts", {
             type: "boolean",
             default: false,
             describe: "include draft pull requests",
           }),
       async (args) =>
-        openPrs(args.drafts, args.skipBots ?? false, args.listView ?? false),
+        openPrs(
+          args.drafts,
+          args.skipBots ?? false,
+          args.listView ?? false,
+          args.topics ?? false,
+          args.urls ?? false,
+        ),
     )
     .command(
       "sync-file <query>",
