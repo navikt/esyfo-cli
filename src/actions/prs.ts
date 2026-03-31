@@ -193,7 +193,9 @@ export async function openPrs(
 
 function isDependabotPr(pr: PrNode): boolean {
   const login = pr.author.login.toLowerCase();
-  return login === DEPENDABOT_LOGIN || login.startsWith(`${DEPENDABOT_LOGIN}[bot`);
+  return (
+    login === DEPENDABOT_LOGIN || login.startsWith(`${DEPENDABOT_LOGIN}[bot`)
+  );
 }
 
 function countDependabotPrs(prs: PrNode[]): number {
