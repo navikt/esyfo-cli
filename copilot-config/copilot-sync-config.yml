@@ -28,6 +28,9 @@ common:
     - security-review
     - klarsprak
     - nais-manifest
+    - brainstorm
+    - grill-me
+    - tdd
   issue_templates:
     - feature.yml
     - bug.yml
