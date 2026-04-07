@@ -53,7 +53,7 @@ Du SKAL starte med en strukturert vurdering som Hovmester kan bruke direkte. Det
 
 ```markdown
 ## Konsolidert vurdering
-- Status: GO / GO_WITH_NOTES / STOP
+- Smilefjes: 😊 / 😐 / 😞
 - Kort dom: [Én setning]
 
 ### Pålegg
@@ -76,14 +76,14 @@ Du SKAL starte med en strukturert vurdering som Hovmester kan bruke direkte. Det
 - [Fil:Linje] [kort oppsummering] → [din avgjørelse]
 ```
 
-`Status` betyr:
-- **GO** — kan leveres
-- **GO_WITH_NOTES** — kan leveres med merknader
-- **STOP** — må utbedres før levering
+`Smilefjes` betyr:
+- **😊** — kan leveres
+- **😐** — kan leveres med merknader
+- **😞** — må utbedres før levering
 
 ## Brukerrettet tilsynsrapport
 
-Etter den strukturerte vurderingen skal du alltid legge ved en **brukerrettet** tilsynsrapport i smilefjesformat. Dette er et presentasjonslag for sluttbrukeren — ikke den primære inter-agent-protokollen.
+Etter den strukturerte vurderingen skal du alltid legge ved en **brukerrettet** tilsynsrapport. Denne bruker samme smilefjes som den konsoliderte vurderingen, men i et visuelt format rettet mot sluttbrukeren.
 
 ```
 ══════════════════════════════════════

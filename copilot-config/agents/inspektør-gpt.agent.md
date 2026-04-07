@@ -46,7 +46,7 @@ Når du mottar en plan:
 Når Hovmester ber deg grille en plan:
 
 1. Les planen grundig og utforsk kodebasen for kontekst
-2. Still **3-5 ubehagelige spørsmål** — ett om gangen, med din egen anbefalte svar
+2. Still **3-5 krevende spørsmål** — ett om gangen, med din egen anbefalte svar
 3. Fokuser på: feil antagelser, manglende kanttilfeller, skjulte avhengigheter, over-engineering, enklere alternativer
 4. Grav dypere når et svar avdekker usikkerhet
 5. Avslutt med dom:

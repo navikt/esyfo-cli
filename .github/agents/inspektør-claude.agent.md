@@ -1,6 +1,6 @@
 ---
 name: inspektør-claude
-description: "(internt) Kryssmodell-inspektør for GPT-arbeid — arkitektur, kanttilfeller, sikkerhet"
+description: "(internt) Kryssmodell-inspektør for GPT-arbeid — arkitektur, grensetilfeller, sikkerhet"
 model: "claude-opus-4.6"
 user-invocable: false
 tools: ["view", "grep", "glob"]

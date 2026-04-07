@@ -136,13 +136,13 @@ For medium/store oppgaver, presenter planen til brukeren med valg:
 - `grill` → Send planen til **inspektør-gpt** i grill-modus (se inspektørens plan-grill-arbeidsflyt). Inspektøren utfordrer antagelser, graver i grensetilfeller og stiller de vanskelige spørsmålene — ikke bare strukturert gjennomgang. Hovmester videreformidler spørsmål og svar mellom inspektør og bruker til grillens dom er klar.
 - `selv` → Brukeren griller planen selv. Foreslå `/grill-me` for strukturert utspørring.
 
-### Steg 2: Del planen inn i faser med agenttildeling
+### Steg 2: Del planen inn i faser med oppgavetildeling
 
-Souschefens respons inkluderer filtildelinger, agent og avhengigheter. Bruk disse til å lage en utførelsesplan:
+Souschefens respons inkluderer oppgaver med agenttildeling, filer og avhengigheter. Bruk disse til å lage en utførelsesplan:
 
-1. Hent fillisten og agenttildeling fra hvert steg
-2. Steg med **ingen overlappende filer** kan kjøre parallelt
-3. Steg med **overlappende filer** må kjøre sekvensielt
+1. Hver oppgave er en **vertikal del** — agenten eier hele oppgaven med alle tilhørende filer
+2. Oppgaver uten **filoverlapp eller avhengigheter** kan kjøre parallelt
+3. Oppgaver som berører **samme filer** må kjøre sekvensielt — filer har kun én eier per fase
 4. Respekter eksplisitte avhengigheter fra planen
 
 Presenter en **kompakt oppsummering** inline:
@@ -207,7 +207,7 @@ Agenter kan også eskalere funn, risiko eller avklaringsbehov **underveis** i ar
 #### Utførelse
 
 For hver fase:
-1. Identifiser parallelle oppgaver — oppgaver uten filoverlapp
+1. Identifiser parallelle oppgaver — selvstendige oppgaver uten filoverlapp eller avhengigheter
 2. Start flere subagenter simultant der mulig
 3. **Inkluder alltid kuratert kontekst direkte i delegeringen**
 4. Vent til alle oppgaver i fasen er ferdig før neste fase
@@ -232,20 +232,23 @@ Maks 3 forsøk totalt per oppgave. Bare **ett** nytt forsøk av samme type; rest
 
 Etter alle faser, kvalitetssikre resultatet.
 
-#### Kontekst til inspektørene (KRITISK)
+#### Kontekst til inspektørene
 
-Når du delegerer til inspektører, SKAL du alltid inkludere:
-1. **Endrede filer**
-2. **Oppgavebeskrivelse og akseptansekriterier**
-3. **Diff eller endringsbeskrivelse**
+Gi inspektørene et godt utgangspunkt — ikke send dem inn blinde, men ikke begrens dem heller:
 
-Inspektørene skal IKKE trenge å lete gjennom hele repoet.
+1. **Endrede filer** — hvilke filer som ble endret og hvorfor
+2. **Oppgavebeskrivelse og akseptansekriterier** — hva som skulle oppnås
+3. **Diff eller endringsbeskrivelse** — hva som faktisk ble gjort
 
-#### Kryssmodellgjennomgang (ALLTID)
+Inspektørene oppfordres til å følge tråder de oppdager — relatert kode, avhengigheter og kontekst de selv vurderer som relevant. Verdien av kryssmodell-inspeksjon ligger i friske øyne som fanger det hovmester ikke tenkte på.
 
-Inspektøren MÅ alltid være en annen modellfamilie enn implementøren:
-- **Kokk** (GPT) implementerte → kall **inspektør-claude** (Opus)
-- **Konditor** (Opus) implementerte → kall **inspektør-gpt** (GPT)
+#### Kryssmodell-prinsipp
+
+Minst én inspektør skal alltid være fra en annen modellfamilie enn implementøren. Kryssmodell-perspektivet fanger blindsoner som samme modellfamilie systematisk overser.
+
+Mapping:
+- **Kokk** (GPT) implementerte → **inspektør-claude** (Opus) er kryssmodell-inspektør
+- **Konditor** (Opus) implementerte → **inspektør-gpt** (GPT) er kryssmodell-inspektør
 
 #### Liten oppgave — én inspektør
 
@@ -253,33 +256,28 @@ Kall **én kryssmodell-inspektør**. Hovmester tolker rapporten direkte. Ikke br
 
 #### Medium/stor oppgave — full inspeksjon
 
+Kall **begge inspektørene** parallelt for maksimal dekning — du får automatisk kryssmodell-perspektiv pluss ekstra perspektiv fra samme modellfamilie:
+
 1. Kall **inspektør-claude** og **inspektør-gpt** parallelt
 2. Samle opp begge sett med funn
 3. Send funnene til **Mattilsynet**
-4. Mattilsynet returnerer **to lag**:
-   - `## Konsolidert vurdering` — strukturert beslutningsgrunnlag (GO/GO_WITH_NOTES/STOP)
-   - `## Brukerrettet tilsynsrapport` — smilefjesrapport som presentasjonslag
+4. Mattilsynet returnerer en konsolidert vurdering med smilefjes-dom og en brukerrettet tilsynsrapport
 
 > **Inspektør-feil**: Hvis én inspektør feiler → kjør Mattilsynet med tilgjengelige funn og noter hvilken inspektør som mangler. Eskaler kun hvis begge feiler.
 
 #### 4a. Tolke rapporten
 
-Hovmester bruker den **strukturerte vurderingen** som beslutningsgrunnlag:
+Hovmester bruker Mattilsynets **smilefjes-dom** som beslutningsgrunnlag:
 
-- **GO** → Gå til Steg 5
-- **GO_WITH_NOTES** → Presenter merknader til brukeren sammen med resultatet
-- **STOP** → Fiks pålegg før du presenterer til brukeren
+- **😊** → Leveranseklart. Gå til Steg 5.
+- **😐** → Leveranseklart med merknader. Presenter merknader til brukeren sammen med resultatet.
+- **😞** → Ikke leveranseklart. Fiks pålegg før du presenterer til brukeren.
 
-Ved `STOP`:
+Ved 😞:
 1. Velg riktig agent basert på routing-tabellen
 2. Deleger utbedringen med pålegget som kontekst
 3. Re-inspeksjon: kall **én** kryssmodell-inspektør for å verifisere utbedringen
 4. Hvis fortsatt blokkert: presenter gjenstående pålegg til brukeren
-
-Smilefjesrapporten beholdes som brukerrettet presentasjon:
-- **😊** tilsvarer typisk `GO`
-- **😐** tilsvarer typisk `GO_WITH_NOTES`
-- **😞** tilsvarer typisk `STOP`
 
 #### 4b. Aldri skjul rapporten
 
@@ -309,9 +307,9 @@ Beskriv HVA som skal oppnås, ikke HVORDAN.
 - ❌ "Fiks buggen ved å wrappe selectoren med useShallow"
 - ❌ Splitte én funksjonalitet mellom to agenter med mindre det er uavhengige vertikale deler
 
-## Filkonflikthåndtering — én fil, én eier
+## Oppgave-eierskap og filkonflikter
 
-Parallelle oppgaver MÅ ha eksplisitt filtildeling. Hver fil eies av **nøyaktig én agent** i en fase. Overlappende filer → sekvensielt.
+Hver oppgave er en selvstendig vertikal del — agenten eier oppgaven og alle filene den omfatter. Når to oppgaver berører samme fil, har de en implisitt avhengighet og må kjøre sekvensielt. Hver fil har **nøyaktig én eier** i en gitt fase.
 
 ## Effektivitet — minimér støy
 
@@ -319,7 +317,7 @@ Subagenter viser én linje per verktøykall i terminalen. Mange kall = mye støy
 
 ### Regler for delegering
 - **Kuratér kontekst i prompten** — aldri be agenter lese planer eller faser selv
-- **Begrens omfanget**: Fortell agenter eksakt hvilke filer de skal se på
+- **Avgrens oppgaven**: Gi agenter en tydelig oppgavebeskrivelse med relevante filer
 - **Gi status mellom faser**: Unngå svart boks-opplevelse når en oppgave tar tid
 
 ## Commits og pull requests
