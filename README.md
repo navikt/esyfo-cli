@@ -101,7 +101,7 @@ Den siste varianten inkluderer draft pull requests.
 
 ## GitHub Copilot for teamet 🍽️
 
-Vi har et automatisert oppsett som gir GitHub Copilot riktig kontekst for alle våre repos. CLI-et detekterer stack (Ktor/Spring Boot, Next.js, TanStack, etc.) og genererer skreddersydde instruksjoner, prompts, skills og agenter.
+Vi har et automatisert oppsett som gir GitHub Copilot riktig kontekst for alle våre repos. CLI-et detekterer stack (Ktor/Spring Boot, Next.js, TanStack, etc.) og genererer skreddersydde instruksjoner, skills og agenter.
 
 ### Slik fungerer det
 
@@ -132,7 +132,7 @@ I tillegg til agenter distribueres:
 - `instructions/*.instructions.md` — Minimale, Nav-spesifikke regler (sikkerhet, Kotlin). Lastes basert på filtype.
 - `skills/*/SKILL.md` — Domenespesifikk guidance (auth, Kafka, Aksel, PostgreSQL, etc.). Lastes on-demand.
 
-Skills er hovudmekanismen for kontekstuell guidance — de lastes kun når de er relevante, og sparer kontekstvinduet for kode.
+Skills er hovedmekanismen for kontekstuell guidance — de lastes kun når de er relevante, og sparer kontekstvinduet for kode.
 
 **Lag 2 — MCP/plattform-verktøy (lokalt)**
 ~~[Context7](https://context7.com/) er en MCP-server som gir agentene tilgang til oppdatert API-dokumentasjon for
@@ -168,13 +168,13 @@ ecli copilot sync --all
 
 ### Tilpasse repo-instruksjoner
 
-`copilot-instructions.md` er **din fil** — CLI-et oppretter den kun første gang. Legg til repo-spesifikk kontekst som:
+Repo-spesifikke instruksjoner distribueres nå primært via `instructions/*.instructions.md` og skills. `copilot-instructions.md` er ikke lenger scaffoldet av CLI-et — det er en repo-eid fil som utviklere kan opprette selv ved behov. Der kan du legge til repo-spesifikk kontekst som:
 
 - Hva appen gjør og hvem den er for
 - Lokale konvensjoner som avviker fra teamstandard
 - Lenker til relevant dokumentasjon
 
-Filene i `instructions/`, `prompts/` og `skills/` er CLI-managed og oppdateres ved neste sync. Ikke rediger disse manuelt.
+Filene i `agents/`, `instructions/`, `skills/`, `workflows/` (spesifikt `copilot-config-auto-approve.yml`), `ISSUE_TEMPLATE/` og `PULL_REQUEST_TEMPLATE.md` er CLI-managed og oppdateres ved neste sync. Ikke rediger disse manuelt.
 
 ### Utvikling
 
