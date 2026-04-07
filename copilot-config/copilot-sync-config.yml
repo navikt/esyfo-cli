@@ -2,8 +2,8 @@
 # Brukes av `ecli copilot sync` for å distribuere riktige filer til hvert repo.
 #
 # Arkitektur:
-#   - Agenter, skills og issue-templates distribueres til ALLE repos (common)
-#   - Instructions er minimale og kun Nav-spesifikke — resten er i skills (on-demand)
+#   - Alt distribueres til ALLE repos (common)
+#   - Instructions er minimale og alltid-aktive via applyTo-mønster
 #   - Skills lastes progressivt: kun name+description ved discovery, full innhold ved aktivering
 
 # Felles for ALLE repos
@@ -18,6 +18,7 @@ common:
     - inspektør-gpt.agent.md
   instructions:
     - security.instructions.md
+    - kotlin.instructions.md
   skills:
     - accessibility
     - aksel-design
@@ -32,6 +33,8 @@ common:
     - issue-management
     - kafka-topic
     - klarsprak
+    - kotlin-ktor
+    - kotlin-spring
     - lumi-survey
     - nais-manifest
     - observability-setup
@@ -48,16 +51,3 @@ common:
     - epic.yml
     - config.yml
   pull_request_template: PULL_REQUEST_TEMPLATE.md
-
-# Profiler — kun for de få gjenværende instruksjonene
-profiles:
-  backend:
-    instructions:
-      - kotlin.instructions.md
-      # kotlin-spring eller kotlin-ktor resolves dynamisk basert på detektert rammeverk
-
-  frontend:
-    instructions: []
-
-  other:
-    instructions: []

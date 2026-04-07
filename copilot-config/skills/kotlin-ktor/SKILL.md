@@ -1,6 +1,6 @@
 ---
-description: "Nav-spesifikt for Ktor — NAVident JWT-claim, Koin DI, CallLogging MDC"
-applyTo: "**/*.kt"
+name: kotlin-ktor
+description: Ktor Nav-spesifikt — NAVident JWT-claim, Koin DI, CallLogging MDC
 ---
 
 # Ktor — Nav-spesifikt

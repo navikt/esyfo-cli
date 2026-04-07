@@ -65,12 +65,7 @@ Når arbeidet er klart for review, bruk `pull-request`-skillen for PR. Inkluder 
 
 ### Relevante skills
 
-Bruk disse skillene når oppgaven berører deres domene:
-- `observability-setup`
-- `security-review`
-- `postgresql-review`
-- `flyway-migration`
-- `api-design`
+Bruk relevante skills fra repoet når oppgaven berører deres domene. Skills oppdages automatisk — du trenger ikke huske dem.
 
 ## Boundaries
 

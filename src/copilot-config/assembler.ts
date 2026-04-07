@@ -4,12 +4,10 @@ import path from "node:path";
 import chalk from "chalk";
 
 import { log } from "../common/log.ts";
-import type { RepoStackInfo } from "./detector.ts";
 import { COPILOT_CONFIG_BASE } from "./paths.ts";
 import {
   type CopilotSyncConfig,
   getFilesForProfile,
-  getFilesForProfiles,
   type RepoProfile,
 } from "./sync-config.ts";
 
@@ -56,16 +54,9 @@ export interface AssemblyResult {
 export async function assembleForRepo(
   repoPath: string,
   profile: RepoProfile,
-  stack: RepoStackInfo,
   config: CopilotSyncConfig,
 ): Promise<AssemblyResult> {
-  const files =
-    stack.subProfiles && stack.subProfiles.length > 1
-      ? getFilesForProfiles(config, stack.subProfiles)
-      : getFilesForProfile(config, profile);
-
-  // Augment with conditional files based on detected stack
-  resolveConditionalFiles(files, stack);
+  const files = getFilesForProfile(config, profile);
 
   const result: AssemblyResult = {
     filesWritten: [],
@@ -220,27 +211,6 @@ export async function assembleForRepo(
   }
 
   return result;
-}
-
-/**
- * Augment file lists with conditional instructions based on detected stack.
- * Only framework-specific Kotlin instructions remain conditional.
- * Skills and other instructions are now distributed to all repos via common config.
- */
-export function resolveConditionalFiles(
-  files: { instructions: string[]; skills: string[] },
-  stack: RepoStackInfo,
-): void {
-  const ktFramework =
-    stack.kotlinFramework ??
-    (stack.language === "kotlin" ? stack.framework : undefined);
-  if (ktFramework) {
-    if (ktFramework === "Spring Boot") {
-      files.instructions.push("kotlin-spring.instructions.md");
-    } else if (ktFramework === "Ktor") {
-      files.instructions.push("kotlin-ktor.instructions.md");
-    }
-  }
 }
 
 async function readConfigFile(

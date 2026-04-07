@@ -16,7 +16,7 @@ export interface CopilotSyncConfig {
     issue_templates?: string[];
     pull_request_template?: string;
   };
-  profiles: Record<string, CopilotSyncProfile>;
+  profiles?: Record<string, CopilotSyncProfile>;
 }
 
 export type RepoProfile = "backend" | "frontend" | "other";
@@ -29,7 +29,7 @@ interface RawConfig {
     issue_templates?: string[];
     pull_request_template?: string;
   };
-  profiles: Record<string, CopilotSyncProfile>;
+  profiles?: Record<string, CopilotSyncProfile>;
 }
 
 export function loadCopilotSyncConfig(configPath: string): CopilotSyncConfig {
@@ -52,7 +52,7 @@ export function getFilesForProfile(
   issueTemplates: string[];
   pullRequestTemplate: string | null;
 } {
-  const profileConfig = config.profiles[profile];
+  const profileConfig = config.profiles?.[profile];
 
   if (!profileConfig) {
     return {
@@ -91,7 +91,7 @@ export function getFilesForProfiles(
   const skills = new Set<string>(config.common.skills ?? []);
 
   for (const profile of profiles) {
-    const profileConfig = config.profiles[profile];
+    const profileConfig = config.profiles?.[profile];
     if (!profileConfig) continue;
 
     for (const a of profileConfig.agents ?? []) agents.add(a);

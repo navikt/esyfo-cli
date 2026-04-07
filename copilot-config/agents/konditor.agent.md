@@ -44,9 +44,9 @@ Bruk `conventional-commit`-skillen for commits. Én commit per logisk oppgave.
 ### 9. Pull request
 Når arbeidet er klart for review, bruk `pull-request`-skillen for PR. Inkluder issue-referanse hvis relevant.
 
-## Aksel og tilgjengelighet
+## Aksel, tilgjengelighet og skills
 
-Bruk `aksel-design`-skillen for komponent-API, spacing-tokens og layout-mønstre. Bruk `accessibility`-skillen for WCAG 2.1 AA-krav.
+Bruk `aksel-design`-skillen for komponent-API, spacing-tokens og layout-mønstre. Bruk `accessibility`-skillen for WCAG 2.1 AA-krav. Bruk øvrige relevante skills fra repoet når oppgaven berører deres domene — skills oppdages automatisk.
 
 Sjekk ALLTID [aksel.nav.no](https://aksel.nav.no) for tilgjengelige komponenter. Aldri bruk rå HTML for elementer Aksel tilbyr, og aldri hardkod farger, spacing eller typografi.
 

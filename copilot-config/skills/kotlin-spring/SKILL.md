@@ -1,6 +1,6 @@
 ---
-description: "Nav-spesifikt for Spring Boot — @ProtectedWithClaims, NAIS env vars, testing"
-applyTo: "**/*.kt"
+name: kotlin-spring
+description: Spring Boot Nav-spesifikt — @ProtectedWithClaims, NAIS-miljøvariabler, testing med Testcontainers og MockOAuth2Server
 ---
 
 # Spring Boot — Nav-spesifikt

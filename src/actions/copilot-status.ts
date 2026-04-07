@@ -71,7 +71,7 @@ export async function copilotStatus(options: { repo?: string }): Promise<void> {
 
       try {
         // Run assembly to compute expected state (writes to cached repo)
-        assembly = await assembleForRepo(repoPath, stack.type, stack, config);
+        assembly = await assembleForRepo(repoPath, stack.type, config);
 
         // Use git to detect actual content drift (modified + untracked)
         try {
