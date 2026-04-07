@@ -1,7 +1,6 @@
 const blacklist: string[] = [
   "aktivitetskrav-mikrofrontend",
   "dialogmote-mikrofrontend",
-  "esyfo-cli",
   "esyfo-dev-tools",
   "esyfo-proxy",
   "isdialogmelding",

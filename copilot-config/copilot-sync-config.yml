@@ -1,9 +1,10 @@
 # Mapping av repo-type → Copilot-konfigurasjonsfiler
 # Brukes av `ecli copilot sync` for å distribuere riktige filer til hvert repo.
 #
-# Arkitektur (2-lags modell):
-#   Lag 1: Agenter + repo-kontekst (dette — distribuert via `ecli copilot sync`)
-#   Lag 2: MCP/plattform-verktøy (om tilgjengelig)
+# Arkitektur:
+#   - Agenter, skills og issue-templates distribueres til ALLE repos (common)
+#   - Instructions er minimale og kun Nav-spesifikke — resten er i skills (on-demand)
+#   - Skills lastes progressivt: kun name+description ved discovery, full innhold ved aktivering
 
 # Felles for ALLE repos
 common:
@@ -18,19 +19,27 @@ common:
   instructions:
     - security.instructions.md
   skills:
-    - observability-setup
-    - issue-management
-    - pull-request
+    - accessibility
+    - aksel-design
+    - api-design
     - auth-overview
+    - brainstorm
     - conventional-commit
     - docker
+    - flyway-migration
     - github-actions
-    - security-review
-    - klarsprak
-    - nais-manifest
-    - brainstorm
     - grill-me
+    - issue-management
+    - kafka-topic
+    - klarsprak
+    - lumi-survey
+    - nais-manifest
+    - observability-setup
+    - postgresql-review
+    - pull-request
+    - security-review
     - tdd
+    - tech-stack
   issue_templates:
     - feature.yml
     - bug.yml
@@ -40,35 +49,15 @@ common:
     - config.yml
   pull_request_template: PULL_REQUEST_TEMPLATE.md
 
-# Profiler per repo-type (additivt til common)
+# Profiler — kun for de få gjenværende instruksjonene
 profiles:
   backend:
-    copilot_instructions:
-      - base.md
-      - backend.md
     instructions:
       - kotlin.instructions.md
-      - testing-kotlin.instructions.md
-      - auth-kotlin.instructions.md
-      # sql, kafka, and framework-specific kotlin instructions are resolved
-      # dynamically by the assembler based on detected stack
-    skills:
-      - api-design
-      # kafka-topic resolved dynamically when hasKafka
-      # flyway-migration and postgresql-review resolved dynamically when hasDatabase
+      # kotlin-spring eller kotlin-ktor resolves dynamisk basert på detektert rammeverk
 
   frontend:
-    copilot_instructions:
-      - base.md
-      - frontend.md
-    instructions:
-      - frontend.instructions.md
-      - testing-typescript.instructions.md
-      - auth-typescript.instructions.md
-    skills:
-      - lumi-survey
-      - accessibility
+    instructions: []
 
   other:
-    copilot_instructions:
-      - base.md
+    instructions: []

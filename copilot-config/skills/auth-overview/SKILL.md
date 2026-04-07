@@ -1,6 +1,6 @@
 ---
 name: auth-overview
-description: Sett opp autentisering i en Nav-applikasjon — Azure AD, TokenX, ID-porten, Maskinporten konfigurering og beste praksis
+description: Sett opp autentisering i en Nav-applikasjon — Azure AD, TokenX, ID-porten, Maskinporten, Texas sidecar (Kotlin) og Oasis (TypeScript)
 ---
 
 # Authentication Overview — Nav
@@ -50,17 +50,94 @@ maskinporten:
 
 ### 5. Systembruker via Maskinporten (Altinn 3)
 
-Systembruker er en mekanisme i Altinn 3 der eksterne virksomheter oppretter en systembruker som gir tilgang til Nav-tjenester via Maskinporten. Brukes blant annet i syfo-dokumentporten.
+Systembruker er en mekanisme i Altinn 3 der eksterne virksomheter oppretter en systembruker som gir tilgang til Nav-tjenester via Maskinporten. Se [Altinn 3 systembruker-dokumentasjon](https://docs.altinn.studio/authentication/what-do-you-get/systemuser/).
 
-Se [Altinn 3 systembruker-dokumentasjon](https://docs.altinn.studio/authentication/what-do-you-get/systemuser/) for oppsett.
+## Kotlin — Texas sidecar
+
+Texas er en HTTP-sidecar som kjører på `localhost:3000` i NAIS-podden. Den håndterer token-operasjoner uten at applikasjonen trenger OAuth-biblioteker.
+
+### Token (M2M)
+```
+POST http://localhost:3000/api/v1/token
+Content-Type: application/json
+
+{ "identity_provider": "azuread", "target": "api://cluster.namespace.app/.default" }
+```
+
+### Token Exchange (OBO)
+```
+POST http://localhost:3000/api/v1/token/exchange
+Content-Type: application/json
+
+{ "identity_provider": "tokenx", "target": "cluster:namespace:app", "user_token": "<brukerens token>" }
+```
+
+**Audience-format**:
+- Azure AD: `api://cluster.namespace.app/.default`
+- TokenX: `cluster:namespace:app`
+
+### Introspect (validering)
+```
+POST http://localhost:3000/api/v1/introspect
+Content-Type: application/json
+
+{ "token": "<token som skal valideres>" }
+```
+
+**Caching**: Texas cacher tokens automatisk med 60 sekunders preemptiv refresh. Ikke implementer egen caching.
+
+### Spring Boot auth-dekorator
+```kotlin
+@ProtectedWithClaims(issuer = "azuread", claimMap = ["NAVident=*"])
+```
+Krever `token-validation-spring`-biblioteket.
+
+### NAV-spesifikke JWT-claims
+- `NAVident` — ansattens identifikator
+- `oid` — objekt-ID i Azure AD
+
+## TypeScript — Oasis
+
+`@navikt/oasis` er Nav-biblioteket for token-validering og -utveksling i TypeScript.
+
+### Validering
+```typescript
+import { validateToken, validateAzureToken, validateIdportenToken, validateTokenxToken } from "@navikt/oasis"
+
+const result = await validateAzureToken(token)
+if (result.ok) { /* gyldig */ }
+```
+
+### Token Exchange (OBO)
+```typescript
+import { requestOboToken } from "@navikt/oasis"
+
+const obo = await requestOboToken(userToken, "cluster:namespace:app")
+if (obo.ok) { /* bruk obo.token */ }
+```
+
+### M2M
+```typescript
+import { requestAzureClientCredentialsToken } from "@navikt/oasis"
+
+const m2m = await requestAzureClientCredentialsToken("api://cluster.namespace.app/.default")
+```
+
+### Brukerinfo
+```typescript
+import { parseAzureUserToken, parseIdportenToken } from "@navikt/oasis"
+
+const { NAVident, name, oid } = parseAzureUserToken(token)
+const { pid } = parseIdportenToken(token) // pid = fødselsnummer
+```
+
+**Caching**: Oasis har innebygd SIEVE-cache med Prometheus-metrikker. Ikke implementer egen caching.
 
 ## Tilnærming
 
 1. Les NAIS-manifest for å identifisere hvilke auth-mekanismer som er konfigurert
 2. Søk i kodebasen etter eksisterende auth-oppsett og følg samme mønster
-3. Se språkspesifikke auth-instruksjoner (`.github/instructions/auth-kotlin.instructions.md` eller `auth-typescript.instructions.md`) for bibliotekdetaljer
-
-## Referanse
+3. Bruk Texas (Kotlin) eller Oasis (TypeScript) — ikke implementer OAuth-flyter manuelt
 
 Komplett auth-dokumentasjon: https://doc.nais.io/auth/
 
@@ -72,12 +149,9 @@ Komplett auth-dokumentasjon: https://doc.nais.io/auth/
 - Define explicit `accessPolicy` in NAIS manifest
 - Use env vars from NAIS (never hardcode)
 
-### ⚠️ Ask First
-- Changing access policies in production
-- Modifying token validation rules
-
 ### 🚫 Never
 - Hardcode client secrets or tokens
-- Log full JWT tokens (or any part of token payload containing PII)
+- Log full JWT tokens (or any part containing PII)
 - Skip token validation
 - Store tokens in localStorage
+- Implement own token caching (Texas/Oasis handles this)

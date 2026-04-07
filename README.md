@@ -117,22 +117,22 @@ Genereres og distribueres til hvert repo av `ecli copilot sync` basert på detek
 
 | Agent | Rolle | Modell |
 |-------|-------|--------|
-| **@hovmester** 🍽️ | Tar imot bestillingen og delegerer til kjøkkenet | Opus |
-| **@kokk** 🔪 | Smeller sammen koden — rask, brutal og effektiv | GPT |
-| **@mattilsynet** 🔍 | Uanmeldt inspeksjon — code review og kvalitetssikring | GPT |
-| *@souschef* 📋 | *(internt)* Planlegger menyen — brukes via hovmester | Opus |
-| *@konditor* 🎂 | *(internt)* Pynt og finish — UI/UX med Aksel | Gemini |
-| *@inspektør-claude* 🔬 | *(internt)* Inspeksjon med Claude-modell | Claude |
-| *@inspektør-gpt* 🔬 | *(internt)* Inspeksjon med GPT-modell | GPT |
+| **@hovmester** 🍽️ | Orkestrator — tar imot bestillingen og delegerer til kjøkkenet | Opus |
+| **@kokk** 👨‍🍳 | System-feature-utvikler — backend, API, database, infrastruktur | GPT |
+| **@konditor** 🎂 | Frontend-feature-utvikler — UI, Aksel, state, tilgjengelighet | Opus |
+| **@mattilsynet** 🔍 | Konsoliderer inspektør-funn og produserer tilsynsrapport | GPT |
+| *@souschef* 📋 | *(internt)* Planlegger — lager implementasjonsplaner | Opus |
+| *@inspektør-claude* 🔬 | *(internt)* Kryssmodell-reviewer for GPT-arbeid | Opus |
+| *@inspektør-gpt* 🔬 | *(internt)* Kryssmodell-reviewer for Opus-arbeid | GPT |
 
-> **Tips**: Bruk `@hovmester` for alle oppgaver — den koordinerer planlegging, implementasjon og code review automatisk via spesialiserte sub-agenter.
+> **Tips**: Bruk `@hovmester` for alle oppgaver — den koordinerer planlegging, implementasjon og code review automatisk via spesialiserte sub-agenter. Oppgaver delegeres som vertikale slices (én agent eier hele feature-slicen), med kryssmodell-review for å fange blindsoner.
 
 I tillegg til agenter distribueres:
 
-- `copilot-instructions.md` — Repo-spesifikke regler (scaffold — opprettes én gang, du eier den selv)
-- `instructions/*.instructions.md` — Delte team-standarder (Kotlin, TypeScript, sikkerhet, NAIS, etc.)
-- `prompts/*.prompt.md` — Gjenbrukbare prompts (f.eks. NAIS-manifest)
-- `skills/*/SKILL.md` — Oppskrifter for vanlige oppgaver (f.eks. Flyway-migrering)
+- `instructions/*.instructions.md` — Minimale, Nav-spesifikke regler (sikkerhet, Kotlin). Lastes basert på filtype.
+- `skills/*/SKILL.md` — Domenespesifikk guidance (auth, Kafka, Aksel, PostgreSQL, etc.). Lastes on-demand.
+
+Skills er hovudmekanismen for kontekstuell guidance — de lastes kun når de er relevante, og sparer kontekstvinduet for kode.
 
 **Lag 2 — MCP/plattform-verktøy (lokalt)**
 ~~[Context7](https://context7.com/) er en MCP-server som gir agentene tilgang til oppdatert API-dokumentasjon for
