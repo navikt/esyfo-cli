@@ -58,9 +58,12 @@ export async function copilotStatus(options: { repo?: string }): Promise<void> {
       stack.repoName = repo.name;
 
       // Check if copilot config exists BEFORE assembly (to detect truly missing repos)
-      const hasCopilotConfig = fs.existsSync(
-        path.join(repoPath, ".github", "agents"),
-      );
+      // Check both old indicator (copilot-instructions.md) and new (agents/) for backward compat
+      const hasCopilotConfig =
+        fs.existsSync(path.join(repoPath, ".github", "agents")) ||
+        fs.existsSync(
+          path.join(repoPath, ".github", "copilot-instructions.md"),
+        );
 
       let assembly: Awaited<ReturnType<typeof assembleForRepo>>;
       let hasChanges = false;

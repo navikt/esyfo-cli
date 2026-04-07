@@ -37,6 +37,8 @@ Hvert steg i planen MÅ ha en **Agent**-tildeling. Velg agent etter **oppgavens 
 
 **Ikke splitt én feature mellom Kokk og Konditor** med mindre det er reelt uavhengige vertikale slices (f.eks. separat backend-tjeneste og frontend-app).
 
+**Unntak — design-first**: Ved helt nye, designkritiske UI-mønstre kan Konditor gjøre et design-forarbeid i en tidlig fase, som overleveres som kontekst til implementeringsfasen. Dette er unntaket, ikke standarden.
+
 ## Output-format
 
 Returner ett av tre utfall: **avklaringsbehov**, **tilnærminger** (for ikke-trivielle oppgaver uten forutgående brainstorm), eller **ferdig plan**.

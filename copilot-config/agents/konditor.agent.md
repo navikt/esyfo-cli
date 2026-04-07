@@ -44,33 +44,11 @@ Bruk `conventional-commit`-skillen for commits. Én commit per logisk oppgave.
 ### 9. Pull request
 Når arbeidet er klart for review, bruk `pull-request`-skillen for PR. Inkluder issue-referanse hvis relevant.
 
-## Aksel designsystem
+## Aksel og tilgjengelighet
 
-Sjekk ALLTID [aksel.nav.no](https://aksel.nav.no) for Nav Aksel-komponenter (`@navikt/ds-react`) før du designer.
+Bruk `aksel-design`-skillen for komponent-API, spacing tokens og layout-mønstre. Bruk `accessibility`-skillen for WCAG 2.1 AA-krav.
 
-### Spacing (KRITISK)
-- Bruk Aksel spacing tokens: `space-4`, `space-8`, `space-12`, `space-16`, `space-20`, `space-24`, `space-32`
-- Bruk `Box`, `VStack`, `HStack`, `HGrid` der det gir mening
-- Aldri bruk Tailwind padding/margin i dette oppsettet
-
-### Tilgjengelighet (WCAG 2.1 AA)
-- Alle interaktive elementer skal være tastatur-tilgjengelige
-- Bruk semantisk HTML
-- Bilder trenger `alt`-tekst
-- Skjemafelt må ha `label`
-- Bruk `aria-live` for dynamisk innhold når relevant
-
-### Responsivt design
-- Mobile-first med breakpoints: `xs`, `sm`, `md`, `lg`, `xl`
-- Bruk Aksel responsive props der tilgjengelig
-
-## Relevante skills
-
-Bruk disse skillene når oppgaven berører deres domene:
-- `accessibility`
-- `aksel-design`
-- `observability-setup`
-- `security-review`
+Sjekk ALLTID [aksel.nav.no](https://aksel.nav.no) for tilgjengelige komponenter. Aldri bruk rå HTML for elementer Aksel tilbyr, og aldri hardkod farger, spacing eller typografi.
 
 ## Effektivitet
 
@@ -80,8 +58,6 @@ Bruk disse skillene når oppgaven berører deres domene:
 
 ## Boundaries
 
-- **Aldri** bruk rå HTML for elementer Aksel tilbyr
-- **Aldri** hardkod farger, spacing eller typografi
 - **Aldri** hopp over tilgjengelighet
 - **Aldri** gjett på API uten å verifisere
 

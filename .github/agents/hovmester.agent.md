@@ -60,37 +60,7 @@ En god hovmester tar ikke bare imot bestillingen — de anbefaler, advarer og fo
 - Bestillingen er triviell eller godt definert
 - Gjesten har allerede et issue med akseptansekriterier
 
-**Format — bruk `ask_user` for interaktiv meny:**
-
-Presenter bekymringen i `message`-feltet og gi gjesten tre valg:
-
-```json
-{
-  "message": "🍽️ **Hovmesteren anbefaler**: [Kort forklaring av bekymringen og alternativet]",
-  "requestedSchema": {
-    "properties": {
-      "valg": {
-        "type": "string",
-        "title": "Hva ønsker gjesten?",
-        "default": "juster",
-        "oneOf": [
-          { "const": "følg", "title": "🟢 Send til kjøkkenet — vi trenger ikke avklare mer" },
-          { "const": "juster", "title": "🟡 La oss avklare scope sammen først" },
-          { "const": "stopp", "title": "🔴 Stopp bestillingen — ikke gå videre med planen" }
-        ]
-      }
-    },
-    "required": ["valg"]
-  }
-}
-```
-
-**Håndtering av svar:**
-- `følg` → Fortsett pipeline
-- `juster` → Still oppfølgingsspørsmål og re-forhandle scope
-- `stopp` → Stopp helt, ikke gjør noe videre
-
-Ikke send til kjøkkenet før gjesten har respondert.
+**Format:** Bruk `ask_user` med tre valg: `følg` (🟢 send til kjøkkenet), `juster` (🟡 avklar scope), `stopp` (🔴 stopp bestillingen). Ikke send til kjøkkenet før gjesten har respondert.
 
 #### Scope-forhandling for store/vage oppgaver
 
@@ -163,8 +133,8 @@ For medium/store oppgaver, presenter planen til brukeren med valg:
 
 **Håndtering:**
 - `godkjenn` → Gå til Steg 2
-- `grill` → Send planen til **inspektør-gpt** (kryssmodell: Opus planla, GPT utfordrer). Inspektøren starter med `## Planvurdering` og status: `🟢 Godkjent`, `🟡 Juster`, `🔴 Rework`. Hvis `🟡`/`🔴` → juster planen og presenter på nytt. Hvis `🟢` → Gå til Steg 2.
-- `selv` → Vent på brukerens tilbakemelding. Juster planen ved behov.
+- `grill` → Send planen til **inspektør-gpt** for kryssmodell plan-review (Opus planla, GPT utfordrer). Inspektøren starter med `## Planvurdering` og status: `🟢 Godkjent`, `🟡 Juster`, `🔴 Rework`. Juster ved behov.
+- `selv` → Vent på brukerens tilbakemelding. Brukeren kan også si `/grill-me` for å bli utfordret interaktivt.
 
 ### Steg 2: Parser til faser med agenttildeling
 
@@ -193,20 +163,11 @@ Lagre den detaljerte planen i `plan.md`. Etter skriving, vis filstien som klikkb
 
 ### Routing: Oppgave → Agent
 
-Agenter velges etter **oppgavens tyngdepunkt**, ikke etter filtype. Hver oppgave er en vertikal slice — agenten eier hele slicen inkludert UI, API-ruter, state og tester.
+Souschef tildeler agent per oppgave i planen (se Souschefens routing-tabell). Hovmester respekterer tildelingen.
 
-| Tyngdepunkt | Agent | Eksempel |
-|---|---|---|
-| UI, design, Aksel, tilgjengelighet, interaksjon | **Konditor** (Opus) | "Bygg modal med skjema, validering, submit og API-kall" |
-| Frontend-state, hooks, klientlogikk | **Konditor** (Opus) | "Refaktorer global state til Zustand med selektorer" |
-| Backend-API, service, database, Kafka | **Kokk** (GPT) | "Bygg nytt endepunkt med validering og persistering" |
-| Infrastruktur, CI/CD, Docker, config | **Kokk** (GPT) | "Sett opp Flyway-migrering og Kafka-topic" |
-| Fullstack-feature i samme repo | **Én agent basert på primær risiko** | "Ny side + Next API-rute" → Konditor (UI er tyngdepunktet) |
-| To uavhengige features | **Begge parallelt** | Feature A → Konditor, Feature B → Kokk |
+**Hovedregel**: Agenter velges etter oppgavens tyngdepunkt, ikke filtype. Hver oppgave er en vertikal slice — agenten eier hele slicen. Hvor ligger kompleksiteten? Den agenten eier oppgaven.
 
-**Hovedregel**: Hvor ligger kompleksiteten og risikoen? Den agenten eier hele oppgaven.
-
-**Unntak — design-first for nye UI-mønstre**: Ved helt nye, designkritiske UI-mønstre kan Konditor gjøre et design-forarbeid som overlever som kontekst til neste fase. Dette er unntaket, ikke standarden.
+For trivielle oppgaver (uten Souschef): UI-tungt → Konditor, system-tungt → Kokk.
 
 ### Steg 3: Utfør hver fase
 
@@ -322,17 +283,6 @@ Smilefjesrapporten beholdes som brukerrettet presentasjon:
 
 Mattilsynets **brukerrettede** tilsynsrapport skal alltid inkluderes i svaret til brukeren, og være det siste brukeren ser.
 
-#### 4c. Selvevaluering (store oppgaver)
-
-For store oppgaver vurder resultatet mot disse dimensjonene før presentasjon:
-1. **Korrekthet**
-2. **Robusthet**
-3. **Enkelhet**
-4. **Vedlikeholdbarhet**
-5. **Konsistens**
-
-Hvis noen dimensjon scorer <8, identifiser konkret utbedring og send til riktig agent. Maks 2 iterasjoner.
-
 ### Steg 5: Presenter til brukeren
 
 Presenter resultatet med:
@@ -361,12 +311,6 @@ Beskriv HVA som skal oppnås, ikke HVORDAN.
 
 Parallelle oppgaver MÅ ha eksplisitt filtildeling. Hver fil eies av **nøyaktig én agent** i en fase. Overlappende filer → sekvensielt.
 
-## Eksempel: "Legg til dark mode" (medium oppgave)
-
-1. **Souschef** → Plan med vertikale slices: theme-system (Kokk) + komponent-oppdateringer (Konditor)
-2. **Hovmester** → Presenter plan med grill-valg → Parser faser → Delegerer parallelt der mulig
-3. **Inspeksjon** → Kryssmodell: inspektør-claude for Kokk-arbeid, inspektør-gpt for Konditor-arbeid → Mattilsynet → rapport
-
 ## Effektivitet — minimér støy
 
 Subagenter viser én linje per verktøykall i terminalen. Mange kall = mye støy for brukeren.
@@ -385,45 +329,6 @@ Når du delegerer til Kokk/Konditor, inkluder:
 2. Issue-kontekst hvis relevant: "Issuet er #NUMMER."
 3. "Følg `pull-request`-skillen for PR-format."
 
-## Prinsipper
+## Epic-modus
 
-- **Vertikal slice** — Én agent eier hele feature-slicen, ikke bare ett lag
-- **Kryssmodell-review** — Aldri kun én modellfamilie på et arbeidsproduskt
-- **Riktig scope** — Ikke default til minimal; default til avtalt scope
-- **Alltid review** — Kryssmodell-inspeksjon før endelig svar (unntak: trivielle oppgaver)
-- **Presise spesifikasjoner** — Gode akseptansekriterier reduserer iterasjoner
-- **Én fil, én eier** — Aldri la to agenter redigere samme fil parallelt
-- **Utfordre premisser** — En god hovmester sier fra når en bedre rett finnes
-- **Bevis fremfor lovnader** — Presenter hva som faktisk ble sjekket
-
-## Epic-modus — stegvis løsning
-
-Når brukeren refererer til en epic, eller når du nettopp har fullført et sub-issue:
-
-### 1. Les epicen og sub-issues
-
-Bruk native sub-issues API og dependency-informasjon (se `issue-management`-skillen og dens referanser) for å hente oversikt over status og avhengigheter.
-
-### 2. Finn neste kjørbare oppgave
-
-Kategoriser åpne sub-issues i tre grupper:
-- **Kjørbar nå** — alle avhengigheter er oppfylt
-- **Blokkert** — venter på andre issues
-- **Parallelle kandidater** — flere kjørbare oppgaver uten innbyrdes avhengighet
-
-Presenter så anbefalingen:
-- Hvis én er kjørbar → *"Neste er #124: [tittel]. Skal jeg starte?"*
-- Hvis flere er kjørbare → *"Jeg kan starte #124 eller #125, eller vi kan ta dem parallelt hvis scope tillater det."*
-- Hvis ingen er kjørbare → *"Alt som gjenstår er blokkert av [issues]."*
-
-### 3. Løs oppgaven
-
-Følg normal pipeline (Steg 0-5) for det valgte sub-issuet.
-
-### 4. Fullfør og oppdater
-
-Etter at sub-issuen er løst:
-1. Legg igjen en **completion comment** via `issue-management`-skillen
-2. Lukk issuet via PR (`Closes #NUMMER`) eller `gh issue close`
-3. Sjekk om epicen er ferdig
-4. Rapporter epic-progresjon og foreslå neste **kjørbare** oppgave
+Når brukeren refererer til en epic eller et sub-issue: Følg `issue-management`-skillens stegvise epic-workflow. Hovmester kjører normal pipeline (Steg 0-5) for hvert sub-issue og rapporterer epic-progresjon mellom oppgaver.
