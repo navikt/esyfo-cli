@@ -91,19 +91,7 @@ export async function assembleForRepo(
     fs.mkdirSync(dir, { recursive: true });
   }
 
-  // 1. Scaffold copilot-instructions.md (repo-owned, not CLI-managed)
-  // Only created if the file doesn't exist. Never overwritten — developers own this file.
-  const copilotInstructionsPath = path.join(
-    githubDir,
-    "copilot-instructions.md",
-  );
-  const instructionsContent = assembleCopilotInstructions(
-    files.copilotInstructions,
-    stack,
-  );
-  await scaffoldIfMissing(copilotInstructionsPath, instructionsContent, result);
-
-  // 2. Copy agents
+  // 1. Copy agents
   for (const agent of files.agents) {
     const agentPath = path.join(agentsDir, agent);
     managedFiles.add(agentPath);
@@ -111,7 +99,7 @@ export async function assembleForRepo(
     await writeIfChanged(agentPath, withManagedHeader(agentContent), result);
   }
 
-  // 3. Copy instructions
+  // 2. Copy instructions
   for (const instruction of files.instructions) {
     const instructionPath = path.join(instructionsDir, instruction);
     managedFiles.add(instructionPath);
@@ -119,7 +107,7 @@ export async function assembleForRepo(
     await writeIfChanged(instructionPath, withManagedHeader(content), result);
   }
 
-  // 4. Copy skills (including references)
+  // 3. Copy skills (including references)
   for (const skill of files.skills) {
     const skillDir = path.join(skillsDir, skill);
     fs.mkdirSync(skillDir, { recursive: true });
@@ -163,7 +151,7 @@ export async function assembleForRepo(
     }
   }
 
-  // 5b. Copy issue templates
+  // 4. Copy issue templates
   if (files.issueTemplates.length > 0) {
     fs.mkdirSync(issueTemplatesDir, { recursive: true });
     for (const template of files.issueTemplates) {
@@ -182,7 +170,7 @@ export async function assembleForRepo(
     }
   }
 
-  // 5c. Copy pull request template
+  // 5. Copy pull request template
   if (files.pullRequestTemplate) {
     const prTemplatePath = path.join(githubDir, "PULL_REQUEST_TEMPLATE.md");
     managedFiles.add(prTemplatePath);
@@ -235,21 +223,14 @@ export async function assembleForRepo(
 }
 
 /**
- * Augment file lists with conditional files based on detected stack.
- * Handles framework-specific instructions, database/kafka-conditional skills.
+ * Augment file lists with conditional instructions based on detected stack.
+ * Only framework-specific Kotlin instructions remain conditional.
+ * Skills and other instructions are now distributed to all repos via common config.
  */
 export function resolveConditionalFiles(
   files: { instructions: string[]; skills: string[] },
   stack: RepoStackInfo,
 ): void {
-  // Database-related
-  if (stack.hasDatabase) {
-    files.instructions.push("sql.instructions.md");
-    files.skills.push("flyway-migration");
-    files.skills.push("postgresql-review");
-  }
-
-  // Framework-specific Kotlin instructions
   const ktFramework =
     stack.kotlinFramework ??
     (stack.language === "kotlin" ? stack.framework : undefined);
@@ -260,83 +241,6 @@ export function resolveConditionalFiles(
       files.instructions.push("kotlin-ktor.instructions.md");
     }
   }
-
-  // Kafka-related
-  if (stack.hasKafka) {
-    if (stack.kafkaLib === "spring-kafka") {
-      files.instructions.push("kafka-spring.instructions.md");
-    } else {
-      files.instructions.push("kafka.instructions.md");
-    }
-    files.skills.push("kafka-topic");
-  }
-}
-
-function assembleCopilotInstructions(
-  templates: string[],
-  stack: RepoStackInfo,
-): string {
-  const parts: string[] = [];
-
-  for (const template of templates) {
-    const templatePath = path.join(
-      CONFIG_BASE,
-      "copilot-instructions",
-      template,
-    );
-    let content = fs.readFileSync(templatePath, "utf8");
-    content = replaceTemplateVars(content, stack);
-    parts.push(content);
-  }
-
-  return parts.join("\n");
-}
-
-function replaceTemplateVars(content: string, stack: RepoStackInfo): string {
-  const buildCmd = resolveBuildCommand(stack);
-  // Use function-style replacements to avoid $ being interpreted as special replacement patterns
-  return content
-    .replace(/\{\{repo_name}}/g, () => stack.repoName ?? "unknown")
-    .replace(/\{\{description}}/g, () => stack.repoDescription ?? "")
-    .replace(/\{\{commands}}/g, () => buildCmd)
-    .replace(/\{\{framework}}/g, () => stack.framework ?? "unknown")
-    .replace(/\{\{database}}/g, () =>
-      stack.hasDatabase
-        ? `PostgreSQL${stack.databaseLib ? ` (via ${stack.databaseLib})` : ""}`
-        : "N/A",
-    )
-    .replace(/\{\{database_details}}/g, () =>
-      stack.databaseLib ? ` (via ${stack.databaseLib})` : "",
-    )
-    .replace(/\{\{messaging}}/g, () =>
-      stack.hasKafka ? "Apache Kafka" : "N/A",
-    )
-    .replace(
-      /\{\{testing}}/g,
-      () => stack.testingLib ?? "check package.json/build.gradle.kts",
-    )
-    .replace(/\{\{bundler}}/g, () => stack.bundler ?? "N/A");
-}
-
-function resolveBuildCommand(stack: RepoStackInfo): string {
-  if (stack.language === "kotlin") {
-    return [
-      "```bash",
-      "./gradlew build   # Build + test + lint",
-      "./gradlew test    # Tests only",
-      "```",
-    ].join("\n");
-  }
-  if (stack.language === "typescript") {
-    return [
-      "```bash",
-      "pnpm run build     # Build",
-      "pnpm run test      # Tests",
-      "pnpm run lint      # Lint",
-      "```",
-    ].join("\n");
-  }
-  return "Check `package.json` or `build.gradle.kts` for available commands.";
 }
 
 async function readConfigFile(
@@ -370,27 +274,6 @@ async function writeIfChanged(
       result.filesSkipped.push(relativePath);
       return;
     }
-  }
-
-  await Bun.write(targetPath, content);
-  result.filesWritten.push(relativePath);
-}
-
-/**
- * Create a scaffold file only if it doesn't exist yet.
- * No managed header — the file is repo-owned from the start.
- */
-async function scaffoldIfMissing(
-  targetPath: string,
-  content: string,
-  result: AssemblyResult,
-): Promise<void> {
-  const relativePath = targetPath.split(".github/").pop() ?? targetPath;
-  const existingFile = Bun.file(targetPath);
-
-  if (await existingFile.exists()) {
-    result.filesSkipped.push(relativePath);
-    return;
   }
 
   await Bun.write(targetPath, content);
