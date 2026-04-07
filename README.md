@@ -58,7 +58,7 @@ mise tasks
 
 for å få oversikt over tilgjengelige tasks.
 
-Hver task har også innebygd hjelp. Kjør
+Hver task har innebygd hjelp. Kjør
 
 ```bash
 mise run <task> --help
@@ -84,7 +84,7 @@ mise run prs --skip-bots
 mise run prs true
 ```
 
-Den siste varianten inkluderer draft pull requests.
+Den siste varianten tar også med pull requests i utkast.
 
 ### Automatisk generert dokumentasjon
 
@@ -101,7 +101,7 @@ Den siste varianten inkluderer draft pull requests.
 
 ## GitHub Copilot for teamet 🍽️
 
-Vi har et automatisert oppsett som gir GitHub Copilot riktig kontekst for alle våre repos. CLI-et detekterer stack (Ktor/Spring Boot, Next.js, TanStack, etc.) og genererer skreddersydde instruksjoner, prompts, skills og agenter.
+Vi har et automatisert oppsett som gir GitHub Copilot riktig kontekst for alle repoene våre. CLI-et gjenkjenner stacken (Ktor/Spring Boot, Next.js, TanStack osv.) og genererer skreddersydde instruksjoner, skills og agenter.
 
 ### Slik fungerer det
 
@@ -117,22 +117,22 @@ Genereres og distribueres til hvert repo av `ecli copilot sync` basert på detek
 
 | Agent | Rolle | Modell |
 |-------|-------|--------|
-| **@hovmester** 🍽️ | Tar imot bestillingen og delegerer til kjøkkenet | Opus |
-| **@kokk** 🔪 | Smeller sammen koden — rask, brutal og effektiv | GPT |
-| **@mattilsynet** 🔍 | Uanmeldt inspeksjon — code review og kvalitetssikring | GPT |
-| *@souschef* 📋 | *(internt)* Planlegger menyen — brukes via hovmester | Opus |
-| *@konditor* 🎂 | *(internt)* Pynt og finish — UI/UX med Aksel | Gemini |
-| *@inspektør-claude* 🔬 | *(internt)* Inspeksjon med Claude-modell | Claude |
-| *@inspektør-gpt* 🔬 | *(internt)* Inspeksjon med GPT-modell | GPT |
+| **@hovmester** 🍽️ | Orkestrator — tar imot bestillingen og delegerer til kjøkkenet | Opus |
+| **@kokk** 👨‍🍳 | Systemutvikler — backend, API, database, infrastruktur | GPT |
+| **@konditor** 🎂 | Frontendutvikler — UI, Aksel, state, tilgjengelighet | Opus |
+| **@mattilsynet** 🔍 | Konsoliderer inspektør-funn og produserer tilsynsrapport | GPT |
+| *@souschef* 📋 | *(internt)* Planlegger — lager implementasjonsplaner | Opus |
+| *@inspektør-claude* 🔬 | *(internt)* Kryssmodell-reviewer for GPT-arbeid | Opus |
+| *@inspektør-gpt* 🔬 | *(internt)* Kryssmodell-reviewer for Opus-arbeid | GPT |
 
-> **Tips**: Bruk `@hovmester` for alle oppgaver — den koordinerer planlegging, implementasjon og code review automatisk via spesialiserte sub-agenter.
+> **Tips**: Bruk `@hovmester` for alle oppgaver — den koordinerer planlegging, implementasjon og kodegjennomgang automatisk via spesialiserte sub-agenter. Oppgaver delegeres som vertikale funksjonssnitt (én agent har ansvar for hele funksjonen), med kryssmodell-review for å fange blindsoner.
 
 I tillegg til agenter distribueres:
 
-- `copilot-instructions.md` — Repo-spesifikke regler (scaffold — opprettes én gang, du eier den selv)
-- `instructions/*.instructions.md` — Delte team-standarder (Kotlin, TypeScript, sikkerhet, NAIS, etc.)
-- `prompts/*.prompt.md` — Gjenbrukbare prompts (f.eks. NAIS-manifest)
-- `skills/*/SKILL.md` — Oppskrifter for vanlige oppgaver (f.eks. Flyway-migrering)
+- `instructions/*.instructions.md` — Korte, Nav-spesifikke regler (sikkerhet, Kotlin). Lastes basert på filtype.
+- `skills/*/SKILL.md` — Domenespesifikk veiledning (auth, Kafka, Aksel, PostgreSQL osv.). Lastes ved behov.
+
+Skills er hovedmekanismen for kontekstuell veiledning — de lastes bare når de er relevante, og sparer plass i kontekstvinduet.
 
 **Lag 2 — MCP/plattform-verktøy (lokalt)**
 ~~[Context7](https://context7.com/) er en MCP-server som gir agentene tilgang til oppdatert API-dokumentasjon for
@@ -168,13 +168,13 @@ ecli copilot sync --all
 
 ### Tilpasse repo-instruksjoner
 
-`copilot-instructions.md` er **din fil** — CLI-et oppretter den kun første gang. Legg til repo-spesifikk kontekst som:
+Repo-spesifikke instruksjoner distribueres nå primært via `instructions/*.instructions.md` og skills. `copilot-instructions.md` opprettes ikke lenger automatisk av CLI-et — det er en fil i repoet som utviklere kan opprette selv ved behov. Der kan du legge til repo-spesifikk kontekst som:
 
 - Hva appen gjør og hvem den er for
 - Lokale konvensjoner som avviker fra teamstandard
 - Lenker til relevant dokumentasjon
 
-Filene i `instructions/`, `prompts/` og `skills/` er CLI-managed og oppdateres ved neste sync. Ikke rediger disse manuelt.
+Filene i `agents/`, `instructions/`, `skills/`, `workflows/` (spesifikt `copilot-config-auto-approve.yml`), `ISSUE_TEMPLATE/` og `PULL_REQUEST_TEMPLATE.md` forvaltes av CLI-et og oppdateres ved neste sync. Ikke rediger disse manuelt.
 
 ### Utvikling
 

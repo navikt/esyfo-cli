@@ -1,4 +1,5 @@
 ---
+name: docker
 description: Dockerfile-standarder for Nav — Chainguard base images, multi-stage builds og sikkerhet
 ---
 # Docker — Nav

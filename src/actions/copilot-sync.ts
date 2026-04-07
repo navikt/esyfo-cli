@@ -126,12 +126,7 @@ export async function copilotSync(options: {
 
       if (options.dryRun) {
         // Assemble into cached repo, then diff to detect real changes
-        const assembly = await assembleForRepo(
-          repoPath,
-          stack.type,
-          stack,
-          config,
-        );
+        const assembly = await assembleForRepo(repoPath, stack.type, config);
 
         let hasChanges = false;
         try {
@@ -192,12 +187,7 @@ export async function copilotSync(options: {
       }
 
       // Assemble files
-      const assembly = await assembleForRepo(
-        repoPath,
-        stack.type,
-        stack,
-        config,
-      );
+      const assembly = await assembleForRepo(repoPath, stack.type, config);
 
       // Check for actual git changes
       let hasChanges = false;

@@ -33,8 +33,8 @@ There are no tests in this project.
 
 `copilot-config/` contains the source-of-truth template files for Copilot agents, instructions, skills, and workflows.
 The `copilot sync` command assembles and syncs those templates into `.github/` across the team's repositories.
-`esyfo-cli` itself is blacklisted from that sync, so its local `.github/` copy must be updated manually here.
-When changing shared Copilot config, update `copilot-config/` first and then mirror the relevant changes into `.github/`.
+`copilot sync` updates `esyfo-cli` through the same PR-based flow as other repositories.
+When changing shared Copilot config during local development, update `copilot-config/` first and mirror relevant changes into `.github/` to keep this repo immediately consistent before the next sync PR lands.
 
 ### GitHub API access
 

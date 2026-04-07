@@ -1,4 +1,5 @@
 ---
+name: github-actions
 description: GitHub Actions CI/CD-standarder — SHA-pinning, Nais deploy, sikkerhet og Team eSyfos gjenbrukbare workflows
 ---
 # GitHub Actions — Team eSyfo

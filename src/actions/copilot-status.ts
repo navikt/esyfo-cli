@@ -58,9 +58,12 @@ export async function copilotStatus(options: { repo?: string }): Promise<void> {
       stack.repoName = repo.name;
 
       // Check if copilot config exists BEFORE assembly (to detect truly missing repos)
-      const hasCopilotConfig = fs.existsSync(
-        path.join(repoPath, ".github", "copilot-instructions.md"),
-      );
+      // Check both old indicator (copilot-instructions.md) and new (agents/) for backward compat
+      const hasCopilotConfig =
+        fs.existsSync(path.join(repoPath, ".github", "agents")) ||
+        fs.existsSync(
+          path.join(repoPath, ".github", "copilot-instructions.md"),
+        );
 
       let assembly: Awaited<ReturnType<typeof assembleForRepo>>;
       let hasChanges = false;
@@ -68,7 +71,7 @@ export async function copilotStatus(options: { repo?: string }): Promise<void> {
 
       try {
         // Run assembly to compute expected state (writes to cached repo)
-        assembly = await assembleForRepo(repoPath, stack.type, stack, config);
+        assembly = await assembleForRepo(repoPath, stack.type, config);
 
         // Use git to detect actual content drift (modified + untracked)
         try {
