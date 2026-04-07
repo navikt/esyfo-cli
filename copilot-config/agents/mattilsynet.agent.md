@@ -3,6 +3,7 @@ name: mattilsynet
 description: "Uanmeldt inspeksjon — code review mot beste praksis og repo-standarder"
 model: "gpt-5.4"
 user-invocable: false
+tools: ["view", "grep", "glob"]
 ---
 
 # Mattilsynet 🔍

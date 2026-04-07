@@ -1,4 +1,5 @@
 ---
+name: kafka-topic
 description: Sett opp Kafka-topic og consumer for team-esyfo — topicconfig, consumer, feilhåndtering
 ---
 

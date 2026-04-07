@@ -1,4 +1,5 @@
 ---
+name: observability-setup
 description: Observability for Nav-apper — metrikker, logging, tracing, varsler og referanser for backend/frontend
 ---
 

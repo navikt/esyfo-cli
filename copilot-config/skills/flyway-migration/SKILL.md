@@ -1,4 +1,5 @@
 ---
+name: flyway-migration
 description: Opprett en Flyway-databasemigrering etter riktige konvensjoner
 ---
 

@@ -1,4 +1,5 @@
 ---
+name: postgresql-review
 description: PostgreSQL-gjennomgang — EXPLAIN ANALYZE, indekser, N+1-deteksjon, ytelsesproblemer og Flyway-migrasjoner
 ---
 # PostgreSQL-gjennomgang

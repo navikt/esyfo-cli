@@ -1,4 +1,5 @@
 ---
+name: nais-manifest
 description: Generer og vedlikehold NAIS-manifest — spec, database, Kafka, auth, accessPolicy, ressurser
 ---
 
@@ -119,8 +120,8 @@ Legg til `ingresses` ved behov, og gjenbruk etablerte URL-mønstre i repoet:
 
 ```yaml
 ingresses:
-  - https://myapp.intern.dev.nav.no   # Internal dev
-  - https://myapp.ekstern.dev.nav.no  # External dev
+  - https://<app>.intern.dev.nav.no   # Interne apper (ansattflater)
+  - https://<app>.ekstern.dev.nav.no  # Eksterne apper (brukerflater)
 ```
 
 ## Scaling

@@ -1,4 +1,5 @@
 ---
+name: klarsprak
 description: Norsk teknisk redaktør — klarspråk, AI-markører, anglismer, fagtermer, mikrotekst
 ---
 # Klarspråk — norsk teknisk skriving

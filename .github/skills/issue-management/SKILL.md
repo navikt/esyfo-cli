@@ -1,4 +1,5 @@
 ---
+name: issue-management
 description: Opprett og administrer GitHub Issues, epics, sub-issues og prosjektstatus på Team eSyfos GitHub Projects-board
 ---
 

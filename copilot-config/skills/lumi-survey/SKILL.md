@@ -1,4 +1,5 @@
 ---
+name: lumi-survey
 description: Integrer @navikt/lumi-survey tilbakemeldingswidget i en Nav-frontendapplikasjon
 ---
 

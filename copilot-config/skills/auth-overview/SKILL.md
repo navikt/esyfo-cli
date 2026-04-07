@@ -1,4 +1,5 @@
 ---
+name: auth-overview
 description: Sett opp autentisering i en Nav-applikasjon — Azure AD, TokenX, ID-porten, Maskinporten konfigurering og beste praksis
 ---
 

@@ -1,4 +1,5 @@
 ---
+name: pull-request
 description: Opprett pull requests med semantisk tittel, issue-kobling og sjekkliste etter Team eSyfos arbeidsflyt
 ---
 

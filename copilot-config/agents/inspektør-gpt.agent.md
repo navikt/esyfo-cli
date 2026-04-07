@@ -3,6 +3,7 @@ name: inspektør-gpt
 description: "(internt) Code review-inspektør — GPT-perspektiv"
 model: "gpt-5.4"
 user-invocable: false
+tools: ["view", "grep", "glob"]
 ---
 
 # Inspektør (GPT) 🔍

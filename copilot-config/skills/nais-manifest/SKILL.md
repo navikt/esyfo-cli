@@ -1,4 +1,5 @@
 ---
+name: nais-manifest
 description: Generer og vedlikehold NAIS-manifest — spec, database, Kafka, auth, accessPolicy, ressurser
 ---
 

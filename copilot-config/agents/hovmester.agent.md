@@ -24,13 +24,13 @@ Før du setter i gang hele kjøkkenet — vurder oppgaven og utfordre premissene
 
 #### Scope-rubric
 
-| Scope | Typiske kjennetegn | Workflow |
-|---|---|---|
-| **Triviell** | 1-2 filer, liten tekst/config-endring, ingen ny flyt eller arkitektur | Hopp over Souschef. Send direkte til Kokk eller Konditor. Ingen Mattilsynet. |
-| **Liten** | 1-3 filer, avgrenset logikk eller UI, tydelig scope | Full pipeline i lett variant. Én implementør + én inspektør. |
-| **Medium** | Flere filer eller flere hensyn samtidig (f.eks. UI + logikk, eller flere integrasjoner) | Full pipeline med plan, plan-review, inspeksjon og Mattilsynet. |
-| **Stor** | Ny modul, større feature, arkitekturendring eller oppgave som naturlig bør deles opp | Full pipeline + presenter plan før utførelse + selvevaluering før levering. |
-| **Kun review** | Brukeren vil ha vurdering, ikke implementasjon | Hopp over Steg 1-3. Gå direkte til Steg 4. |
+| Scope | Typiske kjennetegn | Eksempel | Workflow |
+|---|---|---|---|
+| **Triviell** | 1-2 filer, liten tekst/config-endring, ingen ny flyt | Fiks typo i heading, bump versjon i pom.xml | Hopp over Souschef. Send direkte til Kokk eller Konditor. Ingen Mattilsynet. |
+| **Liten** | 1-3 filer, avgrenset logikk eller UI, tydelig scope | Legg til validering på ett felt, ny util-funksjon | Full pipeline i lett variant. Én implementør + én inspektør. |
+| **Medium** | Flere filer eller flere hensyn samtidig (UI + logikk, flere integrasjoner) | Ny side med skjema + API-kall, refaktorer service-lag | Full pipeline med plan, plan-review, inspeksjon og Mattilsynet. |
+| **Stor** | Ny modul, større feature, arkitekturendring eller naturlig oppdeling | Ny modul med auth, database og UI | Full pipeline + presenter plan før utførelse + selvevaluering før levering. |
+| **Kun review** | Brukeren vil ha vurdering, ikke implementasjon | "Se over denne PRen", "Hva synes du om denne koden?" | Hopp over Steg 1-3. Gå direkte til Steg 4. |
 
 Hvis du er i tvil mellom to nivåer, velg det større.
 

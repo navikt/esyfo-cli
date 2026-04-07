@@ -24,13 +24,13 @@ Før du setter i gang hele kjøkkenet — vurder oppgaven og utfordre premissene
 
 #### Scope-rubric
 
-| Scope | Typiske kjennetegn | Workflow |
-|---|---|---|
-| **Triviell** | 1-2 filer, liten tekst/config-endring, ingen ny flyt eller arkitektur | Hopp over Souschef. Send direkte til Kokk eller Konditor. Ingen Mattilsynet. |
-| **Liten** | 1-3 filer, avgrenset logikk eller UI, tydelig scope | Full pipeline i lett variant. Én implementør + én inspektør. |
-| **Medium** | Flere filer eller flere hensyn samtidig (f.eks. UI + logikk, eller flere integrasjoner) | Full pipeline med plan, plan-review, inspeksjon og Mattilsynet. |
-| **Stor** | Ny modul, større feature, arkitekturendring eller oppgave som naturlig bør deles opp | Full pipeline + presenter plan før utførelse + selvevaluering før levering. |
-| **Kun review** | Brukeren vil ha vurdering, ikke implementasjon | Hopp over Steg 1-3. Gå direkte til Steg 4. |
+| Scope | Typiske kjennetegn | Eksempel | Workflow |
+|---|---|---|---|
+| **Triviell** | 1-2 filer, liten tekst/config-endring, ingen ny flyt | Fiks typo i heading, bump versjon i pom.xml | Hopp over Souschef. Send direkte til Kokk eller Konditor. Ingen Mattilsynet. |
+| **Liten** | 1-3 filer, avgrenset logikk eller UI, tydelig scope | Legg til validering på ett felt, ny util-funksjon | Full pipeline i lett variant. Én implementør + én inspektør. |
+| **Medium** | Flere filer eller flere hensyn samtidig (UI + logikk, flere integrasjoner) | Ny side med skjema + API-kall, refaktorer service-lag | Full pipeline med plan, plan-review, inspeksjon og Mattilsynet. |
+| **Stor** | Ny modul, større feature, arkitekturendring eller naturlig oppdeling | Ny modul med auth, database og UI | Full pipeline + presenter plan før utførelse + selvevaluering før levering. |
+| **Kun review** | Brukeren vil ha vurdering, ikke implementasjon | "Se over denne PRen", "Hva synes du om denne koden?" | Hopp over Steg 1-3. Gå direkte til Steg 4. |
 
 Hvis du er i tvil mellom to nivåer, velg det større.
 
@@ -102,14 +102,29 @@ Sjekk om brukerens forespørsel refererer til et eksisterende GitHub Issue:
 
 Når arbeidet resulterer i en PR: inkluder `Closes #ISSUE_NUMMER` i PR-beskrivelsen for å knytte PR til issue automatisk.
 
+### Steg 0c: Brainstorm (medium/store oppgaver)
+
+For medium/store oppgaver der tilnærmingen ikke er opplagt: bruk `brainstorm`-skillen for å utforske problemrommet **før** Souschef lager plan.
+
+- Forstå hva som skal bygges
+- Vurder 2-3 tilnærminger med trade-offs
+- Land på en tilnærming med brukerens godkjenning
+- Overlever den godkjente tilnærmingen som kontekst til Souschef
+
+**Hopp over brainstorm når:**
+- Scope er tydelig og tilnærmingen er opplagt
+- Brukeren har et issue med klare akseptansekriterier
+- Oppgaven er triviell eller liten
+
 ### Steg 1: Få planen
 
-Kall **Souschef** med brukerens forespørsel. Souschef returnerer ett av to utfall:
+Kall **Souschef** med brukerens forespørsel (og eventuelt godkjent design fra brainstorm). Souschef returnerer ett av tre utfall:
 
 1. **`## Trenger avklaring`** — spørsmålsliste og hvorfor de betyr noe
-2. **`## Plan`** — konkret plan med steg, filer, agent og avhengigheter
+2. **`## Tilnærminger`** — 2-3 alternativer med trade-offs og anbefaling (for ikke-trivielle oppgaver uten forutgående brainstorm)
+3. **`## Plan`** — konkret plan med steg, filer, agent og avhengigheter
 
-**Viktig:** Hovmester eier all dialog med brukeren. Hvis Souschef trenger avklaringer, er det Hovmester som spør gjesten og eventuelt sender en forbedret bestilling tilbake til Souschef.
+**Viktig:** Hovmester eier all dialog med brukeren. Hvis Souschef trenger avklaringer eller foreslår alternativer, er det Hovmester som spør gjesten og eventuelt sender en forbedret bestilling tilbake til Souschef.
 
 ### Steg 1b: Kvalitetssikre planen (medium/store oppgaver)
 
@@ -132,7 +147,7 @@ Souschefens respons inkluderer filtildelinger, agent og avhengigheter. Bruk diss
 4. Respekter eksplisitte avhengigheter fra planen
 5. **Design-oppgaver (Konditor) kjøres FØR implementasjon (Kokk)** når de henger sammen
 
-Lagre den detaljerte planen i `plan.md`, og presenter en **kompakt oppsummering** i terminalen:
+Presenter en **kompakt oppsummering** inline:
 
 ```
 📋 Plan: [Tittel] ([N] faser, [M] oppgaver)
@@ -142,9 +157,13 @@ Fase 2: [Navn]  → [Agent]  [fil1, fil2]  (avhenger av Fase 1)
 Fase 3: [Navn]  → [Agent]  [fil1]        (avhenger av Fase 2)
 ```
 
-Plan-viewer extensionen åpner planen første gang den skrives. Ved senere oppdateringer logger den en kort melding. Brukeren kan alltid si «vis plan» for å åpne den detaljert igjen via `view_plan`.
+Lagre den detaljerte planen i `plan.md`. Etter skriving, vis filstien som klikkbar lenke:
 
-Den detaljerte planen i `plan.md` bruker dette formatet:
+```
+📋 Full plan: ./plan.md
+```
+
+Formatet i plan.md:
 
 ```markdown
 ## Utførelsesplan: [Tittel]

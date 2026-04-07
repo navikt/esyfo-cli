@@ -1,4 +1,5 @@
 ---
+name: api-design
 description: REST API-design for Ktor — URL-konvensjoner, StatusPages-basert feilhåndtering, paginering og input-validering
 ---
 # API Design — REST

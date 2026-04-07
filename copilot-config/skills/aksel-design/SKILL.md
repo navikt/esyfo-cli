@@ -1,4 +1,5 @@
 ---
+name: aksel-design
 description: Aksel designsystem — spacing-tokens, layout-komponenter, responsivt design og komponentmønstre for Nav-frontend
 ---
 

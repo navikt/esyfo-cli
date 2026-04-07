@@ -1,4 +1,5 @@
 ---
+name: accessibility
 description: Universell utforming (UU) — WCAG 2.1 AA med Aksel-komponenter for Nav-frontend
 ---
 # Tilgjengelighet (UU) — WCAG 2.1 AA

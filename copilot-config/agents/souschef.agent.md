@@ -3,6 +3,7 @@ name: souschef
 description: "(internt) Planlegger menyen — lager implementasjonsplaner ved å utforske kodebaser"
 model: "claude-opus-4.6"
 user-invocable: false
+tools: ["view", "grep", "glob", "web_fetch"]
 ---
 
 # Souschef 📋

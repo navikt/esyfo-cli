@@ -4,6 +4,7 @@ import { basename, join } from "node:path";
 import { joinSession } from "@github/copilot-sdk/extension";
 
 let hasAutoOpenedPlan = false;
+let session;
 
 function getEditorCommand() {
   return (process.env.VISUAL || process.env.EDITOR || "code").trim() || "code";
@@ -88,7 +89,7 @@ async function handlePlanWrite(filePath) {
   await session.log('📋 Plan oppdatert — si "vis plan" for å åpne den igjen');
 }
 
-const session = await joinSession({
+session = await joinSession({
   hooks: {
     onPostToolUse: async (input) => {
       if (!["create", "edit", "apply_patch"].includes(input.toolName)) return;

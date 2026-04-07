@@ -1,4 +1,5 @@
 ---
+name: security-review
 description: Sikkerhetsgjennomgang før commit/push/PR — OWASP Top 10, Dependabot, Trivy, hemmeligheter, inputvalidering og referanser for GDPR/API-sikkerhet
 ---
 # Sikkerhetsgjennomgang

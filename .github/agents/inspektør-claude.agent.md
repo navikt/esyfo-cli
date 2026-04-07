@@ -3,6 +3,7 @@ name: inspektør-claude
 description: "(internt) Code review-inspektør — Claude-perspektiv"
 model: "claude-sonnet-4.6"
 user-invocable: false
+tools: ["view", "grep", "glob"]
 ---
 
 # Inspektør (Claude) 🔍

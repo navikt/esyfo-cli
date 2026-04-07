@@ -1,4 +1,5 @@
 ---
+name: conventional-commit
 description: Generer conventional commit-meldinger med Nav-relevante scopes og breaking change-format
 ---
 
