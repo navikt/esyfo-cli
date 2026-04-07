@@ -3,9 +3,9 @@ name: auth-overview
 description: Sett opp autentisering i en Nav-applikasjon — Azure AD, TokenX, ID-porten, Maskinporten, Texas sidecar (Kotlin) og Oasis (TypeScript)
 ---
 
-# Authentication Overview — Nav
+# Autentiseringsoversikt — Nav
 
-Oversikt over autentiseringsmekanismer i Nav. Bruk denne som referanse ved oppsett av auth i nye eller eksisterende tjenester.
+Oversikt over autentiseringsmekanismer i Nav. Bruk denne som referanse ved oppsett av autentisering i nye eller eksisterende tjenester.
 
 ## Autentiseringstyper
 
@@ -54,7 +54,7 @@ Systembruker er en mekanisme i Altinn 3 der eksterne virksomheter oppretter en s
 
 ## Kotlin — Texas sidecar
 
-Texas er en HTTP-sidecar som kjører på `localhost:3000` i NAIS-podden. Den håndterer token-operasjoner uten at applikasjonen trenger OAuth-biblioteker.
+Texas er en HTTP-sidecar som kjører på `localhost:3000` i NAIS-podden. Den håndterer tokenoperasjoner uten at applikasjonen trenger OAuth-biblioteker.
 
 ### Token (M2M)
 ```
@@ -86,7 +86,7 @@ Content-Type: application/json
 
 **Caching**: Texas cacher tokens automatisk med 60 sekunders preemptiv refresh. Ikke implementer egen caching.
 
-### Spring Boot auth-dekorator
+### Spring Boot-auth-dekorator
 ```kotlin
 @ProtectedWithClaims(issuer = "azuread", claimMap = ["NAVident=*"])
 ```
@@ -135,23 +135,23 @@ const { pid } = parseIdportenToken(token) // pid = fødselsnummer
 
 ## Tilnærming
 
-1. Les NAIS-manifest for å identifisere hvilke auth-mekanismer som er konfigurert
-2. Søk i kodebasen etter eksisterende auth-oppsett og følg samme mønster
+1. Les NAIS-manifestet for å identifisere hvilke autentiseringsmekanismer som er konfigurert
+2. Søk i kodebasen etter eksisterende autentiseringsoppsett og følg samme mønster
 3. Bruk Texas (Kotlin) eller Oasis (TypeScript) — ikke implementer OAuth-flyter manuelt
 
-Komplett auth-dokumentasjon: https://doc.nais.io/auth/
+Komplett dokumentasjon om autentisering: https://doc.nais.io/auth/
 
 ## Boundaries
 
-### ✅ Always
-- Validate JWT issuer, audience, expiration, and signature
-- Use HTTPS only for token transmission
-- Define explicit `accessPolicy` in NAIS manifest
-- Use env vars from NAIS (never hardcode)
+### ✅ Alltid
+- Valider JWT-utsteder, audience, utløpstid og signatur
+- Bruk kun HTTPS for tokenoverføring
+- Definer eksplisitt `accessPolicy` i NAIS-manifestet
+- Bruk miljøvariabler fra NAIS (aldri hardkod)
 
-### 🚫 Never
-- Hardcode client secrets or tokens
-- Log full JWT tokens (or any part containing PII)
-- Skip token validation
-- Store tokens in localStorage
-- Implement own token caching (Texas/Oasis handles this)
+### 🚫 Aldri
+- Hardkod klienthemmeligheter eller tokens
+- Logg aldri hele JWT-er (eller deler som inneholder PII)
+- Hopp aldri over tokenvalidering
+- Ikke lagre tokens i localStorage
+- Ikke lag egen token-caching (Texas/Oasis håndterer dette)

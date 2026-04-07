@@ -1,6 +1,6 @@
 ---
 name: tech-stack
-description: Team eSyfos teknologivalg, bibliotekpreferanser og plattform. Brukes ved nye apper, rewrites, arkitekturvalg, eller når du trenger oversikt over teamets stack.
+description: Team eSyfos teknologivalg, bibliotekpreferanser og plattform. Brukes ved nye apper, omskrivinger, arkitekturvalg eller når du trenger oversikt over teamets teknologivalg.
 ---
 
 # Tech Stack — Team eSyfo
@@ -32,8 +32,8 @@ Sjekk NAIS-manifest (`nais.yaml`) for hvilke som brukes i det aktuelle repoet.
 |---|---|
 | **Språk** | Kotlin (ikke Java) |
 | **Build** | Gradle med Kotlin DSL og Version Catalog |
-| **Framework** | Ktor (standard) eller Spring Boot (noen eldre repos) |
-| **DB-tilgang** | Exposed (foretrukket for nye prosjekter). Kotliquery i noen eksisterende repos. |
+| **Framework** | Ktor (standard) eller Spring Boot (noen eldre repoer) |
+| **DB-tilgang** | Exposed (foretrukket for nye prosjekter). Kotliquery i noen eksisterende repoer. |
 | **DI** | Koin (Ktor-repos), Spring DI (Spring-repos) |
 | **Kafka** | Plain Apache Kafka clients — **ikke** Rapids & Rivers |
 | **Migreringer** | Flyway |
@@ -58,4 +58,4 @@ Sjekk NAIS-manifest (`nais.yaml`) for hvilke som brukes i det aktuelle repoet.
 - Engelsk kode, norsk brukerrettet tekst (klarspråk)
 - Semantiske commits (`feat:`, `fix:`, `refactor:`, etc.)
 - NAIS-manifest i repo-root eller `.nais/`-mappe
-- Skills finnes for domenespesifikk guidance — bruk dem
+- Skills finnes for domenespesifikk veiledning — bruk dem

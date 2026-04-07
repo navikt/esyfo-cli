@@ -3,9 +3,9 @@ name: pull-request
 description: Opprett pull requests med semantisk tittel, issue-kobling og sjekkliste etter Team eSyfos arbeidsflyt
 ---
 
-# Pull Request — Team eSyfo
+# Pull request — Team eSyfo
 
-Opprett konsistente, velstrukturerte pull requests som kobles til issues og følger teamets arbeidsflyt.
+Opprett konsistente, godt strukturerte pull requests som kobles til issues og følger teamets arbeidsflyt.
 
 ## PR-tittel
 
@@ -18,11 +18,11 @@ type(scope): kort beskrivelse
 - **Typer:** `feat`, `fix`, `refactor`, `chore`, `docs`, `test`, `style`
 - **Scope:** Modul eller domene som endres
 
-## PR-body
+## PR-tekst
 
-Repoet har en PR-template i `.github/PULL_REQUEST_TEMPLATE.md` som automatisk pre-fyller body når du oppretter en PR. Fyll inn seksjonene i templaten.
+Repoet har en PR-template i `.github/PULL_REQUEST_TEMPLATE.md` som automatisk forhåndsfyller teksten når du oppretter en PR. Fyll inn seksjonene i malen.
 
-For ikke-trivielle endringer bør bodyen kort oppsummere:
+For ikke-trivielle endringer bør teksten kort oppsummere:
 - hva som ble endret
 - issue-kobling
 - hva som ble verifisert (build/typecheck/test/lint)
@@ -41,7 +41,7 @@ For ikke-trivielle endringer bør bodyen kort oppsummere:
 
 ### MCP (foretrukket)
 
-Bruk tilgjengelig PR-verktøy for å opprette PR med title og body.
+Bruk tilgjengelig PR-verktøy for å opprette PR med tittel og tekst.
 
 ### Fallback (gh CLI)
 

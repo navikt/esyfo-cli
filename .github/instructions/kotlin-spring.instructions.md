@@ -5,7 +5,7 @@ applyTo: "**/*.kt"
 
 # Spring Boot — Nav-spesifikt
 
-## Auth
+## Autentisering
 
 ```kotlin
 @ProtectedWithClaims(issuer = "azuread", claimMap = ["NAVident=*"])
@@ -26,4 +26,4 @@ spring:
 
 - `@SpringBootTest` + Testcontainers for integrasjonstester
 - `@MockkBean` (krever `com.ninja-squad:springmockk`)
-- MockOAuth2Server for auth-tester
+- MockOAuth2Server for autentiseringstester

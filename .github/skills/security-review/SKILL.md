@@ -65,7 +65,7 @@ val dbPassword = System.getenv("DB_PASSWORD")
 val dbPassword = "supersecret123"
 ```
 
-## Network Policy (Nais)
+## Nettverkspolicy (Nais)
 
 ```yaml
 spec:
@@ -141,7 +141,7 @@ allowedOrigins = listOf("*")
 
 - Følg dataminimering, formålsbinding og innebygd personvern.
 - Dokumenter behandlingsgrunnlag før innsamling eller visning av personopplysninger.
-- Planlegg sletting, anonymisering og audit logging sammen med funksjonaliteten.
+- Planlegg sletting, anonymisering og audit-logging sammen med funksjonaliteten.
 - Samtykke skal være eksplisitt og lett å trekke tilbake når det er behandlingsgrunnlaget.
 
 Se `references/gdpr-privacy.md` for detaljer om PII-kategorisering, retention, anonymisering, CEF-auditlogging og samtykkehåndtering.
@@ -187,7 +187,7 @@ npm audit fix
 - [ ] Nais accessPolicy er eksplisitt (ingen åpen inbound)
 - [ ] CORS begrenset til kjente domener
 - [ ] Rate limiting vurdert for sensitive eller publikt eksponerte endepunkter
-- [ ] Request size limits og payload-validering er på plass der store kall kan misbrukes
+- [ ] Grenser for request-størrelse og payload-validering er på plass der store kall kan misbrukes
 - [ ] Sikkerhetsheadere er satt for web/API-flater
 - [ ] Sesjoner/cookies er `Secure`, `HttpOnly` og har riktig `SameSite`
 - [ ] `Nav-Call-Id` brukes for korrelasjon mellom tjenester
@@ -201,7 +201,7 @@ npm audit fix
 - [ ] Avhengigheter oppdatert og sårbarhetsskannet
 - [ ] `trivy repo .` uten HIGH/CRITICAL funn
 - [ ] `zizmor` godkjent for alle GitHub Actions workflows
-- [ ] Git-historikken er fri for committede hemmeligheter
+- [ ] Det finnes ingen committede hemmeligheter i Git-historikken
 
 ## Referanser
 

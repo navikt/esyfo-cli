@@ -3,13 +3,13 @@ name: tdd
 description: Test-driven development med red-green-refactor. Brukes når du vil bygge features eller fikse bugs med tester først, nevner "red-green-refactor", eller vil ha testdrevet utvikling.
 ---
 
-# Test-Driven Development
+# Testdrevet utvikling
 
 ## Filosofi
 
 **Kjerneprinsipp**: Tester verifiserer atferd gjennom offentlige grensesnitt, ikke implementasjonsdetaljer. Koden kan endres totalt — testene skal overleve.
 
-**Gode tester** tester gjennom offentlige API-er. De beskriver *hva* systemet gjør. "Bruker kan sende søknad med gyldig skjema" forteller nøyaktig hvilken kapabilitet som finnes. Disse testene overlever refaktoreringer fordi de ikke bryr seg om intern struktur.
+**Gode tester** tester gjennom offentlige API-er. De beskriver *hva* systemet gjør. "Bruker kan sende søknad med gyldig skjema" forteller nøyaktig hvilken funksjon som finnes. Disse testene overlever refaktoreringer fordi de ikke bryr seg om intern struktur.
 
 **Dårlige tester** er koblet til implementasjon. De mocker interne samarbeidspartnere, tester private metoder, eller verifiserer gjennom eksterne mekanismer. Varseltegn: testen feiler ved refaktorering, men atferden er uendret.
 
@@ -79,7 +79,7 @@ Etter at alle tester består:
 [ ] Test bruker kun offentlig grensesnitt
 [ ] Test ville overlevd intern refaktorering
 [ ] Kode er minimal for denne testen
-[ ] Ingen spekulative features lagt til
+[ ] Ingen spekulative funksjoner lagt til
 ```
 
 ## Mocking

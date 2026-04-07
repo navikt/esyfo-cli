@@ -1,6 +1,6 @@
 ---
 name: brainstorm
-description: Utforsk et problem og land på en design før planlegging. Brukes for å forstå hva som skal bygges, vurdere alternativer, og bli enig om tilnærming — FØR kode skrives eller plan lages.
+description: Utforsk et problem og land på et design før planlegging. Brukes for å forstå hva som skal bygges, vurdere alternativer og bli enig om tilnærming — FØR kode skrives eller plan lages.
 ---
 
 # Brainstorm — fra idé til design
@@ -20,22 +20,22 @@ Hjelper med å gjøre en vag idé om til et konkret, gjennomtenkt design gjennom
 Utforsk kodebasen før du stiller spørsmål:
 - Les relevante filer og dokumentasjon
 - Sjekk eksisterende mønstre
-- Forstå constraints og avhengigheter
+- Forstå rammer og avhengigheter
 
 ### 2. Avklarende spørsmål
 
-Still spørsmål **ett om gangen**. Foretrekk multiple choice:
+Still spørsmål **ett om gangen**. Foretrekk flervalg:
 
 > Hva er det viktigste kravet her?
 > A) Ytelse — dette kjører tusenvis av ganger
 > B) Enkelhet — dette skal være lett å vedlikeholde
 > C) Fleksibilitet — kravene vil endre seg
 
-Fokuser på: formål, constraints, suksesskriterier.
+Fokuser på: formål, rammer, suksesskriterier.
 
 ### 3. Foreslå 2-3 tilnærminger
 
-Presenter alternativer med trade-offs og din anbefaling:
+Presenter alternativer med avveininger og din anbefaling:
 
 ```
 ### A: [Navn] ⭐ anbefalt
@@ -75,7 +75,7 @@ Når designet er godkjent:
 ## Prinsipper
 
 - **Ett spørsmål om gangen** — ikke overbelast
-- **YAGNI** — fjern unødvendige features fra alle forslag
+- **YAGNI** — fjern unødvendige funksjoner fra alle forslag
 - **Utforsk alternativer** — aldri gå rett til løsning
 - **Inkrementell validering** — få godkjenning underveis
 - **Følg eksisterende mønstre** — ikke foreslå omskriving uten grunn

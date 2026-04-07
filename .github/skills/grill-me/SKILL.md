@@ -5,7 +5,7 @@ description: Stress-test en plan eller et design gjennom intensiv utspørring. B
 
 # Grill Me — stress-test en idé
 
-Intervju utvikleren intensivt om alle aspekter av en plan eller et design til dere når en felles forståelse. Gå ned hvert tre av beslutninger og løs avhengigheter én for én.
+Grill utvikleren intensivt om alle sider ved en plan eller et design til dere har en felles forståelse. Gå ned hver gren i beslutningstreet og løs avhengigheter én for én.
 
 ## Når brukes denne?
 
@@ -18,13 +18,13 @@ Intervju utvikleren intensivt om alle aspekter av en plan eller et design til de
 
 ### 1. Forstå hva som grilles
 
-Les planen, designet, eller beskrivelsen grundig. Utforsk kodebasen for kontekst.
+Les planen, designet eller beskrivelsen grundig. Utforsk kodebasen for kontekst.
 
 ### 2. Still spørsmål én om gangen
 
 For hvert spørsmål:
 - Still spørsmålet
-- Gi din egen **anbefalte svar** (slik at utvikleren kan si "ja, enig" eller "nei, fordi...")
+- Gi et **anbefalt svar** (slik at utvikleren kan si "ja, enig" eller "nei, fordi...")
 - Vent på svar før neste spørsmål
 
 ### 3. Følg tråder
@@ -44,9 +44,9 @@ Når alle tråder er løst:
 
 Gå gjennom disse i rekkefølge (hopp over det som er irrelevant):
 
-1. **Scope** — Er dette riktig avgrenset? Hva er utenfor scope?
+1. **Omfang** — Er dette riktig avgrenset? Hva er utenfor?
 2. **Alternativer** — Ble andre tilnærminger vurdert? Hvorfor ble dette valgt?
-3. **Edge cases** — Hva skjer når [uvanlig input/state/feil]?
+3. **Randtilfeller** — Hva skjer ved [uvanlig input/tilstand/feil]?
 4. **Avhengigheter** — Hva forutsetter dette? Hva kan gå galt?
 5. **Testing** — Hvordan vet vi at det fungerer? Hva er vanskelig å teste?
 6. **Vedlikehold** — Hvem eier dette om 6 måneder? Er det forståelig?

@@ -9,7 +9,7 @@ Referanse: [sikkerhet.nav.no](https://sikkerhet.nav.no)
 
 ## NAIS-plattformen
 
-- Auth og hemmeligheter håndteres av NAIS — sjekk manifestet
+- Autentisering og hemmeligheter håndteres av NAIS — sjekk manifestet
 - Dependabot og Trivy for sårbarhetsskanning
 - Chainguard/Distroless base images
 
@@ -33,7 +33,7 @@ accessPolicy:
 
 ## Boundaries
 
-- Parameteriserte queries — aldri string-interpolasjon i SQL
+- Parameteriserte spørringer — aldri string-interpolasjon i SQL
 - Valider input ved systemgrenser
 - Aldri logg PII (fødselsnummer, tokens, personnavn)
 - Aldri commit hemmeligheter

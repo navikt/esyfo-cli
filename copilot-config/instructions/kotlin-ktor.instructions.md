@@ -5,7 +5,7 @@ applyTo: "**/*.kt"
 
 # Ktor — Nav-spesifikt
 
-## Auth
+## Autentisering
 
 ```kotlin
 authenticate("azureAd") {
@@ -16,9 +16,9 @@ authenticate("azureAd") {
 }
 ```
 
-## Dependency Injection
+## Avhengighetsinjeksjon
 
-Koin er standard DI-rammeverk for Ktor-repos i teamet (hvis `io.insert-koin` finnes i dependencies).
+Koin er standard DI-rammeverk for Ktor-repoer i teamet (hvis `io.insert-koin` finnes i avhengighetene).
 
 ## Logging
 

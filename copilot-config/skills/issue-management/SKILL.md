@@ -3,11 +3,11 @@ name: issue-management
 description: Opprett og administrer GitHub Issues, epics, sub-issues og prosjektstatus på Team eSyfos GitHub Projects-board
 ---
 
-# Issue Management — Team eSyfo
+# Issue-håndtering — Team eSyfo
 
-Opprett og håndter GitHub Issues knyttet til Team eSyfo sitt GitHub Projects-board i `navikt`-organisasjonen.
+Opprett og håndter GitHub Issues knyttet til GitHub Projects-boardet til Team eSyfo i `navikt`-organisasjonen.
 
-## Workflow
+## Arbeidsflyt
 
 ### 1. Sjekk om issue allerede finnes
 
@@ -19,13 +19,13 @@ Før du oppretter et nytt issue, sjekk om brukeren allerede har referert til et 
 |------|------|
 | **Epic** | Store oppgaver som brytes ned i flere issues |
 | **Feature** | Ny funksjonalitet |
-| **Story** | Brukerhistorie / use case |
+| **Story** | Brukerhistorie / brukstilfelle |
 | **Task** | Teknisk oppgave, vedlikehold, chore |
 | **Bug** | Feil som må fikses |
 
 ### 3. Opprett issue med riktig struktur
 
-Repoet har issue-templates i `.github/ISSUE_TEMPLATE/` for de relevante typene (`feature`, `bug`, `story`, `task`, `epic`). Les feltstrukturen fra templaten for den valgte typen og lag en markdown-body med tilsvarende seksjoner.
+Repoet har issue-maler i `.github/ISSUE_TEMPLATE/` for de relevante typene (`feature`, `bug`, `story`, `task`, `epic`). Les feltstrukturen fra malen for den valgte typen og lag en markdown-tekst med tilsvarende seksjoner.
 
 Inkluder alltid:
 - **Avhengigheter** (valgfritt): `Avhenger av #NNN` hvis relevant
@@ -45,10 +45,10 @@ gh api repos/navikt/REPO_NAVN/issues \
   --jq '.html_url'
 ```
 
-Legg deretter issuet til i Team eSyfo-prosjektet.
+Legg deretter issuet til i GitHub Projects-boardet til Team eSyfo.
 
 Se `references/projects.md` for prosjektnummer og feltoppdatering.
-Se `references/issue-types.md` for detaljer om issue types.
+Se `references/issue-types.md` for detaljer om issue-typer.
 
 ### 5. Sett project-felter
 
@@ -71,9 +71,9 @@ For store oppgaver som brytes ned:
 
 1. Opprett epic-issuet først
 2. Opprett underliggende issues
-3. Koble sub-issues til epicen via native sub-issues API
-4. Koble avhengigheter via dependencies API
-5. Inkluder også `Del av epic: #EPIC_NUMMER` og `Avhenger av #NNN` i issue-body for lesbarhet
+3. Koble sub-issues til epicen via GitHubs sub-issues-API
+4. Koble avhengigheter via dependencies-API-et
+5. Inkluder også `Del av epic: #EPIC_NUMMER` og `Avhenger av #NNN` i issue-teksten for lesbarhet
 6. Sett epicen til **Monday epics 🎯** hvis den skal jobbes med nå
 
 #### Sub-issues skal være selvstendige
@@ -84,11 +84,11 @@ Hvert sub-issue skal inneholde nok kontekst til at noen kan plukke det opp uten 
 - Avhengigheter til andre issues
 - Akseptansekriterier
 
-### 7. Stegvis løsning av epic
+### 7. Epic-workflow og progresjon
 
 Når en epic skal løses stegvis:
 
-1. **Les epicen** — hent epic, sub-issues og dependency-informasjon
+1. **Les epicen** — hent epic, sub-issues og informasjon om avhengigheter
 2. **Kategoriser åpne sub-issues**:
    - **Kjørbar nå** — alle avhengigheter er oppfylt
    - **Blokkert** — minst én avhengighet er fortsatt åpen
@@ -100,15 +100,18 @@ Når en epic skal løses stegvis:
 4. **Løs oppgaven** — følg normal arbeidsflyt for valgt issue
 5. **Gjenta** — etter fullføring, vurder neste kjørbare oppgave
 
-### 8. Completion comments
+### 8. Ferdigmelding på issues
 
-Etter at et issue er løst, legg igjen en kommentar på issuet:
+Etter at et issue er løst:
+
+1. Oppdater prosjektstatus til **Done**
+2. Legg igjen en ferdigmelding på issuet
 
 ```bash
 gh issue comment ISSUE_NUMMER --repo navikt/REPO --body "COMMENT_BODY"
 ```
 
-Kommentaren skal være strukturert og kortfattet:
+Ferdigmeldingen skal være strukturert og kortfattet:
 
 ~~~markdown
 ## ✅ Løst
@@ -126,9 +129,9 @@ Kommentaren skal være strukturert og kortfattet:
 **PR:** #PR_NUMMER
 ~~~
 
-Bruk en kort inspeksjonsoppsummering i kommentaren — ikke full ASCII-rapport med mindre brukeren eksplisitt ønsker det.
+Bruk en kort inspeksjonsoppsummering i kommentaren — ikke en full ASCII-rapport med mindre brukeren eksplisitt ønsker det.
 
-### 9. Epic auto-close
+### 9. Lukk epic automatisk
 
 Etter at et sub-issue er lukket, sjekk om alle sub-issues i epicen er fullført.
 
@@ -137,7 +140,7 @@ Hvis ingen åpne sub-issues gjenstår:
 2. Lukk epicen
 3. Sett status til **Done** i prosjektet
 
-### 10. Knytt PR til issue
+### 10. Issue-kobling i PR-er
 
 Når arbeidet resulterer i en PR:
 
