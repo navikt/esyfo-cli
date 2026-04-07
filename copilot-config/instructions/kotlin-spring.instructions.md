@@ -1,4 +1,5 @@
 ---
+description: "Nav-spesifikt for Spring Boot — @ProtectedWithClaims, NAIS env vars, testing"
 applyTo: "**/*.kt"
 ---
 

@@ -1,4 +1,5 @@
 ---
+description: "Nav-spesifikke Kotlin-standarder — Gradle Version Catalog, Flyway, logging, metrikker"
 applyTo: "**/*.kt"
 ---
 

@@ -1,4 +1,5 @@
 ---
+description: "Nav-spesifikt for Ktor — NAVident JWT-claim, Koin DI, CallLogging MDC"
 applyTo: "**/*.kt"
 ---
 

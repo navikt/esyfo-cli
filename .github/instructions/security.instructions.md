@@ -1,4 +1,5 @@
 ---
+description: "Nav-sikkerhetsstandarder — NAIS accessPolicy, hemmeligheter, PII, nettverkspolicyer"
 applyTo: "**"
 ---
 
