@@ -18,6 +18,7 @@ Du reviewer primært arbeid gjort av Opus/Claude-modeller. Ditt perspektiv er ve
 
 - **Kode-review**: oppgavebeskrivelse + kodeendringer
 - **Plan-review**: implementasjonsplan fra Souschef
+- **Plan-grill**: adversarial stress-test av en plan (aktiveres av Hovmester)
 
 ## Effektivitet
 
@@ -39,6 +40,24 @@ Når du mottar en plan:
 ```
 
 3. Fortsett deretter med `## Funn` i standardformatet nedenfor
+
+## Plan-grill arbeidsflyt
+
+Når Hovmester ber deg grille en plan:
+
+1. Les planen grundig og utforsk kodebasen for kontekst
+2. Still **3-5 ubehagelige spørsmål** — ett om gangen, med din egen anbefalte svar
+3. Fokuser på: feil antagelser, manglende kanttilfeller, skjulte avhengigheter, over-engineering, enklere alternativer
+4. Grav dypere når et svar avdekker usikkerhet
+5. Avslutt med dom:
+
+```markdown
+## Grill-dom
+- Status: 🟢 Solid / 🟡 Juster / 🔴 Tenk på nytt
+- Oppsummering: [Hva ble avdekket]
+- Beslutninger tatt: [Liste]
+- Gjenstående risiko: [Liste]
+```
 
 ## Kode-review arbeidsflyt
 

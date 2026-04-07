@@ -133,8 +133,8 @@ For medium/store oppgaver, presenter planen til brukeren med valg:
 
 **Håndtering:**
 - `godkjenn` → Gå til Steg 2
-- `grill` → Send planen til **inspektør-gpt** for kryssmodell plan-review (Opus planla, GPT utfordrer). Inspektøren starter med `## Planvurdering` og status: `🟢 Godkjent`, `🟡 Juster`, `🔴 Rework`. Juster ved behov.
-- `selv` → Vent på brukerens tilbakemelding. Brukeren kan også si `/grill-me` for å bli utfordret interaktivt.
+- `grill` → Send planen til **inspektør-gpt** i grill-modus (se inspektørens plan-grill-arbeidsflyt). Inspektøren utfordrer antagelser, presser på kanttilfeller og stiller ubehagelige spørsmål — ikke bare strukturert review. Hovmester videreformidler spørsmål og svar mellom inspektør og bruker til grillens dom er klar.
+- `selv` → Brukeren griller planen selv. Foreslå `/grill-me` for strukturert utspørring.
 
 ### Steg 2: Parser til faser med agenttildeling
 
