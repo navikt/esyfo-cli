@@ -17,10 +17,6 @@ repos:
     checks:
       - vite-mikrofrontend / build
   - reponame:
-      - esyfo-proxy
-    checks:
-      - build and push
-  - reponame:
       - esyfovarsel
       - lps-oppfolgingsplan-mottak
       - syfobrukertilgang
