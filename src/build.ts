@@ -1,8 +1,18 @@
-import { cpSync, rmSync } from "node:fs";
+import { cpSync, readdirSync, rmSync } from "node:fs";
+import { join } from "node:path";
 
 import chalk from "chalk";
 
 import { version } from "../esyfo-cli/package.json";
+
+const packageDir = "./esyfo-cli";
+const retainedPackageEntries = new Set([".gitignore", "bin", "package.json"]);
+
+for (const entry of readdirSync(packageDir)) {
+  if (!retainedPackageEntries.has(entry)) {
+    rmSync(join(packageDir, entry), { recursive: true, force: true });
+  }
+}
 
 const result = await Bun.build({
   entrypoints: ["src/index.ts"],
@@ -26,18 +36,11 @@ Bun.spawnSync("chmod +x ./esyfo-cli/bin/ecli".split(" "), {
   stdout: "inherit",
 });
 
-// Copy copilot-config templates into the distributable package (clean first to remove stale files)
-rmSync("./esyfo-cli/copilot-config", { recursive: true, force: true });
-cpSync("./copilot-config", "./esyfo-cli/copilot-config", { recursive: true });
-
 /* eslint-disable no-console */
 console.info(
   `Built ${version} (${chalk.green(`${(artifact.size / 1024).toFixed(0)}KB`)}) bytes to ${chalk.yellow(
     "./esyfo-cli/bin/ecli",
   )}`,
-);
-console.info(
-  `Copied copilot-config/ → ${chalk.yellow("./esyfo-cli/copilot-config/")}`,
 );
 
 // Copy config files into the distributable package

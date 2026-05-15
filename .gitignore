@@ -137,6 +137,4 @@ dist
 repos.json
 repos.md
 
-# Build artifact: templates copied during build
-esyfo-cli/copilot-config/
 .local-notes/

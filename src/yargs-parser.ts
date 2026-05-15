@@ -3,9 +3,6 @@
 import yargs, { type Argv } from "yargs";
 import { hideBin } from "yargs/helpers";
 import { cloneTeamRepos } from "./actions/clone-team-repos";
-import { copilotSetup } from "./actions/copilot-setup.ts";
-import { copilotStatus } from "./actions/copilot-status.ts";
-import { copilotSync } from "./actions/copilot-sync.ts";
 import { printLogo } from "./actions/logo";
 import { openPrs } from "./actions/prs";
 import { ourRepos } from "./actions/repos";
@@ -149,83 +146,4 @@ export const getYargsParser = (argv: string[]): Argv =>
           }),
       async (args) =>
         cloneTeamRepos(args.team, args.destination, args.useSubFolders),
-    )
-    .command(
-      "copilot",
-      "Administrer GitHub Copilot-oppsett for teamets repos",
-      (yargs) =>
-        yargs
-          .command(
-            "sync",
-            "Generer og distribuer Copilot-instruksjoner og skills til repos basert på detektert stack",
-            (yargs) =>
-              yargs
-                .option("repo", {
-                  alias: "r",
-                  description: "Spesifikt repo å synkronisere",
-                  type: "string",
-                })
-                .option("all", {
-                  alias: "a",
-                  description: "Synkroniser alle konfigurerte repos",
-                  type: "boolean",
-                  default: false,
-                })
-                .option("dry-run", {
-                  alias: "d",
-                  description:
-                    "Vis hva som ville endret seg (ingen faktiske endringer)",
-                  type: "boolean",
-                  default: false,
-                })
-                .check((argv) => {
-                  if (argv.all && argv.repo) {
-                    throw new Error(
-                      "Bruk enten --all eller --repo, ikke begge.",
-                    );
-                  }
-                  return true;
-                }),
-            async (args) =>
-              copilotSync({
-                repo: args.repo,
-                all: args.all,
-                dryRun: args.dryRun,
-              }),
-          )
-          .command(
-            "setup",
-            "[DEPRECATED] Bruk «copilot sync» i stedet",
-            () => {},
-            async () => copilotSetup(),
-          )
-          .hide("setup")
-          .command(
-            "status",
-            "Sjekk hvilke repos som mangler eller har utdatert Copilot-konfigurasjon",
-            (yargs) =>
-              yargs.option("repo", {
-                alias: "r",
-                description: "Sjekk et spesifikt repo",
-                type: "string",
-              }),
-            async (args) => copilotStatus({ repo: args.repo }),
-          )
-          .demandCommand(
-            1,
-            "Vennligst spesifiser en subkommando: sync eller status",
-          )
-          .epilog(
-            [
-              "Eksempler:",
-              "  ecli copilot status              Sjekk status for alle repos",
-              "  ecli copilot status -r mitt-repo Sjekk ett spesifikt repo",
-              "  ecli copilot sync -r mitt-repo   Synkroniser ett repo",
-              "  ecli copilot sync --all          Synkroniser alle repos",
-              "  ecli copilot sync --dry-run      Forhåndsvis endringer uten å pushe",
-              "",
-              "Tips: Bruk <kommando> --help for flere detaljer, f.eks. ecli copilot sync --help",
-            ].join("\n"),
-          ),
-      () => {},
     );
