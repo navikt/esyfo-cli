@@ -71,7 +71,6 @@ Eksempler:
 ```bash
 mise run clone-repos --help
 mise run prs --help
-mise run copilot-sync --help
 mise run repos --help
 mise run repos-md --help
 ```
@@ -95,86 +94,8 @@ Den siste varianten inkluderer draft pull requests.
 * `sync-file` - Kopier filer på tvers av repos (oppretter branch, commit og PR)
 * `repos` - List alle ikke-arkiverte repos for team-esyfo
 * `clone-team-repos` - Klon alle repos eid av teamet til en lokal mappe
-* `copilot` - Administrer GitHub Copilot-oppsett for teamets repos
 
 <!-- COMPUTER SAYS DON'T TOUCH THIS END -->
-
-## GitHub Copilot for teamet 🍽️
-
-Vi har et automatisert oppsett som gir GitHub Copilot riktig kontekst for alle våre repos. CLI-et detekterer stack (Ktor/Spring Boot, Next.js, TanStack, etc.) og genererer skreddersydde instruksjoner, prompts, skills og agenter.
-
-### Slik fungerer det
-
-```
-┌─────────────────────────────────────────────────────────┐
-│  ecli copilot sync      → Distribuerer agenter + config  │
-│  ecli copilot status    → Sjekker hva som mangler       │
-└─────────────────────────────────────────────────────────┘
-```
-
-**Lag 1 — Agenter + repo-kontekst (distribuert via `copilot sync`)**
-Genereres og distribueres til hvert repo av `ecli copilot sync` basert på detektert stack. Havner i `.github/` i hvert repo:
-
-| Agent | Rolle | Modell |
-|-------|-------|--------|
-| **@hovmester** 🍽️ | Tar imot bestillingen og delegerer til kjøkkenet | Opus |
-| **@kokk** 🔪 | Smeller sammen koden — rask, brutal og effektiv | GPT |
-| **@mattilsynet** 🔍 | Uanmeldt inspeksjon — code review og kvalitetssikring | GPT |
-| *@souschef* 📋 | *(internt)* Planlegger menyen — brukes via hovmester | Opus |
-| *@konditor* 🎂 | *(internt)* Pynt og finish — UI/UX med Aksel | Gemini |
-| *@inspektør-claude* 🔬 | *(internt)* Inspeksjon med Claude-modell | Claude |
-| *@inspektør-gpt* 🔬 | *(internt)* Inspeksjon med GPT-modell | GPT |
-
-> **Tips**: Bruk `@hovmester` for alle oppgaver — den koordinerer planlegging, implementasjon og code review automatisk via spesialiserte sub-agenter.
-
-I tillegg til agenter distribueres:
-
-- `copilot-instructions.md` — Repo-spesifikke regler (scaffold — opprettes én gang, du eier den selv)
-- `instructions/*.instructions.md` — Delte team-standarder (Kotlin, TypeScript, sikkerhet, NAIS, etc.)
-- `prompts/*.prompt.md` — Gjenbrukbare prompts (f.eks. NAIS-manifest)
-- `skills/*/SKILL.md` — Oppskrifter for vanlige oppgaver (f.eks. Flyway-migrering)
-
-**Lag 2 — MCP/plattform-verktøy (lokalt)**
-~~[Context7](https://context7.com/) er en MCP-server som gir agentene tilgang til oppdatert API-dokumentasjon for
-biblioteker og rammeverk (React, Ktor, Spring, etc.) — rett i kontekstvinduet.~~
-**Midlertidig deaktivert** — krever databehandleravtale (DPA) før bruk i NAV.
-Koden er beholdt i `copilot-setup.ts` og kan reaktiveres når avtalen er på plass.
-
-### Kom i gang med Copilot
-
-```bash
-# 1. Sjekk hvilke repos som mangler konfig
-ecli copilot status
-
-# 2. Synkroniser ett spesifikt repo
-ecli copilot sync -r mitt-repo
-
-# 3. Forhåndsvis endringer uten å pushe
-ecli copilot sync --dry-run -r mitt-repo
-
-# 4. Synkroniser alle repos (krever bekreftelse)
-ecli copilot sync --all
-```
-
-> **Merk**: `ecli copilot setup` er deprecated — agenter distribueres nå direkte til hvert repo via `copilot sync`.
-
-### Hva skjer under sync?
-
-1. CLI-et kloner/puller alle team-repos
-2. Inspiserer `build.gradle.kts`, `package.json`, `nais.yaml` etc. for å detektere stack
-3. Setter sammen riktige templates basert på profil (backend/frontend/microfrontend)
-4. Oppretter branch, committer endringer og pusher
-5. Oppretter PR med auto-merge for hvert repo med endringer
-
-### Tilpasse repo-instruksjoner
-
-`copilot-instructions.md` er **din fil** — CLI-et oppretter den kun første gang. Legg til repo-spesifikk kontekst som:
-
-- Hva appen gjør og hvem den er for
-- Lokale konvensjoner som avviker fra teamstandard
-- Lenker til relevant dokumentasjon
-
-Filene i `instructions/`, `prompts/` og `skills/` er CLI-managed og oppdateres ved neste sync. Ikke rediger disse manuelt.
 
 ### Utvikling
 

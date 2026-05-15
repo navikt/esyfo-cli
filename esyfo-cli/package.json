@@ -8,7 +8,6 @@
     "files": [
         "package.json",
         "bin/ecli",
-        "copilot-config/**",
         "config.yml",
         "skip-enforce-admins.yml"
     ]
