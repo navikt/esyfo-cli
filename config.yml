@@ -19,7 +19,6 @@ repos:
   - reponame:
       - esyfovarsel
       - lps-oppfolgingsplan-mottak
-      - syfobrukertilgang
       - syfomotebehov
       - syfooppfolgingsplanservice
     checks:
